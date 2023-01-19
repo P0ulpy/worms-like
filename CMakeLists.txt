@@ -12,5 +12,4 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_subdirectory(Engine)
-add_subdirectory(Editor)
 add_subdirectory(Game)
