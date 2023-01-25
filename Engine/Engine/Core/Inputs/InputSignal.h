@@ -30,12 +30,17 @@ struct EventSignalType
 
     bool operator==(const EventSignalType& other) const
     {
-        return eventType == other.eventType && keyEvent.code == other.keyEvent.code;
+        return eventType == other.eventType && keyEvent.code == other.keyEvent.code && keyEvent.alt == other.keyEvent.alt && keyEvent.control == other.keyEvent.control && keyEvent.shift == other.keyEvent.shift && keyEvent.system == other.keyEvent.system;
     }
 
     bool operator<(const EventSignalType& other) const
     {
         return eventType < other.eventType && keyEvent.code < other.keyEvent.code;
+    }
+
+    EventSignalType Null()
+    {
+        return EventSignalType { sf::Event::EventType::Count, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } };
     }
 };
 
@@ -52,7 +57,10 @@ public:
     }
     EventSignalType GetEventSignalType(EventType eventType)
     {
-        return s_eventMap[eventType];
+        if(s_eventMap.find(eventType) != s_eventMap.end())
+            return s_eventMap[eventType];
+
+        return EventSignalType().Null();
     }
     void SetEventSignalType(EventType eventType, EventSignalType eventSignalType)
     {
@@ -89,7 +97,7 @@ public:
     }
 
     size_t Connect(const EventSignalType& eventSignalType, const Observer& observer) const {
-        m_observers[eventSignalType].push_back(std::make_pair(++m_currentId, observer));
+        m_observers[eventSignalType].emplace_back(++m_currentId, observer);
         return m_currentId;
     }
 
@@ -121,6 +129,9 @@ public:
     {
         auto PreviousEventSignalType = m_inputConfig->GetEventSignalType(eventType);
 
+        if(PreviousEventSignalType == EventSignalType().Null())
+            return;
+
         auto it = m_observers.find(PreviousEventSignalType);
         auto vector = it->second;
 
@@ -150,5 +161,6 @@ private:
 
 };
 
+#include "InputSignal.tpp"
 
 #endif //POPOSIBENGINE_INPUTSIGNAL_H
