@@ -24,7 +24,10 @@ set(ENGINE_HEADERS
         Engine/Core/Components/SpriteRenderer.hpp
         Engine/ECS/ComponentSystem/ComponentSystem.tpp
         Engine/ECS/ComponentSystem/ComponentSystem.hpp
-        Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h)
+        Engine/Core/Inputs/InputSignal.cpp
+        Engine/Core/Inputs/InputSignal.h
+        Engine/Core/Inputs/InputSignal.tpp
+        )
 
 set(ENGINE_SOURCES
         Engine/Core/Application/EngineApplication.cpp
@@ -43,7 +46,7 @@ set(ENGINE_SOURCES
         Engine/Core/Inputs/WindowEvents.cpp
         Engine/Core/Components/Transform.cpp
         Engine/Core/Components/SpriteRenderer.cpp
-        Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h)
+        Engine/Core/Inputs/InputSignal.cpp)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 
