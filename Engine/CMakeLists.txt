@@ -28,6 +28,7 @@ set(ENGINE_HEADERS
         Engine/Renderer/AllRenderComponents.hpp
 
         Engine/AssetLoader/AssetLoader.hpp
+        Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h)
 )
 
 set(ENGINE_SOURCES
@@ -49,6 +50,7 @@ set(ENGINE_SOURCES
         Engine/Renderer/Renderer.cpp
 
         Engine/AssetLoader/AssetLoader.cpp
+        Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h)
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
