@@ -24,7 +24,6 @@ set(ENGINE_HEADERS
         Engine/Core/Components/SpriteRenderer.hpp
         Engine/ECS/ComponentSystem/ComponentSystem.tpp
         Engine/ECS/ComponentSystem/ComponentSystem.hpp
-        Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/InputSignal.h
         Engine/Core/Inputs/InputSignal.tpp
         )
