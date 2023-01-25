@@ -29,6 +29,9 @@ set(ENGINE_HEADERS
 
         Engine/AssetLoader/AssetLoader.hpp
         Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h)
+        Engine/Core/Inputs/InputSignal.cpp
+        Engine/Core/Inputs/InputSignal.h
+        Engine/Core/Inputs/InputSignal.tpp
 )
 
 set(ENGINE_SOURCES
@@ -51,6 +54,7 @@ set(ENGINE_SOURCES
 
         Engine/AssetLoader/AssetLoader.cpp
         Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h)
+        Engine/Core/Inputs/InputSignal.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)

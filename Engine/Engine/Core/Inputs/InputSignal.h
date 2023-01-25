@@ -93,6 +93,9 @@ public:
         return m_currentId;
     }
 
+    template<typename T>
+    size_t Connect(const EventSignalType& eventSignalType, T* instance, void(T::*method)());
+
     void Disconnect(const EventSignalType& eventSignalType, size_t id) const {
         auto it = m_observers.find(eventSignalType);
         if(it != m_observers.end()) {
