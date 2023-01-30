@@ -11,82 +11,18 @@
 #include <map>
 #include <tuple>
 #include <vector>
-#include "SFML/Window/Event.hpp"
+#include <variant>
 
-enum class EventType
-{
-    PlayerUp = 0,
-    PlayerDown,
-    PlayerLeft,
-    PlayerRight,
-    PlayerShoot,
-    OpenInventory
-};
-
-struct EventSignalType
-{
-    sf::Event::EventType eventType = sf::Event::EventType::Count;
-    sf::Event::KeyEvent keyEvent = sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true };
-
-    bool operator==(const EventSignalType& other) const
-    {
-        return eventType == other.eventType && keyEvent.code == other.keyEvent.code && keyEvent.alt == other.keyEvent.alt && keyEvent.control == other.keyEvent.control && keyEvent.shift == other.keyEvent.shift && keyEvent.system == other.keyEvent.system;
-    }
-
-    bool operator<(const EventSignalType& other) const
-    {
-        return eventType < other.eventType && keyEvent.code < other.keyEvent.code;
-    }
-
-    EventSignalType Null()
-    {
-        return EventSignalType { sf::Event::EventType::Count, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } };
-    }
-};
-
-class InputConfig {
-public:
-    void Init()
-    {
-        s_eventMap[EventType::PlayerUp] = EventSignalType { sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::Z, false, false, false, false } };
-        s_eventMap[EventType::PlayerDown] = EventSignalType { sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::S, false, false, false, false } };
-        s_eventMap[EventType::PlayerLeft] = EventSignalType { sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::Q, false, false, false, false } };
-        s_eventMap[EventType::PlayerRight] = EventSignalType { sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::D, false, false, false, false } };
-        s_eventMap[EventType::PlayerShoot] = EventSignalType { sf::Event::EventType::MouseLeft, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } };
-        s_eventMap[EventType::OpenInventory] = EventSignalType { sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::I, false, false, false, false } };
-    }
-    EventSignalType GetEventSignalType(EventType eventType)
-    {
-        if(s_eventMap.find(eventType) != s_eventMap.end())
-            return s_eventMap[eventType];
-
-        return EventSignalType().Null();
-    }
-    void SetEventSignalType(EventType eventType, EventSignalType eventSignalType)
-    {
-        s_eventMap[eventType] = eventSignalType;
-    }
-public:
-    InputConfig()
-    {
-        Init();
-    }
-
-    ~InputConfig()
-    {
-        s_eventMap.clear();
-    }
-
-private:
-    std::map<EventType, EventSignalType> s_eventMap;
-};
+#include "Connection.hpp"
+#include "InputConfig.hpp"
+#include <stdexcept>
 
 class InputSignal {
     friend class InputConfig;
 
-    using Observer =  std::function<void()>;
-    using Observers = std::vector<std::pair<size_t, Observer>>;
-    using ObserversMap = std::map<EventSignalType, Observers>;
+    using Callback = typename Connection::Callback;
+    using Observers = std::vector<Connection*>;
+    using ObserversMap = std::map<EventType, Observers>;
 
 public:
     static InputSignal* GetInstance() {
@@ -96,47 +32,110 @@ public:
         return m_inputSignal;
     }
 
-    size_t Connect(const EventSignalType& eventSignalType, const Observer& observer) const {
-        m_observers[eventSignalType].emplace_back(++m_currentId, observer);
-        return m_currentId;
+    void connect(EventType eventType, const Callback& callback) const
+    {
+        auto* connection = new Connection(callback,
+                                          typename Connection::StateType{ typename Connection::Managed {} },
+                                          const_cast<InputSignal*>(this));
+        m_observers[eventType].push_back(connection);
+    }
+    template<typename Type>
+    void connect(EventType eventType, Type* instance, void (Type::* fn)()) const
+    {
+        auto callback = [instance, fn]() { (instance->*fn)(); };
+        connect(eventType, callback);
+    }
+    template<typename Type>
+    void connect(EventType eventType, Type* instance, void (Type::* fn)() const) const
+    {
+        auto callback = [instance, fn]() { (instance->*fn)(); };
+        connect(eventType, callback);
     }
 
-    template<typename T>
-    size_t Connect(const EventSignalType& eventSignalType, T* instance, void(T::*method)());
+    ScopedConnection connectScoped(EventType eventType, const Callback& callback) const
+    {
+        auto* connection = new Connection(callback,
+                                          typename Connection::StateType{ typename Connection::Scoped {} },
+                                          const_cast<InputSignal*>(this));
+        m_observers[eventType].push_back(connection);
+        return ScopedConnection{ eventType, connection };
+    }
+    template<typename Type>
+    ScopedConnection connectScoped(EventType eventType, Type* instance, void (Type::* fn)()) const
+    {
+        auto callback = [instance, fn]() { (instance->*fn)(); };
+        return connectScoped(eventType, callback);
+    }
+    template<typename Type>
+    ScopedConnection connectScoped(EventType eventType, Type* instance, void (Type::* fn)() const) const
+    {
+        auto callback = [instance, fn]() { (instance->*fn)(); };
+        return connectScoped(eventType, callback);
+    }
 
-    void Disconnect(const EventSignalType& eventSignalType, size_t id) const {
-        auto it = m_observers.find(eventSignalType);
-        if(it != m_observers.end()) {
-            for(int i = it->second.size() - 1; i >= 0; --i) {
-                if(it->second[i].first == id) {
-                    it->second.erase(it->second.end() - i);
-                    break;
-                }
-            }
+    SlotConnection connectSlot(EventType eventType, const Callback& callback) const
+    {
+        auto signal = const_cast<InputSignal*>(this);
+        return SlotConnection{ *signal, eventType, callback };
+    }
+    template<typename Type>
+    SlotConnection connectSlot(EventType eventType, Type* instance, void (Type::* fn)()) const
+    {
+        auto callback = [instance, fn]() { (instance->*fn)(); };
+        return connectSlot(eventType, callback);
+    }
+    template<typename Type>
+    SlotConnection connectSlot(EventType eventType, Type* instance, void (Type::* fn)() const) const
+    {
+        auto callback = [instance, fn]() { (instance->*fn)(); };
+        return connectSlot(eventType, callback);
+    }
+
+    void Disconnect(const EventType& eventType, Connection* connection) const {
+        auto it = m_observers.find(eventType);
+        if (it != m_observers.end())
+        {
+            auto connectionIt = std::find_if(it->second.begin(), it->second.end(),
+                                             [&](Connection* c) { return c == connection; });
+
+            if (connectionIt == it->second.end())
+                throw std::runtime_error("Connection is not attached to this signal");
+
+            match(connection->m_state,
+                  [&](typename Connection::Managed) { throw std::runtime_error("Connection is managed typed"); },
+                  [&](typename Connection::Scoped) { it->second.erase(connectionIt); },
+                  [&](typename Connection::Zombified) {});
+
+            delete connection;
+            connection = nullptr;
         }
     }
 
     void Emit(const EventSignalType& eventSignalType) const {
-        auto it = m_observers.find(eventSignalType);
-        if(it != m_observers.end()) {
-            for(auto& observer : it->second) {
-                observer.second();
-            }
+        auto eventTypes = m_inputConfig->GetEventTypes(eventSignalType);
+
+        if (eventTypes.empty())
+            return;
+
+        for (auto eventType : eventTypes)
+        {
+            auto it = m_observers.find(eventType);
+            if (it != m_observers.end())
+                for (auto observer : it->second)
+                    observer->m_callback();
         }
+    }
+
+    void operator()(const EventSignalType& eventSignalType) const {
+        Emit(eventSignalType);
     }
 
     void ChangeInputConfig(EventType eventType, EventSignalType eventSignalType)
     {
         auto PreviousEventSignalType = m_inputConfig->GetEventSignalType(eventType);
 
-        if(PreviousEventSignalType == EventSignalType().Null())
+        if (PreviousEventSignalType == EventSignalType().Null())
             return;
-
-        auto it = m_observers.find(PreviousEventSignalType);
-        auto vector = it->second;
-
-        m_observers.erase(it);
-        m_observers[eventSignalType] = vector;
 
         m_inputConfig->SetEventSignalType(eventType, eventSignalType);
     }
@@ -148,7 +147,14 @@ private:
     }
     ~InputSignal()
     {
-        m_observers.clear();
+        for (auto& observer : m_observers) {
+            for (auto& connection : observer.second) {
+                match(connection->m_state,
+                      [&](typename Connection::Managed) { delete connection; },
+                      [&](typename Connection::Scoped) { connection->m_state = typename Connection::Zombified{}; },
+                      [&](typename Connection::Zombified) { delete connection; });
+            }
+        }
     }
 
 
@@ -157,10 +163,7 @@ private:
     static InputSignal* m_inputSignal;
 
     mutable ObserversMap m_observers;
-    mutable size_t m_currentId = 48;
 
 };
-
-#include "InputSignal.tpp"
 
 #endif //POPOSIBENGINE_INPUTSIGNAL_H
