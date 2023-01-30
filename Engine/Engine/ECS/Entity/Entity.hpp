@@ -14,9 +14,9 @@ namespace Engine {
     public:
         Entity() = default;
         Entity(EntityHandle handle);
-        Entity(const Entity& other) = default;
 
-        /*template<typename T>
+        /*
+        template<typename T>
         T* AddComponent();
 
         template<typename T>
@@ -26,7 +26,8 @@ namespace Engine {
         bool HasComponent();
 
         template<typename T>
-        void RemoveComponent();*/
+        void RemoveComponent();
+         */
 
         [[nodiscard]] inline EntityHandle GetHandle() const { return m_handle; }
 

@@ -26,9 +26,9 @@ std::string CurrentDateTimeToString()
 
 namespace Engine
 {
-    std::mutex Logger::_mutex;
-    std::list<LogEntry> Logger::messages;
-    std::unordered_map<std::thread::id, std::string> Logger::_threadsLabels;
+    std::mutex Logger::_mutex {};
+    std::list<LogEntry> Logger::messages {};
+    std::unordered_map<std::thread::id, std::string> Logger::_threadsLabels {};
 
     void Logger::Log(const std::string_view& message)
     {

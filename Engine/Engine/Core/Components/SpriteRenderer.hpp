@@ -5,11 +5,11 @@
 #ifndef POPOSIBENGINE_SPRITERENDERER_HPP
 #define POPOSIBENGINE_SPRITERENDERER_HPP
 
-#include "../../ECS/Component/Component.hpp"
-
-// TODO : delete me, i'm for tests purposes
 #include <SFML/Graphics.hpp>
+
+#include "../../ECS/Component/Component.hpp"
 #include "Transform.hpp"
+// TODO : delete me, i'm for tests purposes
 #include "../Application/EngineApplication.hpp"
 
 namespace Engine {
