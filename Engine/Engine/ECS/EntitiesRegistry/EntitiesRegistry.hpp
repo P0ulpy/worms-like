@@ -5,16 +5,14 @@
 #ifndef PATHFINDER_ENTITIESREGISTRY_HPP
 #define PATHFINDER_ENTITIESREGISTRY_HPP
 
-#include "../Entity/Entity.hpp"
-#include "../Component/Component.hpp"
-#include "../../Core/Logger/Logger.hpp"
-#include "ComponentSystem.hpp"
-#include "SFML/Graphics/RenderTarget.hpp"
-
 #include <unordered_map>
 #include <map>
 #include <stack>
-#include <sstream>
+
+#include <SFML/Graphics/RenderTarget.hpp>
+
+#include "../ComponentSystem/ComponentSystem.hpp"
+#include "../../Core/RTTI/ClassType.hpp"
 
 namespace Engine
 {
@@ -24,13 +22,12 @@ namespace Engine
     class EntitiesRegistry
     {
     public:
-
         EntityHandle CreateEntity();
 
         void DestroyEntity(EntityHandle handle);
 
         template<class T>
-        T* AddComponentTo(EntityHandle entityHandle, Scene* scene);
+        T* AddComponentTo(EntityHandle entityHandle);
 
         template<class T>
         T* GetComponentOf(EntityHandle entityHandle);
@@ -56,7 +53,10 @@ namespace Engine
         ComponentSystem<T>* GetSystem();
 
     private:
-        std::unordered_map<RTTI*, std::unique_ptr<IComponentSystem>> m_componentSystems;
+        std::unordered_map<ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
+
+        std::unordered_map<ClassType*, IComponentSystem*> m_updatableSystems;
+        std::unordered_map<ClassType*, IComponentSystem*> m_renderableSystems;
 
         void View(IComponentSystem::ViewCallback callback);
     };

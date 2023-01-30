@@ -13,6 +13,10 @@ namespace Engine
     class EngineApplication
     {
     public:
+        static std::unique_ptr<EngineApplication> s_Instance;
+        static EngineApplication* Get();
+
+    public:
         EngineApplication();
         ~EngineApplication();
 
@@ -22,6 +26,7 @@ namespace Engine
         void PushLayer(ApplicationLayer* layer);
         void RemoveLayer(ApplicationLayer* layer);
 
+        inline sf::RenderWindow& GetWindow() { return m_window; }
         inline ScenesLayer& GetScenesLayer() { return m_scenesLayer; }
 
     private:
@@ -30,9 +35,9 @@ namespace Engine
         bool m_running = true;
         Timestep m_LastFrameTime = 0;
 
-        // TODO : use a custom stack where we can iterate throw
-        std::vector<ApplicationLayer*> m_layers { nullptr };
-        ScenesLayer m_scenesLayer { m_window };
+        // TODO : use a custom stack where we can iterate through
+        std::vector<ApplicationLayer*> m_layers {};
+        ScenesLayer m_scenesLayer { "Scenes Layer" };
     };
 }
 

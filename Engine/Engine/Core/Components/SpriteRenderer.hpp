@@ -10,13 +10,14 @@
 // TODO : delete me, i'm for tests purposes
 #include <SFML/Graphics.hpp>
 #include "Transform.hpp"
+#include "../Application/EngineApplication.hpp"
 
 namespace Engine {
 
     class SpriteRenderer : public Engine::Component
     {
     public:
-        DECLARE_RTTI(SpriteRenderer, Engine::Component)
+        DECLARE_CLASS_TYPE(SpriteRenderer, Engine::Component)
 
         sf::Sprite RenderSprite;
         sf::Texture* Texture = nullptr;
@@ -30,7 +31,13 @@ namespace Engine {
 
         void OnStart()
         {
-            transform = GetEntity().GetComponent<Transform>();
+            // TODO : delete me, i'm for tests purposes
+
+            transform = EngineApplication::Get()
+                    ->GetScenesLayer()
+                    .GetActiveScene()
+                    ->GetEntitiesRegistry()
+                    .GetComponentOf<Transform>(GetEntity().GetHandle());
         }
 
         void OnRender(sf::RenderTarget &renderTarget) const

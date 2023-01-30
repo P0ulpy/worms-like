@@ -8,13 +8,14 @@ namespace Engine
 {
     Entity Scene::CreateEntity()
     {
-        Entity entity = { m_registry.CreateEntity(), this };
+        Entity entity = { m_registry.CreateEntity() };
         return entity;
     }
 
-    void Scene::DestroyEntity(Entity entity)
+    void Scene::DestroyEntity(const Entity& entity) { DestroyEntity(entity.GetHandle()); }
+    void Scene::DestroyEntity(const EntityHandle& entityHandle)
     {
-        m_registry.DestroyEntity(entity.GetHandle());
+        m_registry.DestroyEntity(entityHandle);
     }
 
     void Scene::OnStart() {
@@ -30,13 +31,9 @@ namespace Engine
 
     }
 
-    Entity Scene::GetEntityByHandle(const EntityHandle &handle)
-    {
-        return Entity(handle, this);
-    }
-
     void Scene::RenderScene(sf::RenderTarget &renderTarget)
     {
         m_registry.RenderAllRenderer(renderTarget);
     }
+
 } // Engine

@@ -1,19 +1,6 @@
-/*
-#include <Engine/Engine.hpp>
-
-Engine::EngineApplication app;
-
-int main(int argc, char* argv[])
-{
-    app.Run();
-    return 0;
-}
-*/
-
 #include <Engine/Engine.hpp>
 
 #include <SFML/Graphics.hpp>
-#include <array>
 
 class App : public Engine::EngineApplication
 {
@@ -22,7 +9,8 @@ class App : public Engine::EngineApplication
 
 App app;
 
-/*class Transform : public Engine::Component
+/*
+class Transform : public Engine::Component
 {
 public:
     DECLARE_RTTI(SpriteRenderer, Engine::Component)
@@ -91,7 +79,7 @@ public:
 
     void OnAttach() override
     {
-        // Texting purposes
+        // Testing purposes
 
         auto& sceneLayer = app.GetSceneLayer();
         auto& scene = sceneLayer.GetScene();
@@ -110,14 +98,15 @@ public:
     {
 
     }
-
+*
     void OnUpdate(Engine::Timestep ts) override {  };
     void OnImGuiRender() override { };
 };
 
 PathfinderLayer pathfinderLayer;
 */
-int main()
+
+int main(int argc, char* argv[])
 {
     //app.PushLayer(&pathfinderLayer);
     app.Run();

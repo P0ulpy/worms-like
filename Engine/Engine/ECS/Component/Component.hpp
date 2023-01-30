@@ -6,23 +6,22 @@
 #define PATHFINDER_COMPONENT_HPP
 
 #include "../../Core/UUID.hpp"
-#include "../../Core/RTTI/RTTI.hpp"
+#include "../../Core/RTTI/ClassType.hpp"
+#include "../Handles/Handles.hpp"
 #include "../Entity/Entity.hpp"
 
 namespace Engine
 {
-    using ComponentHandle = Core::UUID;
-
     namespace ComponentID
     {
         using ID = uint64_t;
         constexpr ID Null = 0;
     }
 
-    class Component : public IHasRTTI
+    class Component : public IClassType
     {
     public:
-        DECLARE_RTTI(Component, NoRTTIAncestor)
+        DECLARE_CLASS_TYPE(Component, NoClassTypeAncestor)
 
     public:
         Component() = default;
@@ -37,13 +36,11 @@ namespace Engine
         void OnDestroy();
         */
 
-        [[nodiscard]] Entity GetEntity() const { return m_entity; }
+        [[nodiscard]] Entity GetEntity() const { return { m_entityHandle }; }
 
     private:
         ComponentHandle m_handle = ComponentHandle::Null;
-        Entity m_entity { EntityHandle::Null, nullptr };
-
-        friend class EntitiesRegistry;
+        EntityHandle m_entityHandle = EntityHandle::Null;
 
         template <class TComponent>
         friend class ComponentSystem;

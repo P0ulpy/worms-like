@@ -1,12 +1,24 @@
 #include "EngineApplication.hpp"
 #include "../Inputs/WindowEvents.hpp"
 
+std::unique_ptr<Engine::EngineApplication> Engine::EngineApplication::s_Instance { nullptr };
+
+Engine::EngineApplication* Engine::EngineApplication::Get()
+{
+    return s_Instance.get();
+}
+
 Engine::EngineApplication::EngineApplication()
     : m_window(sf::RenderWindow(
     sf::VideoMode(500, 500),
     "Engine Window",
     sf::Style::Close | sf::Style::Resize))
 {
+    if(!s_Instance)
+        s_Instance = std::make_unique<EngineApplication>();
+    else
+        throw std::runtime_error("EngineApplication already exists");
+
     PushLayer(&m_scenesLayer);
 }
 

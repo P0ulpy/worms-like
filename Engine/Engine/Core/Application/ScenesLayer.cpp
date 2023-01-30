@@ -3,14 +3,15 @@
 //
 
 #include "ScenesLayer.hpp"
+#include "EngineApplication.hpp"
 
 #include <memory>
 
 namespace Engine
 {
-    ScenesLayer::ScenesLayer(sf::RenderTarget &renderTarget, const std::string_view &name)
+    ScenesLayer::ScenesLayer(const std::string_view &name)
         : ApplicationLayer::ApplicationLayer(name)
-        , m_renderTarget(renderTarget)
+        , _renderTarget(EngineApplication::Get()->GetWindow())
     {}
 
     void ScenesLayer::OnAttach() {
@@ -20,7 +21,7 @@ namespace Engine
     void ScenesLayer::OnUpdate(Timestep ts)
     {
         m_activeScene->OnUpdate(ts);
-        m_activeScene->RenderScene(m_renderTarget);
+        m_activeScene->RenderScene(_renderTarget);
     }
 
 } // Engine

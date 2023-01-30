@@ -1,28 +1,22 @@
 //
-// Created by Flo on 25/11/2022.
+// Created by Flo on 30/01/2023.
 //
 
-#ifndef PATHFINDER_ENTITY_HPP
-#define PATHFINDER_ENTITY_HPP
+#ifndef POPOSIBENGINE_ENTITY_HPP
+#define POPOSIBENGINE_ENTITY_HPP
 
-#include "../../Core/UUID.hpp"
+#include "../Handles/Handles.hpp"
 
-namespace Engine
-{
-    using EntityHandle = Core::UUID;
-
-    class Scene;
+namespace Engine {
 
     class Entity
     {
-    protected:
-        Entity() = default;
-
     public:
-        Entity(EntityHandle handle, Scene* scene);
+        Entity() = default;
+        Entity(EntityHandle handle);
         Entity(const Entity& other) = default;
 
-        template<typename T>
+        /*template<typename T>
         T* AddComponent();
 
         template<typename T>
@@ -32,25 +26,37 @@ namespace Engine
         bool HasComponent();
 
         template<typename T>
-        void RemoveComponent();
-
-        inline Scene* GetScene() { return m_Scene; }
+        void RemoveComponent();*/
 
         [[nodiscard]] inline EntityHandle GetHandle() const { return m_handle; }
 
     private:
         EntityHandle m_handle = EntityHandle::Null;
-        Scene* m_Scene = nullptr;
 
-        template <class TComponent>
-        friend class ComponentSystem;
-        friend class EntitiesRegistry;
-        friend class Scene;
         friend class Component;
     };
 
+    /*template<typename T>
+    T *Entity::AddComponent()
+    {
+        return m_Scene->GetEntitiesRegistry().AddComponentTo<T>(m_handle);
+    }
+
+    template<typename T>
+    T *Entity::GetComponent() {
+        return m_Scene->GetEntitiesRegistry().GetComponentOf<T>(m_handle);
+    }
+
+    template<typename T>
+    bool Entity::HasComponent() {
+        return m_Scene->GetEntitiesRegistry().HasComponent<T>(m_handle);
+    }
+
+    template<typename T>
+    void Entity::RemoveComponent() {
+        m_Scene->GetEntitiesRegistry().RemoveComponentOf<T>(m_handle);
+    }*/
+
 } // Engine
 
-#include "Entity.tpp"
-
-#endif //PATHFINDER_ENTITY_HPP
+#endif //POPOSIBENGINE_ENTITY_HPP

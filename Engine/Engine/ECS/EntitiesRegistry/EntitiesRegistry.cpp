@@ -26,7 +26,7 @@ namespace Engine
     {
         for(auto& [rtti, system] : m_componentSystems)
         {
-            system->Start();
+            //system->Start();
         }
     }
 
@@ -34,7 +34,7 @@ namespace Engine
     {
         for(auto& [rtti, system] : m_componentSystems)
         {
-            system->Update(deltaTime);
+            //system->Update(deltaTime);
         }
     }
 
@@ -42,7 +42,7 @@ namespace Engine
     {
         for(auto& [rtti, system] : m_componentSystems)
         {
-            system->Render(renderTarget);
+            //system->Render(renderTarget);
         }
     }
 

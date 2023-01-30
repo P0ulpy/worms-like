@@ -5,9 +5,10 @@
 #ifndef PATHFINDER_SCENESLAYER_HPP
 #define PATHFINDER_SCENESLAYER_HPP
 
+#include <memory>
 #include "SFML/Graphics/RenderTarget.hpp"
 #include "ApplicationLayer.hpp"
-#include "../Scene/Scene.hpp"
+#include "../../ECS/Scene/Scene.hpp"
 
 namespace Engine
 {
@@ -15,15 +16,17 @@ namespace Engine
     {
     public:
         ScenesLayer() = delete;
-        explicit ScenesLayer(sf::RenderTarget& renderTarget, const std::string_view& name = "Layer");
+        explicit ScenesLayer(const std::string_view& name = "Layer");
 
         void OnAttach() override;
         void OnDetach() override {};
         void OnUpdate(Timestep ts) override;
 
+        Scene* GetActiveScene() const { return m_activeScene.get(); }
+
     private:
-        std::unique_ptr<Scene> m_activeScene;
-        sf::RenderTarget& m_renderTarget;
+        std::unique_ptr<Scene> m_activeScene { nullptr };
+        sf::RenderTarget& _renderTarget;
     };
 
 } // Engine

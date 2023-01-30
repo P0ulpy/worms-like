@@ -1,15 +1,13 @@
 //
-// Created by Flo on 25/11/2022.
+// Created by Flo on 30/01/2023.
 //
 
 #include "Entity.hpp"
-#include "../../Core/Scene/Scene.hpp"
 
 namespace Engine
 {
-    Entity::Entity(EntityHandle handle, Scene *scene)
-        : m_handle(handle)
-        , m_Scene(scene)
+    Entity::Entity(EntityHandle handle)
+            : m_handle(handle)
     {}
 
 } // Engine

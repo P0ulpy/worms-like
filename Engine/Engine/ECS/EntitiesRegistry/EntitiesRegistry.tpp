@@ -1,3 +1,5 @@
+#pragma once
+
 #include "EntitiesRegistry.hpp"
 
 #include <memory>
@@ -5,10 +7,10 @@
 namespace Engine
 {
     template<class T>
-    T *EntitiesRegistry::AddComponentTo(EntityHandle entityHandle, Scene *scene)
+    T *EntitiesRegistry::AddComponentTo(EntityHandle entityHandle)
     {
         return static_cast<T*>(GetSystem<T>()
-                ->Add(entityHandle, scene));
+                ->Add(entityHandle));
     }
 
     template<class T>
@@ -39,19 +41,28 @@ namespace Engine
                 ->View(callback);
     }
 
-    template<class TSystem, class T>
+    template<class TSystem, class TComponent>
     void EntitiesRegistry::AddSystem()
     {
-        // TODO : pre instanciate Core component systems to be close in memory
-        m_componentSystems.insert_or_assign(T::getClassRTTI(), std::unique_ptr<TSystem>(new TSystem()));
+        auto newSystem = new TSystem();
+
+        m_componentSystems.insert_or_assign(TComponent::getClassType(), std::unique_ptr<TSystem>(newSystem));
+
+        //if constexpr (std::is_member_function_pointer_v<decltype(&TComponent::OnUpdate)>)
+        if constexpr (requires(const TComponent& t) { t.OnUpdate(); })
+            m_updatableSystems.insert_or_assign(TComponent::getClassType(), newSystem);
+
+        //if constexpr (std::is_member_function_pointer_v<decltype(&TComponent::OnRender)>)
+        if constexpr (requires(const TComponent& t) { t.OnRender(); })
+            m_renderableSystems.insert_or_assign(TComponent::getClassType(), newSystem);
     }
 
     template<class T>
     ComponentSystem<T>* EntitiesRegistry::GetSystem()
     {
-        if (!m_componentSystems.contains(T::getClassRTTI()))
+        if (!m_componentSystems.contains(T::getClassType()))
             AddSystem<ComponentSystem<T>, T>();
 
-        return static_cast<ComponentSystem<T>*>(m_componentSystems[T::getClassRTTI()].get());
+        return static_cast<ComponentSystem<T>*>(m_componentSystems[T::getClassType()].get());
     }
 }

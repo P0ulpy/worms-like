@@ -7,14 +7,13 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
-#include "../Time.hpp"
-#include "../../ECS/EntitiesRegistry/EntitiesRegistry.hpp"
+#include "../../Core/Time.hpp"
+
+#include "../Entity/Entity.hpp"
+#include "../EntitiesRegistry/EntitiesRegistry.hpp"
 
 namespace Engine
 {
-    class Entity;
-    class ScenesLayer;
-
     class Scene
     {
     public:
@@ -28,17 +27,16 @@ namespace Engine
         void RenderScene(sf::RenderTarget& renderTarget);
 
         Entity CreateEntity();
-        void DestroyEntity(Entity entity);
 
-        Entity GetEntityByHandle(const EntityHandle& handle);
+        void DestroyEntity(const Entity& entity);
+        void DestroyEntity(const EntityHandle& entity);
 
-        inline EntitiesRegistry& GetEntitiesRegistry() { return m_registry; }
+        //Entity GetEntityByHandle(const EntityHandle& handle);
+
+        [[nodiscard]] EntitiesRegistry& GetEntitiesRegistry() { return m_registry; }
 
     private:
         EntitiesRegistry m_registry;
-
-        friend class Entity;
-        friend class ScenesLayer;
     };
 
 } // Engine
