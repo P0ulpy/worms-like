@@ -13,13 +13,14 @@ namespace Engine
     class EngineApplication
     {
     public:
-        static std::unique_ptr<EngineApplication> s_Instance;
+        static EngineApplication* s_Instance;
         static EngineApplication* Get();
 
     public:
         EngineApplication();
         ~EngineApplication();
 
+        void Init();
         void Run();
         void Stop();
 

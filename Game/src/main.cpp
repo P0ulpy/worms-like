@@ -109,5 +109,6 @@ PathfinderLayer pathfinderLayer;
 int main(int argc, char* argv[])
 {
     //app.PushLayer(&pathfinderLayer);
+    app.Init();
     app.Run();
 }

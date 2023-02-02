@@ -8,8 +8,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+# set(CMAKE_CXX_FLAGS_DEBUG "-g")
+# set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 add_subdirectory(Engine)
 add_subdirectory(Game)

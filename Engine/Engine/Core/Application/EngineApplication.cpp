@@ -1,11 +1,11 @@
 #include "EngineApplication.hpp"
 #include "../Inputs/WindowEvents.hpp"
 
-std::unique_ptr<Engine::EngineApplication> Engine::EngineApplication::s_Instance { nullptr };
+Engine::EngineApplication* Engine::EngineApplication::s_Instance = nullptr;
 
 Engine::EngineApplication* Engine::EngineApplication::Get()
 {
-    return s_Instance.get();
+    return s_Instance;
 }
 
 Engine::EngineApplication::EngineApplication()
@@ -15,7 +15,7 @@ Engine::EngineApplication::EngineApplication()
     sf::Style::Close | sf::Style::Resize))
 {
     if(!s_Instance)
-        s_Instance = std::make_unique<EngineApplication>();
+        s_Instance = this;
     else
         throw std::runtime_error("EngineApplication already exists");
 
@@ -37,6 +37,11 @@ void Engine::EngineApplication::RemoveLayer(Engine::ApplicationLayer *layer)
 {
     m_layers.erase(std::find(m_layers.begin(), m_layers.end(),layer));
     layer->OnDetach();
+}
+
+void Engine::EngineApplication::Init()
+{
+
 }
 
 void Engine::EngineApplication::Run()
