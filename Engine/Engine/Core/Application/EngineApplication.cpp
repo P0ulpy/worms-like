@@ -30,7 +30,6 @@ Engine::EngineApplication::~EngineApplication()
 void Engine::EngineApplication::PushLayer(Engine::ApplicationLayer *layer)
 {
     m_layers.push_back(layer);
-    layer->OnAttach();
 }
 
 void Engine::EngineApplication::RemoveLayer(Engine::ApplicationLayer *layer)
@@ -48,8 +47,14 @@ void Engine::EngineApplication::Run()
 {
     m_window.display();
 
-    while (m_window.isOpen() && m_running)
+    for(auto* layer : m_layers)
+        layer->OnAttach();
+
+    while (m_window.isOpen())
     {
+        if(!m_running)
+            continue;
+
         Timestep time = Time::GetTime();
         Timestep timeStep = time - m_LastFrameTime;
 

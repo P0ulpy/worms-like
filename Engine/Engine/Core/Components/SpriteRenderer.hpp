@@ -32,7 +32,6 @@ namespace Engine {
         void OnStart()
         {
             // TODO : delete me, i'm for tests purposes
-
             transform = EngineApplication::Get()
                     ->GetScenesLayer()
                     .GetActiveScene()

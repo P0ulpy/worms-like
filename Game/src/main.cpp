@@ -1,6 +1,10 @@
 #include <Engine/Engine.hpp>
-
 #include <SFML/Graphics.hpp>
+
+#include "Engine/AssetLoader/AssetLoader.hpp"
+#include "Engine/Core/Components/Transform.hpp"
+#include "Engine/Core/Components/SpriteRenderer.hpp"
+#include "Engine/ECS/Entity/Entity.hpp"
 
 class App : public Engine::EngineApplication
 {
@@ -9,59 +13,10 @@ class App : public Engine::EngineApplication
 
 App app;
 
-/*
-class Transform : public Engine::Component
+class MyComponent : public Engine::Component
 {
 public:
-    DECLARE_RTTI(Transform, Engine::Component)
-
-    sf::Vector2<float> Pos { .0f, .0f };
-    sf::Vector2<float> Scale { 1.f, 1.f };
-    float Angle = .0f;
-
-    sf::Transform TransformationMatrix;
-};
-
-class SpriteRenderer : public Engine::Component
-{
-public:
-    DECLARE_RTTI(SpriteRenderer, Engine::Component)
-
-    sf::Sprite RenderSprite;
-    sf::Texture* Texture = nullptr;
-    Transform* transform = nullptr;
-
-    void Init(sf::Texture* texture)
-    {
-        Texture = texture;
-        RenderSprite.setTexture(*Texture);
-    }
-
-    void OnStart()
-    {
-        transform = GetEntity().GetComponent<Transform>();
-    }
-
-    void OnRender(sf::RenderTarget &renderTarget) const
-    {
-        renderTarget.draw(RenderSprite);
-    }
-
-    void OnUpdate(const float& deltaTime)
-    {
-        if(transform)
-        {
-            RenderSprite.setPosition(transform->Pos);
-            RenderSprite.setRotation(transform->Angle);
-            RenderSprite.setScale(transform->Scale);
-        }
-    }
-};
-
-class PathFindingManager : public Engine::Component
-{
-public:
-    DECLARE_RTTI(PathFindingManager, Engine::Component)
+    DECLARE_CLASS_TYPE(MyComponent, Engine::Component)
 
     void OnAwake() {}
     void OnStart() {}
@@ -70,28 +25,28 @@ public:
     void OnDestroy() {}
 };
 
-class PathfinderLayer : public Engine::ApplicationLayer
+class GameLayer : public Engine::ApplicationLayer
 {
 public:
-    PathfinderLayer()
-            : Engine::ApplicationLayer("PathfinderLayer")
+    GameLayer()
+            : Engine::ApplicationLayer("GameLayer")
     {}
 
     void OnAttach() override
     {
         // Testing purposes
 
-        auto& sceneLayer = app.GetSceneLayer();
-        auto& scene = sceneLayer.GetScene();
+        auto& sceneLayer = app.GetScenesLayer();
+        auto* scene = sceneLayer.GetActiveScene();
 
-        auto pathFindingManager = scene.CreateEntity();
-        pathFindingManager.AddComponent<PathFindingManager>();
+        auto krab = scene->CreateEntity();
 
-        auto tile = scene.CreateEntity();
-        tile.AddComponent<Transform>();
-        auto* spriteRenderer = tile.AddComponent<SpriteRenderer>();
+        auto* transform = scene->GetEntitiesRegistry().AddComponentTo<Engine::Transform>(krab.GetHandle());
+        auto* spriteRenderer = scene->GetEntitiesRegistry().AddComponentTo<Engine::SpriteRenderer>(krab.GetHandle());
 
         spriteRenderer->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("./Assets/krab.png"));
+
+        transform->Pos = { 100.f, 100.f };
     }
 
     void OnDetach() override
@@ -103,12 +58,11 @@ public:
     void OnImGuiRender() override { };
 };
 
-PathfinderLayer pathfinderLayer;
-*/
+GameLayer gameLayer;
 
 int main(int argc, char* argv[])
 {
-    //app.PushLayer(&pathfinderLayer);
+    app.PushLayer(&gameLayer);
     app.Init();
     app.Run();
 }

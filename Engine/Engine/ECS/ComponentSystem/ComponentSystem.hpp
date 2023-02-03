@@ -42,6 +42,8 @@ namespace Engine
         components.insert_or_assign(entityHandle, TComponent());
         components[entityHandle].m_handle = Core::UUID::CreateNew();
         components[entityHandle].m_entityHandle = entityHandle;
+
+        return static_cast<Component*>(&components[entityHandle]);
     }
 
     template<class TComponent>
