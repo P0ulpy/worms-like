@@ -6,6 +6,8 @@
 
 namespace Engine
 {
+    Scene* Scene::s_activeScene = nullptr;
+
     Entity Scene::CreateEntity()
     {
         Entity entity = { m_registry.CreateEntity() };

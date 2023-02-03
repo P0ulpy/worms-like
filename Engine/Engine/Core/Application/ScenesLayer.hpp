@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <SFML/Graphics/RenderTarget.hpp>
+
 #include "ApplicationLayer.hpp"
 #include "../../ECS/Scene/Scene.hpp"
 
@@ -19,7 +20,7 @@ namespace Engine
         explicit ScenesLayer(const std::string_view& name = "Layer");
 
         void OnAttach() override;
-        void OnDetach() override {};
+        void OnDetach() override;
         void OnUpdate(Timestep ts) override;
 
         [[nodiscard]] Scene* GetActiveScene() const { return m_activeScene.get(); }

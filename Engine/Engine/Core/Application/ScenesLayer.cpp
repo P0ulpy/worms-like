@@ -14,8 +14,15 @@ namespace Engine
         , _renderTarget(EngineApplication::Get()->GetWindow())
     {}
 
-    void ScenesLayer::OnAttach() {
+    void ScenesLayer::OnAttach()
+    {
         m_activeScene = std::make_unique<Scene>();
+        Scene::SetActiveScene(m_activeScene.get());
+    }
+
+    void ScenesLayer::OnDetach()
+    {
+        Scene::SetActiveScene(nullptr);
     }
 
     void ScenesLayer::OnUpdate(Timestep ts)

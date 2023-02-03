@@ -33,11 +33,43 @@ namespace Engine
 
         //Entity GetEntityByHandle(const EntityHandle& handle);
 
+        static void SetActiveScene(Scene* scene) { s_activeScene = scene; }
+        [[nodiscard]] static Scene* GetActiveScene() { return s_activeScene; }
+
         [[nodiscard]] EntitiesRegistry& GetEntitiesRegistry() { return m_registry; }
 
     private:
+        static Scene* s_activeScene;
         EntitiesRegistry m_registry;
     };
+
+    template<typename T>
+    T *Entity::AddComponent()
+    {
+        auto* scene = Scene::GetActiveScene();
+        return scene->GetEntitiesRegistry().AddComponentTo<T>(m_handle);
+    }
+
+    template<typename T>
+    T *Entity::GetComponent()
+    {
+        auto* scene = Scene::GetActiveScene();
+        return scene->GetEntitiesRegistry().GetComponentOf<T>(m_handle);
+    }
+
+    template<typename T>
+    bool Entity::HasComponent()
+    {
+        auto* scene = Scene::GetActiveScene();
+        return scene->GetEntitiesRegistry().HasComponent<T>(m_handle);
+    }
+
+    template<typename T>
+    void Entity::RemoveComponent()
+    {
+        auto* scene = Scene::GetActiveScene();
+        scene->GetEntitiesRegistry().RemoveComponentOf<T>(m_handle);
+    }
 
 } // Engine
 

@@ -15,7 +15,6 @@ namespace Engine {
         Entity() = default;
         Entity(EntityHandle handle);
 
-        /*
         template<typename T>
         T* AddComponent();
 
@@ -27,7 +26,6 @@ namespace Engine {
 
         template<typename T>
         void RemoveComponent();
-         */
 
         [[nodiscard]] inline EntityHandle GetHandle() const { return m_handle; }
 
@@ -36,27 +34,6 @@ namespace Engine {
 
         friend class Component;
     };
-
-    /*template<typename T>
-    T *Entity::AddComponent()
-    {
-        return m_Scene->GetEntitiesRegistry().AddComponentTo<T>(m_handle);
-    }
-
-    template<typename T>
-    T *Entity::GetComponent() {
-        return m_Scene->GetEntitiesRegistry().GetComponentOf<T>(m_handle);
-    }
-
-    template<typename T>
-    bool Entity::HasComponent() {
-        return m_Scene->GetEntitiesRegistry().HasComponent<T>(m_handle);
-    }
-
-    template<typename T>
-    void Entity::RemoveComponent() {
-        m_Scene->GetEntitiesRegistry().RemoveComponentOf<T>(m_handle);
-    }*/
 
 } // Engine
 

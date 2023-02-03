@@ -41,8 +41,8 @@ public:
 
         auto krab = scene->CreateEntity();
 
-        auto* transform = scene->GetEntitiesRegistry().AddComponentTo<Engine::Transform>(krab.GetHandle());
-        auto* spriteRenderer = scene->GetEntitiesRegistry().AddComponentTo<Engine::SpriteRenderer>(krab.GetHandle());
+        auto* transform = krab.AddComponent<Engine::Transform>();
+        auto* spriteRenderer = krab.AddComponent<Engine::SpriteRenderer>();
 
         spriteRenderer->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("./Assets/krab.png"));
 
