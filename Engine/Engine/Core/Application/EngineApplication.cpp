@@ -17,7 +17,7 @@ Engine::EngineApplication::EngineApplication()
     if(!s_Instance)
         s_Instance = this;
     else
-        throw std::runtime_error("EngineApplication already exists");
+        throw std::runtime_error("An instance of EngineApplication already exists");
 
     PushLayer(&m_scenesLayer);
 }

@@ -13,7 +13,7 @@ App app;
 class Transform : public Engine::Component
 {
 public:
-    DECLARE_RTTI(SpriteRenderer, Engine::Component)
+    DECLARE_RTTI(Transform, Engine::Component)
 
     sf::Vector2<float> Pos { .0f, .0f };
     sf::Vector2<float> Scale { 1.f, 1.f };
@@ -61,7 +61,7 @@ public:
 class PathFindingManager : public Engine::Component
 {
 public:
-    DECLARE_RTTI(SpriteRenderer, Engine::Component)
+    DECLARE_RTTI(PathFindingManager, Engine::Component)
 
     void OnAwake() {}
     void OnStart() {}
@@ -98,7 +98,7 @@ public:
     {
 
     }
-*
+
     void OnUpdate(Engine::Timestep ts) override {  };
     void OnImGuiRender() override { };
 };

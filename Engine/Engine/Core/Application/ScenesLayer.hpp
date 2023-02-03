@@ -6,7 +6,7 @@
 #define PATHFINDER_SCENESLAYER_HPP
 
 #include <memory>
-#include "SFML/Graphics/RenderTarget.hpp"
+#include <SFML/Graphics/RenderTarget.hpp>
 #include "ApplicationLayer.hpp"
 #include "../../ECS/Scene/Scene.hpp"
 
@@ -22,7 +22,7 @@ namespace Engine
         void OnDetach() override {};
         void OnUpdate(Timestep ts) override;
 
-        Scene* GetActiveScene() const { return m_activeScene.get(); }
+        [[nodiscard]] Scene* GetActiveScene() const { return m_activeScene.get(); }
 
     private:
         std::unique_ptr<Scene> m_activeScene { nullptr };
