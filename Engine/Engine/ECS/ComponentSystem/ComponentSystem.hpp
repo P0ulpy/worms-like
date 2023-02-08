@@ -28,6 +28,12 @@ namespace Engine
         bool Has(EntityHandle entityHandle) override;
         Component* Get(EntityHandle entityHandle) override;
         void View(ViewCallback callback) override;
+
+        void DispatchAwake() override;
+        void DispatchStart() override;
+        void DispatchUpdate(const float& deltaTime) override;
+        void DispatchRender(sf::RenderTarget &renderTarget) override;
+        void DispatchDestroy() override;
     };
 
     template<class TComponent>
@@ -70,6 +76,66 @@ namespace Engine
         for(auto& [ handle, component ] : components)
         {
             callback(&component);
+        }
+    }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::DispatchAwake()
+    {
+        if constexpr (requires (TComponent& c) { c.OnAwake(); })
+        {
+            for(auto& [ handle, component ] : components)
+            {
+                component.OnAwake();
+            }
+        }
+    }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::DispatchStart()
+    {
+        if constexpr (requires (TComponent& c) { c.OnStart(); })
+        {
+            for(auto& [ handle, component ] : components)
+            {
+                component.OnStart();
+            }
+        }
+    }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::DispatchUpdate(const float &deltaTime)
+    {
+        if constexpr (requires (TComponent& c) { c.OnUpdate(0.0f); })
+        {
+            for(auto& [ handle, component ] : components)
+            {
+                component.OnUpdate(deltaTime);
+            }
+        }
+    }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::DispatchRender(sf::RenderTarget &renderTarget)
+    {
+        if constexpr (requires (TComponent& c, sf::RenderTarget& rT) { c.OnRender(rT); })
+        {
+            for(auto& [ handle, component ] : components)
+            {
+                component.OnRender(renderTarget);
+            }
+        }
+    }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::DispatchDestroy()
+    {
+        if constexpr (requires (TComponent& c) { c.OnDestroy(); })
+        {
+            for(auto& [ handle, component ] : components)
+            {
+                component.OnDestroy();
+            }
         }
     }
 

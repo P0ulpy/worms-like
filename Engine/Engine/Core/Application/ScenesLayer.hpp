@@ -27,7 +27,7 @@ namespace Engine
 
     private:
         std::unique_ptr<Scene> m_activeScene { nullptr };
-        sf::RenderTarget& _renderTarget;
+        sf::RenderTarget* p_renderTarget { nullptr };
     };
 
 } // Engine

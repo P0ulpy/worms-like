@@ -29,7 +29,8 @@ namespace Engine
         m_registry.UpdateAllUpdatable(ts);
     }
 
-    void Scene::OnStop() {
+    void Scene::OnStop()
+    {
 
     }
 

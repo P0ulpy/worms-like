@@ -13,7 +13,7 @@ namespace Engine
 
     void EntitiesRegistry::DestroyEntity(EntityHandle handle)
     {
-        for(auto& [rtti, system] : m_componentSystems)
+        for(auto& [classType, system] : m_componentSystems)
         {
             if(system->Has(handle))
             {
@@ -22,27 +22,35 @@ namespace Engine
         }
     }
 
+    void EntitiesRegistry::AwakeAll()
+    {
+        for(auto& [classType, system] : m_componentSystems)
+        {
+            system->DispatchAwake();
+        }
+    }
+
     void EntitiesRegistry::StartAll()
     {
-        for(auto& [rtti, system] : m_componentSystems)
+        for(auto& [classType, system] : m_componentSystems)
         {
-            //system->Start();
+            system->DispatchStart();
         }
     }
 
     void EntitiesRegistry::UpdateAllUpdatable(const float& deltaTime)
     {
-        for(auto& [rtti, system] : m_componentSystems)
+        for(auto& [classType, system] : m_updatableSystems)
         {
-            //system->Update(deltaTime);
+            system->DispatchUpdate(deltaTime);
         }
     }
 
     void EntitiesRegistry::RenderAllRenderer(sf::RenderTarget& renderTarget)
     {
-        for(auto& [rtti, system] : m_componentSystems)
+        for(auto& [classType, system] : m_renderableSystems)
         {
-            //system->Render(renderTarget);
+            system->DispatchRender(renderTarget);
         }
     }
 

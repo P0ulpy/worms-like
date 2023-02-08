@@ -1,8 +1,10 @@
 #pragma once
 
 #include "EntitiesRegistry.hpp"
+#include "SFML/Graphics/RenderWindow.hpp"
 
 #include <memory>
+#include <amp_short_vectors.h>
 
 namespace Engine
 {
@@ -48,12 +50,10 @@ namespace Engine
 
         m_componentSystems.insert_or_assign(TComponent::getClassType(), std::unique_ptr<TSystem>(newSystem));
 
-        //if constexpr (std::is_member_function_pointer_v<decltype(&TComponent::OnUpdate)>)
-        if constexpr (requires(const TComponent& t) { t.OnUpdate(); })
+        if constexpr (requires (TComponent& c) { c.OnUpdate(0.0f); })
             m_updatableSystems.insert_or_assign(TComponent::getClassType(), newSystem);
 
-        //if constexpr (std::is_member_function_pointer_v<decltype(&TComponent::OnRender)>)
-        if constexpr (requires(const TComponent& t) { t.OnRender(); })
+        if constexpr (requires (TComponent& c, sf::RenderTarget& renderTarget) { c.OnRender(renderTarget); })
             m_renderableSystems.insert_or_assign(TComponent::getClassType(), newSystem);
     }
 

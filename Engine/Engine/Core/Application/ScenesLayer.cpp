@@ -11,7 +11,6 @@ namespace Engine
 {
     ScenesLayer::ScenesLayer(const std::string_view &name)
         : ApplicationLayer::ApplicationLayer(name)
-        , _renderTarget(EngineApplication::Get()->GetWindow())
     {}
 
     void ScenesLayer::OnAttach()
@@ -28,7 +27,7 @@ namespace Engine
     void ScenesLayer::OnUpdate(Timestep ts)
     {
         m_activeScene->OnUpdate(ts);
-        m_activeScene->RenderScene(_renderTarget);
+        m_activeScene->RenderScene(EngineApplication::Get()->GetWindow());
     }
 
 } // Engine

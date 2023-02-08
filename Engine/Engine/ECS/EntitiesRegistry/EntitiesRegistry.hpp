@@ -42,6 +42,7 @@ namespace Engine
         template<class T>
         void View(ComponentSystem<T>::ViewCallback callback);
 
+        void AwakeAll();
         void StartAll();
         void UpdateAllUpdatable(const float& deltaTime);
         void RenderAllRenderer(sf::RenderTarget& renderTarget);

@@ -29,6 +29,11 @@ namespace Engine {
             RenderSprite.setTexture(*Texture);
         }
 
+        void OnAwake()
+        {
+
+        }
+
         void OnStart()
         {
             // TODO : delete me, i'm for tests purposes

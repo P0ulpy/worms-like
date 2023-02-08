@@ -45,10 +45,12 @@ void Engine::EngineApplication::Init()
 
 void Engine::EngineApplication::Run()
 {
-    m_window.display();
+    Logger::SetThreadLabel("main");
 
     for(auto* layer : m_layers)
         layer->OnAttach();
+
+    Logger::Log("EngineApplication : Layers attached");
 
     while (m_window.isOpen())
     {
@@ -60,10 +62,14 @@ void Engine::EngineApplication::Run()
 
         WindowEvents::ProcessEvents(m_window);
 
+        m_window.clear(sf::Color::Black);
+
         for(ApplicationLayer* layer : m_layers)
         {
             layer->OnUpdate(timeStep);
         }
+
+        m_window.display();
 
         // TODO : Support ImGui
 #ifdef IMGUI_SUPPORT
