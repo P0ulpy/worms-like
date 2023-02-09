@@ -29,6 +29,9 @@ set(ENGINE_HEADERS
 
         Engine/AssetLoader/AssetLoader.hpp
 )
+        Engine/Core/Inputs/InputSignal.h
+        Engine/Core/Inputs/Connection.hpp
+        Engine/Core/Inputs/InputConfig.hpp
 
 set(ENGINE_SOURCES
         Engine/Core/Application/EngineApplication.cpp
@@ -40,6 +43,10 @@ set(ENGINE_SOURCES
         Engine/Core/Inputs/WindowEvents.cpp
         Engine/Core/Components/Transform.cpp
         Engine/Core/Components/SpriteRenderer.cpp
+        
+        Engine/Core/Inputs/InputSignal.cpp
+        Engine/Core/Inputs/Connection.cpp
+        Engine/Core/Inputs/InputConfig.cpp
 
         Engine/ECS/Entity/Entity.cpp
         Engine/ECS/Component/Component.cpp
