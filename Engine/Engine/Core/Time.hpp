@@ -5,6 +5,7 @@
 #ifndef PATHFINDER_TIME_HPP
 #define PATHFINDER_TIME_HPP
 
+#include <SFML/System/Clock.hpp>
 #include "Base.hpp"
 
 namespace Engine
@@ -12,9 +13,19 @@ namespace Engine
     // TODO : wright Timestep class
     using Timestep = float;
 
-    struct Time
+    class Time
     {
-        static Timestep GetTime();
+    public:
+        static Time* Get();
+
+    public:
+        Time() = default;
+
+        Timestep RestartDeltaTimeClock();
+        [[nodiscard]] Timestep GetDeltaTime() const { return s_deltaTime; }
+    private:
+        sf::Clock m_deltaTimeClock {};
+        Timestep s_deltaTime = 0;
     };
 }
 

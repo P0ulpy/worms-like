@@ -24,7 +24,9 @@ Engine::EngineApplication::EngineApplication()
 
 Engine::EngineApplication::~EngineApplication()
 {
-    RemoveLayer(&m_scenesLayer);
+    //RemoveLayer(&m_scenesLayer);
+
+    Engine::EngineApplication::s_Instance = nullptr;
 }
 
 void Engine::EngineApplication::PushLayer(Engine::ApplicationLayer *layer)
@@ -57,8 +59,7 @@ void Engine::EngineApplication::Run()
         if(!m_running)
             continue;
 
-        Timestep time = Time::GetTime();
-        Timestep timeStep = time - m_LastFrameTime;
+        Timestep timeStep = Time::Get()->RestartDeltaTimeClock();
 
         WindowEvents::ProcessEvents(m_window);
 
