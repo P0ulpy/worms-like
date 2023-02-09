@@ -30,15 +30,13 @@ namespace Engine
     std::list<LogEntry> Logger::messages {};
     std::unordered_map<std::thread::id, std::string> Logger::_threadsLabels {};
 
-    void Logger::Log(const std::string_view& message)
+    template<typename ...Types>
+    void Logger::Log(const Types&... message)
     {
         std::lock_guard<std::mutex> lock(_mutex);
 
-        LogEntry logEntry;
-        logEntry.type = LOG_INFO;
-        logEntry.threadId = std::this_thread::get_id();
-        logEntry.message = "[" + CurrentDateTimeToString() + "]: ";
-        logEntry.message += message;
+        LogEntry logEntry = ConstructEntry(LOG_INFO, "");
+        BuildMessage(message..., logEntry.message);
 
         std::string threadLabel = (_threadsLabels.contains(logEntry.threadId)) ? _threadsLabels.at(logEntry.threadId) : "";
 
@@ -56,15 +54,13 @@ namespace Engine
         messages.push_back(logEntry);
     }
 
-    void Logger::Warn(const std::string_view& message)
+    template<typename ...Types>
+    void Logger::Warn(const Types&... message)
     {
         std::lock_guard<std::mutex> lock(_mutex);
 
-        LogEntry logEntry;
-        logEntry.type = LOG_WARNING;
-        logEntry.threadId = std::this_thread::get_id();
-        logEntry.message = "[" + CurrentDateTimeToString() + "] WARN: ";
-        logEntry.message += message;
+        LogEntry logEntry = ConstructEntry(LOG_WARNING, "WARN");
+        BuildMessage(message..., logEntry.message);
 
         std::string threadLabel = (Logger::_threadsLabels.contains(logEntry.threadId)) ? Logger::_threadsLabels.at(logEntry.threadId) : "";
 
@@ -82,15 +78,13 @@ namespace Engine
         messages.push_back(logEntry);
     }
 
-    void Logger::Err(const std::string_view& message)
+    template<typename ...Types>
+    void Logger::Err(const Types&... message)
     {
         std::lock_guard<std::mutex> lock(_mutex);
 
-        LogEntry logEntry;
-        logEntry.type = LOG_ERROR;
-        logEntry.threadId = std::this_thread::get_id();
-        logEntry.message = "[" + CurrentDateTimeToString() + "] ERR: ";
-        logEntry.message += message;
+        LogEntry logEntry = ConstructEntry(LOG_ERROR, "ERR");
+        BuildMessage(message..., logEntry.message);
 
         std::string threadLabel = (_threadsLabels.contains(logEntry.threadId)) ? Logger::_threadsLabels[logEntry.threadId] : "";
 
@@ -118,5 +112,24 @@ namespace Engine
     {
         std::lock_guard<std::mutex> lock(_mutex);
         Logger::_threadsLabels[threadID] = label;
+    }
+
+    LogEntry Logger::ConstructEntry(LogType type, const std::string& header) {
+        LogEntry logEntry;
+        logEntry.type = type;
+        logEntry.threadId = std::this_thread::get_id();
+        logEntry.message = "[" + CurrentDateTimeToString() + "] " + header +": ";
+
+        return logEntry;
+    }
+
+    template<typename FirstMessage, typename ...Messages>
+    void Logger::BuildMessage(const FirstMessage& first, const Messages&... messages, std::string& base) {
+
+        static_assert(std::is_same<FirstMessage, std::string_view>::value);
+
+        base = base + first;
+        if constexpr (sizeof...(messages) > 0)
+        BuildMessage(messages..., base);
     }
 } // Engine
