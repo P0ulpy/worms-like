@@ -5,7 +5,7 @@
 #ifndef PATHFINDER_SCENE_HPP
 #define PATHFINDER_SCENE_HPP
 
-#include <SFML/Graphics/RenderTarget.hpp>
+#include "SFML/Graphics/RenderTarget.hpp"
 
 #include "../../Core/Time.hpp"
 

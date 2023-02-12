@@ -3,8 +3,8 @@
 //
 
 #include "../../ECS/Component/Component.hpp"
-#include <SFML/Graphics/Transform.hpp>
-#include <SFML/System/Vector2.hpp>
+#include "SFML/Graphics/Transform.hpp"
+#include "SFML/System/Vector2.hpp"
 
 #ifndef POPOSIBENGINE_TRANSFORM_HPP
 #define POPOSIBENGINE_TRANSFORM_HPP

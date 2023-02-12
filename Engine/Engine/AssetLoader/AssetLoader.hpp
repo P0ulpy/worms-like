@@ -5,7 +5,7 @@
 #ifndef PATHFINDER_ASSETLOADER_HPP
 #define PATHFINDER_ASSETLOADER_HPP
 
-#include <SFML/Graphics/Texture.hpp>
+#include "SFML/Graphics/Texture.hpp"
 #include <unordered_map>
 
 namespace Engine {

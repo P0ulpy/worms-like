@@ -8,8 +8,8 @@
 #include <vector>
 #include <utility>
 
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/Event.hpp>
+#include "SFML/Window/Keyboard.hpp"
+#include "SFML/Window/Event.hpp"
 
 
 enum class EventType

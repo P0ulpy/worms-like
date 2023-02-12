@@ -9,8 +9,9 @@
 
 namespace Engine
 {
-    ScenesLayer::ScenesLayer(const std::string_view &name)
+    ScenesLayer::ScenesLayer(sf::RenderTarget* renderTarget, const std::string_view &name)
         : ApplicationLayer::ApplicationLayer(name)
+        , p_renderTarget(renderTarget)
     {}
 
     void ScenesLayer::OnAttach()

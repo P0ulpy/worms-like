@@ -9,7 +9,7 @@
 #include <map>
 #include <stack>
 
-#include <SFML/Graphics/RenderTarget.hpp>
+#include "SFML/Graphics/RenderTarget.hpp"
 
 #include "../ComponentSystem/ComponentSystem.hpp"
 #include "../../Core/RTTI/ClassType.hpp"

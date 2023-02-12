@@ -41,7 +41,7 @@ namespace Engine
     {
         if(components.contains(entityHandle))
         {
-            Logger::Err("this entity already have a TComponent allocated for him");
+            //Logger::Err("this entity already have a TComponent allocated for it");
             return nullptr;
         }
 

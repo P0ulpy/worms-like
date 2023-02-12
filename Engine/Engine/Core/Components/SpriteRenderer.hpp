@@ -5,7 +5,7 @@
 #ifndef POPOSIBENGINE_SPRITERENDERER_HPP
 #define POPOSIBENGINE_SPRITERENDERER_HPP
 
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 
 #include "../../ECS/Component/Component.hpp"
 #include "Transform.hpp"

@@ -6,7 +6,7 @@
 #define PATHFINDER_SCENESLAYER_HPP
 
 #include <memory>
-#include <SFML/Graphics/RenderTarget.hpp>
+#include "SFML/Graphics/RenderTarget.hpp"
 
 #include "ApplicationLayer.hpp"
 #include "../../ECS/Scene/Scene.hpp"
@@ -17,7 +17,7 @@ namespace Engine
     {
     public:
         ScenesLayer() = delete;
-        explicit ScenesLayer(const std::string_view& name = "Layer");
+        explicit ScenesLayer(sf::RenderTarget* renderTarget, const std::string_view& name = "Layer");
 
         void OnAttach() override;
         void OnDetach() override;
