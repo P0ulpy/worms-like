@@ -70,7 +70,7 @@ namespace ConsoleColor
 
 #endif
 
-#ifdef LINUX
+#ifdef linux
 
 namespace ConsoleColor
 {
