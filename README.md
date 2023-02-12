@@ -1,2 +1,2 @@
 # worms-like
-Worms like game in C++ with SFML
+Worms like game in C++ with SFML.
