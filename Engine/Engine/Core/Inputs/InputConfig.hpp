@@ -19,7 +19,12 @@ enum class EventType
     PlayerLeft,
     PlayerRight,
     PlayerShoot,
-    OpenInventory
+    OpenInventory,
+    CloseWindow,
+    FullScreen,
+    Pause,
+    Click,
+    Count
 };
 
 struct EventSignalType
@@ -46,8 +51,12 @@ public:
         s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::S, false, false, false, false } }, EventType::PlayerDown );
         s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::Q, false, false, false, false } }, EventType::PlayerLeft );
         s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::D, false, false, false, false } }, EventType::PlayerRight );
-        s_events.emplace_back( EventSignalType{ sf::Event::EventType::MouseLeft, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } }, EventType::PlayerShoot );
+        s_events.emplace_back( EventSignalType{ sf::Event::EventType::MouseButtonPressed, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } }, EventType::PlayerShoot );
         s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::E, false, false, false, false } }, EventType::OpenInventory );
+        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::Enter, false, false, false, false } }, EventType::CloseWindow );
+        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::F11, false, false, false, false } }, EventType::FullScreen );
+        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::Escape, false, false, false, false } }, EventType::Pause );
+        s_events.emplace_back( EventSignalType{ sf::Event::EventType::MouseButtonPressed, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } }, EventType::Click );
     }
     EventSignalType GetEventSignalType(EventType eventType)
     {

@@ -3,6 +3,7 @@
 //
 
 #include "WindowEvents.hpp"
+#include "InputSignal.h"
 
 namespace Engine
 {
@@ -20,6 +21,11 @@ namespace Engine
             //ImGui::SFML::ProcessEvent(event);
 #endif
             s_events[event.type] = event;
+
+            if((event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased || event.type == sf::Event::MouseLeft) && event.mouseButton.button == sf::Mouse::Button::Left)
+                InputSignal::GetInstance()->Emit({ event.type, { sf::Keyboard::Key::KeyCount, true, true, true, true }});
+            else
+                InputSignal::GetInstance()->Emit({ event.type, event.key});
         }
     }
 

@@ -28,7 +28,7 @@ ScopedConnection::~ScopedConnection() {
 }
 
 void ScopedConnection::disconnect() const {
-    if (m_connection)
+    if (nullptr != m_connection)
         m_connection->m_signal->Disconnect(m_eventType, m_connection);
 
 }

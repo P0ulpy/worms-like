@@ -71,7 +71,7 @@ private:
     {}
 
     void disconnect() const;
-    mutable Connection* m_connection;
+    mutable Connection* m_connection = nullptr;
     mutable EventType m_eventType;
 };
 
