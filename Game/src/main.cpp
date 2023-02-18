@@ -1,18 +1,16 @@
 #include <Engine/Engine.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "Engine/AssetLoader/AssetLoader.hpp"
-#include "Engine/Core/Components/Transform.hpp"
-#include "Engine/Core/Components/SpriteRenderer.hpp"
-#include "Engine/ECS/Entity/Entity.hpp"
+#include "Engine/Core/Inputs/InputSignal.h"
+#include "../Game/MainMenu.hpp"
 
-class App : public Engine::EngineApplication
-{
+#if defined(SFML_SYSTEM_WINDOWS)
+#include <windows.h>
+#endif
 
-};
+using App = Engine::EngineApplication;
 
-App app;
-
+/*
 class MyComponent : public Engine::Component
 {
 public:
@@ -24,45 +22,20 @@ public:
     void OnImGuiRender() {}
     void OnDestroy() {}
 };
-
-class GameLayer : public Engine::ApplicationLayer
-{
-public:
-    GameLayer()
-            : Engine::ApplicationLayer("GameLayer")
-    {}
-
-    void OnAttach() override
-    {
-        // Testing purposes
-
-        auto& sceneLayer = app.GetScenesLayer();
-        auto* scene = sceneLayer.GetActiveScene();
-
-        auto krab = scene->CreateEntity();
-
-        auto* transform = krab.AddComponent<Engine::Transform>();
-        auto* spriteRenderer = krab.AddComponent<Engine::SpriteRenderer>();
-
-        spriteRenderer->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("./Assets/krab.png"));
-
-        transform->Pos = { 100.f, 100.f };
-    }
-
-    void OnDetach() override
-    {
-
-    }
-
-    void OnUpdate(Engine::Timestep ts) override {  };
-    void OnImGuiRender() override { };
-};
-
-GameLayer gameLayer;
+*/
 
 int main(int argc, char* argv[])
 {
-    app.PushLayer(&gameLayer);
+    srand (time(nullptr));
+
+    App app;
+    MainMenuLayer mainMenuLayer;
+
+    app.GetWindow().setFramerateLimit(60);
+
+    app.GetWindow().create(sf::VideoMode(1920, 1080), "PoposibEngine", sf::Style::Default);
+
+    app.PushLayer(&mainMenuLayer);
     app.Init();
     app.Run();
 }
