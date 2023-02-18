@@ -5,6 +5,7 @@
 #pragma once
 
 #include <functional>
+#include <string_view>
 #include <variant>
 
 namespace SignalSystem
@@ -106,8 +107,8 @@ namespace SignalSystem
     template<typename... Args>
     struct Connection {
         using Callback = std::function<void(Args...)>;
-        using Signal = Signal<Args...>;
-        using SignalPtr = Signal*;
+        using SignalT = Signal<Args...>;
+        using SignalPtr = SignalT*;
 
         struct Managed {};
         struct Scoped {};

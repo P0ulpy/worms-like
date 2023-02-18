@@ -25,6 +25,7 @@ namespace Engine
     void Scene::OnUpdate(Timestep ts)
     {
         m_registry.UpdateAllUpdatable(ts);
+        m_registry.HandleCollisions();
     }
 
     void Scene::OnStop()

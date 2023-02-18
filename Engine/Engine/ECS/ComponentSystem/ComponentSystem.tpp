@@ -64,7 +64,13 @@ namespace Engine
     template<class TComponent>
     Component* ComponentSystem<TComponent>::Get(EntityHandle entityHandle)
     {
-        return static_cast<Component*>(&components[entityHandle]);
+        return static_cast<Component*>(GetOf(entityHandle));
+    }
+
+    template<class TComponent>
+    TComponent* ComponentSystem<TComponent>::GetOf(EntityHandle entityHandle)
+    {
+        return &components[entityHandle];
     }
 
     template<class TComponent>

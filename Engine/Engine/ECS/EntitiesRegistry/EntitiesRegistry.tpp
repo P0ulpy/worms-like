@@ -18,7 +18,7 @@ namespace Engine
     T *EntitiesRegistry::GetComponentOf(EntityHandle entityHandle)
     {
         return static_cast<T*>(GetSystem<T>()
-                ->Get(entityHandle));
+            ->Get(entityHandle));
     }
 
     template<class T>

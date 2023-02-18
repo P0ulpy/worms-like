@@ -56,6 +56,13 @@ set(ENGINE_HEADERS
         Engine/Core/ScenesSystem/ScenesSystem.hpp
         Engine/Core/ScenesSystem/ScenesSystem.tpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp
+
+
+        Engine/Core/Components/Physics.hpp
+        Engine/Maths/Vector.hpp
+        Engine/Maths/Shape.hpp
+        Engine/Maths/Graph.hpp
+        Engine/Maths/Collisions.hpp
 )
 
 set(ENGINE_SOURCES
@@ -95,6 +102,12 @@ set(ENGINE_SOURCES
 
         Engine/Core/ScenesSystem/ScenesSystem.cpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.cpp
+
+        Engine/Core/Components/Physics.cpp
+        Engine/Maths/Vector.cpp
+        Engine/Maths/Shape.cpp
+        Engine/Maths/Graph.cpp
+        Engine/Maths/Collisions.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)

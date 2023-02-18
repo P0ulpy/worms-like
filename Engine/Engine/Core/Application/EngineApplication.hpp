@@ -19,7 +19,7 @@ namespace Engine
         static EngineApplication* s_Instance;
 
     public:
-        EngineApplication();
+        explicit EngineApplication(sf::VideoMode VideoMode = sf::VideoMode(500, 500));
         ~EngineApplication();
 
         void Init();

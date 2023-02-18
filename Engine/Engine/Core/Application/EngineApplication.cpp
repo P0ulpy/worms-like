@@ -9,7 +9,12 @@ Engine::EngineApplication* Engine::EngineApplication::Get()
     return s_Instance;
 }
 
-Engine::EngineApplication::EngineApplication()
+Engine::EngineApplication::EngineApplication(sf::VideoMode VideoMode)
+    : m_window(sf::RenderWindow(
+    VideoMode,
+    "Engine Window",
+    sf::Style::Close | sf::Style::Resize)
+)
 {
     if(s_Instance)
         throw std::runtime_error("An instance of EngineApplication already exists");

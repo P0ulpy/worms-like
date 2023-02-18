@@ -4,5 +4,5 @@
 
 #include "Transform.hpp"
 
-namespace Engine {
+namespace Engine::Components {
 } // Engine
