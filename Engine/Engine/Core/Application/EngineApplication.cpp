@@ -54,6 +54,11 @@ void Engine::EngineApplication::Run()
 
     Logger::Log("EngineApplication : Layers attached");
 
+    if(m_cursor.loadFromSystem(sf::Cursor::Arrow))
+        m_window.setMouseCursor(m_cursor);
+
+    m_window.requestFocus();
+
     while (m_window.isOpen())
     {
         if(!m_running)

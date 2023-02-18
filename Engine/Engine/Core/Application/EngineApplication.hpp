@@ -28,10 +28,14 @@ namespace Engine
         void RemoveLayer(ApplicationLayer* layer);
 
         inline sf::RenderWindow& GetWindow() { return m_window; }
+        inline bool IsFullscreen() const { return isFullscreen; }
+        inline void SetFullscreen(bool fullscreen) { isFullscreen = fullscreen; }
         inline ScenesLayer& GetScenesLayer() { return m_scenesLayer; }
 
     private:
         sf::RenderWindow m_window;
+        sf::Cursor m_cursor;
+        bool isFullscreen = false;
 
         bool m_running = true;
         Timestep m_LastFrameTime = 0;
