@@ -7,6 +7,7 @@
 
 #include <SFML/Graphics/Texture.hpp>
 #include <unordered_map>
+#include "SFML/Graphics/Font.hpp"
 
 namespace Engine {
 
@@ -40,15 +41,10 @@ namespace Engine {
     }
 
     template<>
-    sf::Texture* AssetLoader<sf::Texture>::StaticLoadAsset(const std::string& path)
-    {
-        sf::Texture texture;
-        texture.loadFromFile(path);
+    sf::Texture* AssetLoader<sf::Texture>::StaticLoadAsset(const std::string& path);
 
-        s_paths[path] = texture;
-
-        return &s_paths[path];
-    }
+    template<>
+    sf::Font* AssetLoader<sf::Font>::StaticLoadAsset(const std::string& path);
 
 } // Engine
 
