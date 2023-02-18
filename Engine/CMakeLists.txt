@@ -28,10 +28,7 @@ set(ENGINE_HEADERS
         Engine/Renderer/AllRenderComponents.hpp
 
         Engine/AssetLoader/AssetLoader.hpp
-        Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h
-        Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/InputSignal.h
-        Engine/Core/Inputs/InputSignal.tpp
 
         Engine/Core/Inputs/Connection.hpp
         Engine/Core/Inputs/InputConfig.hpp
@@ -56,8 +53,6 @@ set(ENGINE_SOURCES
         Engine/Renderer/Renderer.cpp
 
         Engine/AssetLoader/AssetLoader.cpp
-        Engine/Core/Inputs/InputSignal.cpp Engine/Core/Inputs/InputSignal.h
-        Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/Connection.cpp
         Engine/Core/Inputs/InputConfig.cpp
