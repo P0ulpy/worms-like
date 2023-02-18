@@ -17,6 +17,7 @@ namespace Engine
 
     private:
         static EngineApplication* s_Instance;
+        static constexpr float FixedDeltaTime = 16.6666f;
 
     public:
         EngineApplication();

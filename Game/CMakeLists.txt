@@ -3,15 +3,32 @@ set(GAME_HEADERS
         Game/Prefabs/TestPrefab.hpp
         Game/Scenes/MainMenuScene.hpp
         Game/Scenes/OptionScene.hpp
+
+        Game/GameLayer.hpp
+        UI/Components/ProgressBar/HealthBar.hpp
+        UI/Layout/Grid/InventoryPlayer.hpp
+
+        Game/Map/Map.hpp
+        Game/Modules/PerlinNoise.hpp
+
+        Game/Controllers/SidePlayerController.hpp
+
+        Game/Actors/PlayerCharacter.hpp
 )
 
 set(GAME_SOURCES
         src/main.cpp
-        Game/GameLayer.cpp Game/GameLayer.hpp UI/Components/ProgressBar/HealthBar.cpp UI/Components/ProgressBar/HealthBar.hpp UI/Layout/Grid/InventoryPlayer.cpp UI/Layout/Grid/InventoryPlayer.hpp)
+        Game/GameLayer.cpp
+        UI/Components/ProgressBar/HealthBar.cpp
+        UI/Layout/Grid/InventoryPlayer.cpp
 
+        Game/Controllers/SidePlayerController.cpp
 
-# file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)
+        Game/Actors/PlayerCharacter.cpp
 
+        Game/Map/Map.cpp
+        Game/Modules/PerlinNoise.cpp
+)
 set(GAME_TARGET_NAME Game)
 
 add_executable(${GAME_TARGET_NAME} ${GAME_HEADERS} ${GAME_SOURCES})
@@ -23,10 +40,19 @@ target_link_libraries(${GAME_TARGET_NAME} Engine)
 
 set(CMAKE_SOURCE_ASSETS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
 set(CMAKE_RUNTIME_ASSETS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+set(CMAKE_SOURCE_CONFIG_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Config)
+set(CMAKE_RUNTIME_CONFIG_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Config)
 
 add_custom_command(
         TARGET Game POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_ASSETS_DIRECTORY}
         ${CMAKE_RUNTIME_ASSETS_DIRECTORY}
+)
+
+add_custom_command(
+        TARGET Game POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_CONFIG_DIRECTORY}
+        ${CMAKE_RUNTIME_CONFIG_DIRECTORY}
 )

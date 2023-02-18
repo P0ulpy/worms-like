@@ -14,7 +14,7 @@ namespace Engine
 
     Timestep Time::RestartDeltaTimeClock()
     {
-        s_deltaTime = m_deltaTimeClock.restart().asSeconds();
+        s_deltaTime = (Timestep) m_deltaTimeClock.restart().asMilliseconds();
         return s_deltaTime;
     }
 }

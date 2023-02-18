@@ -92,10 +92,26 @@ namespace SignalSystem
             if(m_bindingsmouse.empty())
                 return names;
 
-            if(event != sf::Event::EventType::MouseWheelMoved && event != sf::Event::EventType::MouseWheelScrolled
-               && event != sf::Event::EventType::MouseButtonPressed && event != sf::Event::EventType::MouseButtonReleased
-               && event != sf::Event::EventType::MouseMoved && event != sf::Event::EventType::MouseEntered
-               && event != sf::Event::EventType::MouseLeft)
+            if (
+                event == sf::Event::EventType::MouseMoved
+                || event == sf::Event::EventType::MouseEntered
+                || event == sf::Event::EventType::MouseLeft
+            )
+            {
+                for (auto& key : m_bindingsmouse)
+                {
+                    if (key.second == event)
+                        names.push_back(key.first);
+                }
+                return names;
+            }
+
+            if (
+                event != sf::Event::EventType::MouseWheelMoved
+                && event != sf::Event::EventType::MouseWheelScrolled
+                && event != sf::Event::EventType::MouseButtonPressed
+                && event != sf::Event::EventType::MouseButtonReleased
+            )
                 return names;
 
             for (auto& key : m_bindingsmouse)

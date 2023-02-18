@@ -12,22 +12,37 @@
 #include "SFML/Graphics/RenderTarget.hpp"
 
 #include "../ComponentSystem/ComponentSystem.hpp"
-#include "../../Core/RTTI/ClassType.hpp"
+#include "../../RTTI/ClassType.hpp"
+#include "../../Maths/Graph.hpp"
 
 namespace Engine
 {
+    class Scene;
+
     /* Entities registry is the core interface for our ESC system
      * it manages Components association with Entities
      * */
     class EntitiesRegistry
     {
     public:
+        EntitiesRegistry() = delete;
+        EntitiesRegistry(Scene* Scene) : m_Scene(Scene) {}
+
         EntityHandle CreateEntity();
 
         void DestroyEntity(EntityHandle handle);
 
         template<class T>
         T* AddComponentTo(EntityHandle entityHandle);
+
+        template<class T>
+        T* AddComponentIfNotPresentTo(EntityHandle entityHandle);
+
+        template<class ...T>
+        void AddComponentsTo(EntityHandle entityHandle);
+
+        template<class ...T>
+        void AddComponentsIfNotPresentTo(EntityHandle entityHandle);
 
         template<class T>
         T* GetComponentOf(EntityHandle entityHandle);
@@ -45,7 +60,7 @@ namespace Engine
         void AwakeAll();
         void StartAll();
         void UpdateAllUpdatable(const float& deltaTime);
-        void RenderAllRenderer(sf::RenderTarget& renderTarget);
+        std::unordered_map<RTTI::ClassType*, IComponentSystem*> GetAllRenderableSystems();
 
         template<class TSystem, class T>
         void AddSystem();
@@ -58,12 +73,14 @@ namespace Engine
     private:
         bool m_markedForDestruction = false;
 
-        std::unordered_map<ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
+        std::unordered_map<RTTI::ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
 
-        std::unordered_map<ClassType*, IComponentSystem*> m_updatableSystems;
-        std::unordered_map<ClassType*, IComponentSystem*> m_renderableSystems;
+        std::unordered_map<RTTI::ClassType*, IComponentSystem*> m_updatableSystems;
+        std::unordered_map<RTTI::ClassType*, IComponentSystem*> m_renderableSystems;
 
         void View(IComponentSystem::ViewCallback callback);
+
+        Scene* m_Scene = nullptr;
     };
 
 } // Engine

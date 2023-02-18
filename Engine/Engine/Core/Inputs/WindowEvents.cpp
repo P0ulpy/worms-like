@@ -20,6 +20,7 @@ namespace Engine
         clearEvents();
 
         sf::Event event {};
+
         while(renderWindow.pollEvent(event))
         {
 #ifdef IMGUI_SUPPORT

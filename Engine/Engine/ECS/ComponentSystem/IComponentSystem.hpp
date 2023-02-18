@@ -12,12 +12,13 @@
 
 namespace Engine
 {
+    class Scene;
     class IComponentSystem
     {
     public:
         virtual ~IComponentSystem() = default;
 
-        virtual Component* Add(EntityHandle entityHandle) = 0;
+        virtual Component* Add(EntityHandle entityHandle, Scene* scene) = 0;
         virtual void Remove(EntityHandle entityHandle) = 0;
         virtual bool Has(EntityHandle entityHandle) = 0;
         virtual Component* Get(EntityHandle entityHandle) = 0;

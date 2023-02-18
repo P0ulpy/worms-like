@@ -3,6 +3,7 @@
 //
 
 #include "Scene.hpp"
+#include "../../Core/Physics/Physics.hpp"
 
 namespace Engine
 {
@@ -22,9 +23,12 @@ namespace Engine
 
     }
 
-    void Scene::OnUpdate(Timestep ts)
+    void Scene::OnUpdate(Timestep DeltaTime)
     {
-        m_registry.UpdateAllUpdatable(ts);
+        m_registry.UpdateAllUpdatable(DeltaTime);
+        for (const auto& [Type, Simulator] : m_PhysicsSimulators) {
+            Simulator->Simulate(DeltaTime, &m_registry);
+        }
     }
 
     void Scene::OnStop()
@@ -34,7 +38,18 @@ namespace Engine
 
     void Scene::RenderScene(sf::RenderTarget &renderTarget)
     {
-        m_registry.RenderAllRenderer(renderTarget);
+        auto RenderableSystems = m_registry.GetAllRenderableSystems();
+        if (nullptr == m_ActiveCamera)
+        {
+            for (auto& [Class, RenderableSystem] : RenderableSystems)
+            {
+                RenderableSystem->DispatchRender(
+                    renderTarget
+                );
+            }
+            return;
+        }
+        m_ActiveCamera->Render(renderTarget, RenderableSystems);
     }
 
     // NOTE : le problème principal de cette implémentation de destruction est global à toutes les méthodes de destruction des composants
@@ -44,6 +59,33 @@ namespace Engine
     void Scene::Clear()
     {
         m_registry.DestroyAll();
+
+        delete m_ActiveCamera;
+        m_ActiveCamera = nullptr;
+        // @todo replace with unique ptrs?
+        for (auto [_, Simulator] : m_PhysicsSimulators) {
+            delete Simulator;
+        }
+        m_PhysicsSimulators.clear();
     }
 
+    Scene::~Scene() {
+        Clear();
+    }
+
+    void Scene::AddPhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator) {
+        auto SimulatorType = Simulator->GetBodyType();
+        if (m_PhysicsSimulators.contains(SimulatorType)) {
+            throw std::runtime_error("Target physics component types already has a simulator.");
+        }
+
+        m_PhysicsSimulators.insert({SimulatorType, Simulator});
+    }
+
+    void Scene::RemovePhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator) {
+        auto SimulatorType = Simulator->GetBodyType();
+        if (m_PhysicsSimulators.contains(SimulatorType)) {
+            m_PhysicsSimulators.erase(SimulatorType);
+        }
+    }
 } // Engine

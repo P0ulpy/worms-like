@@ -9,10 +9,10 @@
 #include <utility>
 
 #define DECLARE_CLASS_TYPE(ClassName, ParentType) \
-    static Engine::ClassType* getClassType() { static Engine::ClassType classType{#ClassName, ParentType::getClassType()}; return &classType; } \
-    virtual Engine::ClassType* getType() { return getClassType(); }
+    static RTTI::ClassType* getClassType() { static RTTI::ClassType classType{#ClassName, ParentType::getClassType()}; return &classType; } \
+    virtual RTTI::ClassType* getType() const { return getClassType(); }
 
-namespace Engine
+namespace RTTI
 {
     class ClassType
     {
@@ -26,6 +26,7 @@ namespace Engine
 
         [[nodiscard]] inline const ClassTypeName& getTypeName() const { return m_typeName; }
         [[nodiscard]] inline const ClassType* getParentType() const { return m_parentClassType; }
+        [[nodiscard]] inline bool isInstanceOrChildOf(ClassType* Parent) const;
 
     private:
         ClassTypeName m_typeName;
@@ -36,7 +37,7 @@ namespace Engine
     {
     public:
         virtual ~IClassType() = default;
-        virtual ClassType* getType() = 0;
+        virtual ClassType* getType() const = 0;
     };
 
     class NoClassTypeAncestor
@@ -44,6 +45,19 @@ namespace Engine
     public:
         static ClassType* getClassType() { return nullptr; }
     };
+
+    bool ClassType::isInstanceOrChildOf(ClassType *Parent) const {
+        if (Parent->getTypeName() == m_typeName)
+            return true;
+        const ClassType* CurrentClass = m_parentClassType;
+        while (CurrentClass != NoClassTypeAncestor::getClassType())
+        {
+            if (CurrentClass->getTypeName() == Parent->getTypeName())
+                return true;
+            CurrentClass = m_parentClassType->getParentType();
+        }
+        return false;
+    }
 }
 
 #endif //PATHFINDER_RTTI_HPP

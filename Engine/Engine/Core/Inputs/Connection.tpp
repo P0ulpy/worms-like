@@ -37,7 +37,7 @@ namespace SignalSystem
 
     template<typename... Args>
     SlotConnection<Args...>::SlotConnection(Signal<Args...> &signal, const typename Signal<Args...>::Callback &callback)
-            : m_scopedConnection(signal.connectScoped([=]() {
+            : m_scopedConnection(signal.connectScoped([this, &callback]() {
         if (!m_semaphore.isDisabled())
             return;
 

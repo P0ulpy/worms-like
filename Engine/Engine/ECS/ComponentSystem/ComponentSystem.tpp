@@ -7,17 +7,21 @@
 namespace Engine
 {
     template<class TComponent>
-    Component *ComponentSystem<TComponent>::Add(EntityHandle entityHandle)
+    Component *ComponentSystem<TComponent>::Add(
+        EntityHandle entityHandle,
+        Scene* scene
+    )
     {
         if(components.contains(entityHandle))
         {
-            Logger::Err("this entity already have a (", TComponent::getClassType()->getTypeName(), ") allocated for him");
+            Logger::Err("this entity already has a (", TComponent::getClassType()->getTypeName(), ") allocated for him");
             return nullptr;
         }
 
         components.insert_or_assign(entityHandle, TComponent());
         components[entityHandle].m_handle = Core::UUID::CreateNew();
         components[entityHandle].m_entityHandle = entityHandle;
+        components[entityHandle].m_scene = scene;
 
         if constexpr (requires (TComponent& c) { c.OnAwake(); })
             components[entityHandle].OnAwake();
@@ -65,7 +69,13 @@ namespace Engine
     template<class TComponent>
     Component* ComponentSystem<TComponent>::Get(EntityHandle entityHandle)
     {
-        return static_cast<Component*>(&components[entityHandle]);
+        return static_cast<Component*>(GetOf(entityHandle));
+    }
+
+    template<class TComponent>
+    TComponent* ComponentSystem<TComponent>::GetOf(EntityHandle entityHandle)
+    {
+        return &components[entityHandle];
     }
 
     template<class TComponent>

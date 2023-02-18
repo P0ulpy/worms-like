@@ -9,14 +9,13 @@ Engine::EngineApplication* Engine::EngineApplication::Get()
     return s_Instance;
 }
 
-Engine::EngineApplication::EngineApplication()
-{
+Engine::EngineApplication::EngineApplication() {
     if(s_Instance)
         throw std::runtime_error("An instance of EngineApplication already exists");
     else
         s_Instance = this;
 
-    m_window.create(sf::VideoMode(500, 500), "Engine Window", sf::Style::Close | sf::Style::Resize);
+    m_window.create(sf::VideoMode(800, 800), "Engine Window", sf::Style::Close | sf::Style::Resize);
 
     m_scenesLayer = std::make_unique<ScenesLayer>(&m_window, "Scenes Layer");
     PushLayer(m_scenesLayer.get());
@@ -73,7 +72,8 @@ void Engine::EngineApplication::Run()
         if(!m_running)
             continue;
 
-        Timestep timeStep = Time::Get()->RestartDeltaTimeClock();
+        // Avoid loop of death
+        Timestep timeStep = std::min(Time::Get()->RestartDeltaTimeClock(), FixedDeltaTime * 2);
 
         WindowEvents::ProcessEvents(m_window);
 
@@ -100,6 +100,14 @@ void Engine::EngineApplication::Run()
 
         if(WindowEvents::GetEvent(sf::Event::Closed))
             Stop();
+
+        const auto Elapsed = Time::Get()->GetDeltaTime();
+        if (Elapsed < FixedDeltaTime)
+        {
+            sf::sleep(sf::milliseconds((int) (FixedDeltaTime - Elapsed)));
+        } else {
+            Engine::Logger::Warn("Exceeding fixed update time :", Elapsed);
+        }
     }
 }
 

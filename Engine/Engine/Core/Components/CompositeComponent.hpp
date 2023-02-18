@@ -10,7 +10,7 @@
 
 namespace Engine
 {
-    /** CompositeComponent is designed to add a composite logic threw the ECS
+    /** CompositeComponent is designed to add a composite logic through the ECS
      * CompositeComponent<TCompositeBaseClass> class is not designed to be used "as it", you should derive from it.
      * TCompositeBaseClass should be used for parents and children as a base class and must extends from CompositeComponent<TCompositeBaseClass>
      * */
