@@ -43,9 +43,6 @@ namespace Engine {
     template<>
     sf::Texture* AssetLoader<sf::Texture>::StaticLoadAsset(const std::string& path);
 
-    template<>
-    sf::Font* AssetLoader<sf::Font>::StaticLoadAsset(const std::string& path);
-
 } // Engine
 
 #endif //PATHFINDER_ASSETLOADER_HPP
