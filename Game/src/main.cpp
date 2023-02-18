@@ -1,18 +1,17 @@
 #include <Engine/Engine.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "Engine/AssetLoader/AssetLoader.hpp"
-#include "Engine/Core/Components/Transform.hpp"
-#include "Engine/Core/Components/SpriteRenderer.hpp"
-#include "Engine/ECS/Entity/Entity.hpp"
+#include "Engine/Core/Inputs/InputSignal.h"
+#include "../Game/Game.hpp"
+#include "../Game/GameState/GameState.hpp"
 
-class App : public Engine::EngineApplication
-{
+#if defined(SFML_SYSTEM_WINDOWS)
+#include <windows.h>
+#endif
 
-};
+using App = Engine::EngineApplication;
 
-App app;
-
+/*
 class MyComponent : public Engine::Component
 {
 public:
@@ -24,44 +23,45 @@ public:
     void OnImGuiRender() {}
     void OnDestroy() {}
 };
-
-class GameLayer : public Engine::ApplicationLayer
-{
-public:
-    GameLayer()
-            : Engine::ApplicationLayer("GameLayer")
-    {}
-
-    void OnAttach() override
-    {
-        // Testing purposes
-
-        auto& sceneLayer = app.GetScenesLayer();
-        auto* scene = sceneLayer.GetActiveScene();
-
-        auto krab = scene->CreateEntity();
-
-        auto* transform = krab.AddComponent<Engine::Transform>();
-        auto* spriteRenderer = krab.AddComponent<Engine::SpriteRenderer>();
-
-        spriteRenderer->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("./Assets/krab.png"));
-
-        transform->Pos = { 100.f, 100.f };
-    }
-
-    void OnDetach() override
-    {
-
-    }
-
-    void OnUpdate(Engine::Timestep ts) override {  };
-    void OnImGuiRender() override { };
-};
-
-GameLayer gameLayer;
+*/
 
 int main(int argc, char* argv[])
 {
+    srand (time(nullptr));
+
+    App app;
+    GameLayer gameLayer;
+
+    app.GetWindow().setFramerateLimit(60);
+
+    InputSignal::GetInstance()->connect(EventType::CloseWindow, [&app]()
+    {
+        if(GameState::GetInstance()->GetState() == EGameState::MainMenu
+           || GameState::GetInstance()->GetState() == EGameState::EndGame
+           || GameState::GetInstance()->GetState() == EGameState::Pause)
+            app.Stop();
+    });
+
+    InputSignal::GetInstance()->connect(EventType::FullScreen, [&app]()
+    {
+        if (app.IsFullscreen())
+        {
+            app.GetWindow().create(sf::VideoMode(1920, 1080), "Worms", sf::Style::Default);
+
+#if defined(SFML_SYSTEM_WINDOWS)
+            ShowWindow(app.GetWindow().getSystemHandle(), SW_MAXIMIZE);
+#endif
+        }
+        else
+        {
+            app.GetWindow().create(sf::VideoMode(1920, 1080), "Worms", sf::Style::Fullscreen);
+        }
+
+        app.SetFullscreen(!app.IsFullscreen());
+    });
+
+    InputSignal::GetInstance()->Emit({ sf::Event::EventType::KeyPressed, { sf::Keyboard::F11, false, false, false, false } });
+
     app.PushLayer(&gameLayer);
     app.Init();
     app.Run();
