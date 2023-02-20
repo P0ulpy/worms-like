@@ -7,8 +7,11 @@
 
 
 #include "Engine/Core/Application/ApplicationLayer.hpp"
+#include "Engine/Core/Inputs/Connection.hpp"
 
-class Button;
+class Canvas;
+class TextButton;
+class SpriteButton;
 
 class MainMenuLayer : public Engine::ApplicationLayer {
 
@@ -26,9 +29,10 @@ public:
     void OnImGuiRender() override;
 
 private:
-    Button* buttonPlay = nullptr;
-    Button* buttonOption = nullptr;
-    Button* buttonQuit = nullptr;
+    Canvas* mainCanvas = nullptr;
+    Canvas* inventoryCanvas = nullptr;
+
+    ScopedConnection inventoryButtonConnection;
 };
 
 

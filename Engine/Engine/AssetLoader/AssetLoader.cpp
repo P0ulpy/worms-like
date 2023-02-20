@@ -7,12 +7,24 @@
 namespace Engine
 {
     template<>
-    sf::Font* AssetLoader<sf::Font>::StaticLoadAsset(const std::string& path)
+    sf::Texture* AssetLoader<sf::Texture>::StaticLoadAsset(const std::string& path)
     {
-        sf::Font texture;
+        sf::Texture texture;
         texture.loadFromFile(path);
 
         s_paths[path] = texture;
+
+        return &s_paths[path];
+    }
+
+
+    template<>
+    sf::Font* AssetLoader<sf::Font>::StaticLoadAsset(const std::string& path)
+    {
+        sf::Font font;
+        font.loadFromFile(path);
+
+        s_paths[path] = font;
 
         return &s_paths[path];
     }

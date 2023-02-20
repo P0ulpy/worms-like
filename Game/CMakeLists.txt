@@ -1,17 +1,33 @@
 set(GAME_HEADERS
         src/main.hpp
         Game/MainMenu.hpp
-        Game/UI/Widget.hpp
-        Game/UI/Button/Button.hpp)
+        Game/UI/IWidget.hpp
+        Game/UI/Button/TextButton.hpp
+        Game/UI/Button/SpriteButton.hpp
+        Game/UI/Button/ButtonBase.hpp
+        Game/UI/WidgetComposite.hpp
+        Game/UI/Layout/Canvas.hpp
+        Game/UI/Layout/HorizontalBox.hpp
+        Game/UI/Layout/VerticalBox.hpp
+        Game/UI/Layout/Grid.hpp
+        Game/UI/Other/ProgressBar.hpp)
 
 set(GAME_SOURCES
         src/main.cpp
         Game/MainMenu.cpp
-        Game/UI/Widget.cpp
-        Game/UI/Button/Button.cpp)
+        Game/UI/IWidget.cpp
+        Game/UI/Button/TextButton.cpp
+        Game/UI/Button/SpriteButton.cpp
+        Game/UI/Button/ButtonBase.cpp
+        Game/UI/WidgetComposite.cpp
+        Game/UI/Layout/Canvas.cpp
+        Game/UI/Layout/HorizontalBox.cpp
+        Game/UI/Layout/VerticalBox.cpp
+        Game/UI/Layout/Grid.cpp
+        Game/UI/Other/ProgressBar.cpp Game/UI/Classique/Text.cpp Game/UI/Classique/Text.hpp Game/UI/Classique/Sprite.cpp Game/UI/Classique/Sprite.hpp Game/UI/Button/ItemButton.cpp Game/UI/Button/ItemButton.hpp)
 
 # TODO : Temporary solution, copy is not done each time the project is compiled
-# file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable(Game ${GAME_HEADERS} ${GAME_SOURCES})
 
