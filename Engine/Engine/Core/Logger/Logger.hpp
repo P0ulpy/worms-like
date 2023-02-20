@@ -2,16 +2,9 @@
 // Created by Flo on 28/11/2022.
 //
 
-#ifndef PATHFINDER_LOGGER_HPP
-#define PATHFINDER_LOGGER_HPP
+#pragma once
 
-/*#include <unordered_map>
-#include <thread>
-#include <mutex>
-#include <string>
-#include <sstream>
-
-#include "ConsoleColor.hpp"*/
+#include "ConsoleColor.hpp"
 
 #include <thread>
 #include <string>
@@ -64,5 +57,3 @@ namespace Engine
 } // Engine
 
 #include "Logger.tpp"
-
-#endif //PATHFINDER_LOGGER_HPP
