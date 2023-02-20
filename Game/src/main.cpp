@@ -1,6 +1,7 @@
 #include <Engine/AssetLoader/AssetLoader.hpp>
 #include <Engine/Core/Components/Transform.hpp>
 #include <Engine/Core/Components/SpriteRenderer.hpp>
+#include <Engine/Core/Application/EngineApplication.hpp>
 
 class App : public Engine::EngineApplication
 {
@@ -32,8 +33,8 @@ public:
     {
         // Testing purposes
 
-        auto& sceneLayer = app.GetScenesLayer();
-        auto* scene = sceneLayer.GetActiveScene();
+        auto* sceneLayer = app.GetScenesLayer();
+        auto* scene = sceneLayer->GetActiveScene();
 
         auto krab = scene->CreateEntity();
 

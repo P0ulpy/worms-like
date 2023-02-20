@@ -2,12 +2,12 @@
 // Created by Flo on 18/01/2023.
 //
 
+#ifndef POPOSIBENGINE_TRANSFORM_HPP
+#define POPOSIBENGINE_TRANSFORM_HPP
+
 #include "../../ECS/Component/Component.hpp"
 #include "SFML/Graphics/Transform.hpp"
 #include "SFML/System/Vector2.hpp"
-
-#ifndef POPOSIBENGINE_TRANSFORM_HPP
-#define POPOSIBENGINE_TRANSFORM_HPP
 
 namespace Engine {
 

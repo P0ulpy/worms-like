@@ -2,15 +2,12 @@
 // Created by Flo on 18/01/2023.
 //
 
-#ifndef POPOSIBENGINE_SPRITERENDERER_HPP
-#define POPOSIBENGINE_SPRITERENDERER_HPP
+#pragma once
 
-#include "SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 
 #include "../../ECS/Component/Component.hpp"
 #include "Transform.hpp"
-// TODO : delete me, i'm for tests purposes
-#include "../Application/EngineApplication.hpp"
 
 namespace Engine {
 
@@ -36,12 +33,7 @@ namespace Engine {
 
         void OnStart()
         {
-            // TODO : delete me, i'm for tests purposes
-            transform = EngineApplication::Get()
-                    ->GetScenesLayer()
-                    .GetActiveScene()
-                    ->GetEntitiesRegistry()
-                    .GetComponentOf<Transform>(GetEntity().GetHandle());
+            transform = GetEntity().GetComponent<Transform>();
         }
 
         void OnRender(sf::RenderTarget &renderTarget) const
@@ -61,5 +53,3 @@ namespace Engine {
     };
 
 } // Engine
-
-#endif //POPOSIBENGINE_SPRITERENDERER_HPP

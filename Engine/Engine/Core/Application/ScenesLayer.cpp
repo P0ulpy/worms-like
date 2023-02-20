@@ -6,6 +6,7 @@
 #include "EngineApplication.hpp"
 
 #include <memory>
+#include <utility>
 
 namespace Engine
 {
@@ -17,18 +18,17 @@ namespace Engine
     void ScenesLayer::OnAttach()
     {
         m_activeScene = std::make_unique<Scene>();
-        Scene::SetActiveScene(m_activeScene.get());
     }
 
     void ScenesLayer::OnDetach()
     {
-        Scene::SetActiveScene(nullptr);
+
     }
 
     void ScenesLayer::OnUpdate(Timestep ts)
     {
         m_activeScene->OnUpdate(ts);
-        m_activeScene->RenderScene(EngineApplication::Get()->GetWindow());
+        m_activeScene->RenderScene(*p_renderTarget);
     }
 
 } // Engine

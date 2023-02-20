@@ -31,44 +31,74 @@ namespace Engine
         void DestroyEntity(const Entity& entity);
         void DestroyEntity(const EntityHandle& entity);
 
+        template<class T>
+        T* GetComponentOf(const EntityHandle& entityHandle);
+
+        template<class T>
+        T* AddComponentTo(const EntityHandle& entityHandle);
+
+        template<class T>
+        bool HasComponentIn(const EntityHandle& entityHandle);
+
+        template<class T>
+        void RemoveComponentOf(const EntityHandle& entityHandle);
+
         //Entity GetEntityByHandle(const EntityHandle& handle);
-
-        static void SetActiveScene(Scene* scene) { s_activeScene = scene; }
-        [[nodiscard]] static Scene* GetActiveScene() { return s_activeScene; }
-
-        [[nodiscard]] EntitiesRegistry& GetEntitiesRegistry() { return m_registry; }
+        //[[nodiscard]] EntitiesRegistry& GetEntitiesRegistry() { return m_registry; }
 
     private:
-        static Scene* s_activeScene;
         EntitiesRegistry m_registry;
     };
 
-    template<typename T>
-    T *Entity::AddComponent()
-    {
-        auto* scene = Scene::GetActiveScene();
-        return scene->GetEntitiesRegistry().AddComponentTo<T>(m_handle);
+    // Scene
+
+    template<class T>
+    T *Scene::GetComponentOf(const EntityHandle &entityHandle) {
+        return m_registry.GetComponentOf<T>(entityHandle);
     }
 
-    template<typename T>
-    T *Entity::GetComponent()
+    template<class T>
+    T *Scene::AddComponentTo(const EntityHandle &entityHandle)
     {
-        auto* scene = Scene::GetActiveScene();
-        return scene->GetEntitiesRegistry().GetComponentOf<T>(m_handle);
+        return m_registry.AddComponentTo<T>(entityHandle);
     }
 
-    template<typename T>
+    template<class T>
+    bool Scene::HasComponentIn(const EntityHandle &entityHandle)
+    {
+        return m_registry.HasComponent<T>(entityHandle);
+    }
+
+    template<class T>
+    void Scene::RemoveComponentOf(const EntityHandle &entityHandle)
+    {
+        m_registry.RemoveComponentOf<T>(entityHandle);
+    }
+
+    // Entity
+
+    template<class T>
+    T* Entity::AddComponent()
+    {
+        return m_scene->AddComponentTo<T>(m_handle);
+    }
+
+    template<class T>
+    T* Entity::GetComponent()
+    {
+        return m_scene->GetComponentOf<T>(m_handle);
+    }
+
+    template<class T>
     bool Entity::HasComponent()
     {
-        auto* scene = Scene::GetActiveScene();
-        return scene->GetEntitiesRegistry().HasComponent<T>(m_handle);
+        return m_scene->HasComponentIn<T>(m_handle);
     }
 
-    template<typename T>
+    template<class T>
     void Entity::RemoveComponent()
     {
-        auto* scene = Scene::GetActiveScene();
-        scene->GetEntitiesRegistry().RemoveComponentOf<T>(m_handle);
+        m_scene->RemoveComponentOf<T>(m_handle);
     }
 
 } // Engine
