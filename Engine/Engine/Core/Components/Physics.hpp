@@ -3,6 +3,9 @@
 #include "../../Maths/Shape.hpp"
 #include "../../ECS/Component/Component.hpp"
 #include "Transform.hpp"
+#include "../../Maths/Graph.hpp"
+#include "../../Maths/Collisions.hpp"
+#include "../Application/EngineApplication.hpp"
 #include <vector>
 #include <chrono>
 #include <thread>
@@ -40,11 +43,17 @@ namespace Engine::Components::Physics
         Maths::Vector2D<PhysicsT> LinearVelocity;
         PhysicsT AngularVelocity;
         Maths::Vector2D<PhysicsT> Force;
-        PhysicsT Torque;
+        PhysicsT Torque = 0;
         // kg
         PhysicsT Mass = 1;
         PhysicsT MomentOfInertia;
+        PhysicsT Bounciness = 0;
 
+        virtual Maths::Point<GeometricT, Dimensions> GetCenterOfMass(
+            const Maths::Vector2D<GeometricT>& Scale,
+            const GeometricT& RotationDegrees,
+            const Maths::Point2D<GeometricT>& OnPos
+        ) = 0;
         virtual ~IRigidBody() = default;
     };
 
@@ -53,8 +62,12 @@ namespace Engine::Components::Physics
     {
         using IBoundingBox2D = Maths::IBoundingBox2D<GeometricT>;
         virtual IBoundingBox2D* GetBoundingBox() = 0;
-        virtual void ComputeInertia() = 0;
-        virtual void ComputeForceAndTorque(const bool& HasGravity, const Maths::Vector2D<PhysicsT>& GravityVec) = 0;
+        virtual void ComputeInertia(const Maths::Vector2D<GeometricT>& Scale) = 0;
+        virtual void AddForce(
+            const GeometricT& RotationDegrees,
+            const Maths::Vector2D<GeometricT>& Scale,
+            const Maths::Vector2D<PhysicsT>& Force
+        ) = 0;
     };
 
     template <typename GeometricT, typename PhysicsT, template <typename ShapeT> typename Shape>
@@ -71,22 +84,46 @@ namespace Engine::Components::Physics
     template <typename GeometricT, typename PhysicsT>
     struct RectangleRigidBody2D : RigidBody2D<GeometricT, PhysicsT, Maths::Rectangle2D>
     {
-        void ComputeInertia()
+        Maths::Point2D<GeometricT> GetCenterOfMass(
+            const Maths::Vector2D<GeometricT>& Scale,
+            const GeometricT& RotationDegrees,
+            const Maths::Point2D<GeometricT>& OnPos
+        ) override
+        {
+            return Maths::Point2D<GeometricT>(GeometricT(0), GeometricT(0)) + Maths::Vector2D<GeometricT>{OnPos.Values};
+        }
+
+        void ComputeInertia(const Maths::Vector2D<GeometricT>& Scale)
         {
             const auto mass = this->Mass;
-            const auto w = this->BoundingBox.Width;
-            const auto h = this->BoundingBox.Height;
+            const auto w = this->BoundingBox.Width * Scale.GetX();
+            const auto h = this->BoundingBox.Height * Scale.GetY();
             this->MomentOfInertia = mass * (w * w + h * h) / 12;
         }
 
-        void ComputeForceAndTorque(const bool& HasGravity, const Maths::Vector2D<PhysicsT>& GravityVec)
+        void AddForce(
+            const GeometricT& RotationDegrees,
+            const Maths::Vector2D<GeometricT>& Scale,
+            const Maths::Vector2D<PhysicsT>& Force
+        )
         {
-            if (HasGravity)
+            this->Force += Force;
+            const auto OnPos = Maths::Point2D<GeometricT>(GeometricT(0), GeometricT(0));
+            const auto Vertices = this->GetBoundingBox()->GetVertices(
+                RotationDegrees,
+                Scale,
+                OnPos
+            );
+            const auto CenterOfMass = GetCenterOfMass(
+                Scale,
+                RotationDegrees,
+                OnPos
+            );
+            for (size_t i = 0; i < Vertices.size(); i++)
             {
-                this->Force += GravityVec;
+                auto r = Vertices[i].GetVector(CenterOfMass);
+                this->Torque += Maths::Vector2D<PhysicsT>{r.Values}.Scalar(this->Force);
             }
-            const auto r = Maths::Vector2D<PhysicsT>(this->BoundingBox.Width / 2, this->BoundingBox.Height / 2);
-            this->Torque = r.Scalar(this->Force);
         }
     };
 
@@ -96,7 +133,11 @@ namespace Engine::Components::Physics
     class RigidBody2DComponent : public Engine::Component
     {
     public:
+        using EntityKdTreeNode = Maths::Graph::BinaryTreeNode<EntityHandle>;
+        using EntityKdTree = Maths::Graph::KdTree<EntityKdTreeNode>;
+
         DECLARE_CLASS_TYPE(RigidBody2DComponent, Engine::Component)
+
         using GeometricT = GT;
         using PhysicsT = PT;
         using PhysicsPoint2DT = Maths::Point2D<PhysicsT>;
@@ -122,10 +163,11 @@ namespace Engine::Components::Physics
 
         void SetRigidBodies(std::vector<IRigidBody2DT*> Bodies)
         {
+            const auto Transform = GetEntityTransform();
             m_RigidBodies = Bodies;
             for (auto & Body : m_RigidBodies)
             {
-                ComputeRigidBodyInertia(Body);
+                ComputeRigidBodyInertia(Transform->Scale, Body);
             }
         }
 
@@ -140,18 +182,28 @@ namespace Engine::Components::Physics
                 const auto RectangleBoundingBox = dynamic_cast<Maths::RectangleBoundingBox2D<GeometricT>*>(BoundingBox);
                 if (RectangleBoundingBox) {
                     sf::RectangleShape Rect;
-                    Rect.setSize({(float)RectangleBoundingBox->Width, (float)RectangleBoundingBox->Height});
-                    const auto FinalPos = EntityTransform->Pos + GeometricVector2DT(
+                    const auto ScaledWidth = RectangleBoundingBox->Width * EntityTransform->Scale.GetX();
+                    const auto ScaledHeight = RectangleBoundingBox->Height * EntityTransform->Scale.GetY();
+                    Rect.setOrigin(
+                        ScaledWidth / 2,
+                        ScaledHeight / 2
+                    );
+                    Rect.setSize({
+                         (float) (ScaledWidth),
+                         (float) (ScaledHeight)
+                     });
+                    const auto FinalPos = EntityTransform->Pos + (GeometricVector2DT(
                         RectangleBoundingBox->Position.GetX(),
                         RectangleBoundingBox->Position.GetY()
-                    );
+                    ) * EntityTransform->Scale);
                     Rect.setPosition({
-                         (float) FinalPos.GetX(),
-                         (float) FinalPos.GetY(),
-                    });
+                         (float) (FinalPos.GetX()),
+                         (float) (FinalPos.GetY()),
+                     });
+                    Rect.setRotation(RectangleBoundingBox->Angle + EntityTransform->Angle);
                     Rect.setFillColor(sf::Color::Transparent);
                     Rect.setOutlineColor(sf::Color::White);
-                    Rect.setOutlineThickness(1.f);
+                    Rect.setOutlineThickness(-1.f);
                     RenderTarget.draw(Rect);
                 }
             }
@@ -168,8 +220,14 @@ namespace Engine::Components::Physics
             auto EntityTransform = GetEntityTransform();
             while (currentTimeMs < ElapsedTimeMs) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(StepMs)));
+
                 for (auto &rigidBody: this->m_RigidBodies) {
-                    ComputeForceAndTorque(StepMs, rigidBody);
+                    ComputeForceAndTorque(
+                        EntityTransform->Angle,
+                        EntityTransform->Scale,
+                        StepMs,
+                        rigidBody
+                    );
                     const PhysicsVector2DT linearAcceleration = PhysicsVector2DT(
                         rigidBody->Force.GetX() / rigidBody->Mass,
                         rigidBody->Force.GetY() / rigidBody->Mass
@@ -181,9 +239,57 @@ namespace Engine::Components::Physics
                     rigidBody->LinearVelocity.GetX() += linearAcceleration.GetX() * StepMs;
                     rigidBody->LinearVelocity.GetY() += linearAcceleration.GetY() * StepMs;
                     const auto angularAcceleration = rigidBody->Torque / rigidBody->MomentOfInertia;
-                    BoundingBox->Angle += rigidBody->AngularVelocity * StepMs;
+                    EntityTransform->Angle += rigidBody->AngularVelocity * StepMs;
                     rigidBody->AngularVelocity += angularAcceleration * StepMs;
+
+
+                    rigidBody->Force = PhysicsVector2DT{};
+                    rigidBody->Torque = 0;
+
+                    // check collisions
+                    if (!HasCollisions)
+                    {
+                        // tmp
+                        break;
+                    }
+
+                    auto& EntitiesRegistry = EngineApplication::Get()
+                        ->GetScenesLayer()
+                        .GetActiveScene()
+                        ->GetEntitiesRegistry();
+                    auto RigidBodyComponentSystem = EntitiesRegistry
+                        .GetSystem<RigidBody2DComponent>();
+                    auto TransformSystem = EntitiesRegistry
+                        .GetSystem<Engine::Components::Transform>();
+
+                    auto Node = EntitiesRegistry.PhysicsEntityKdTree.FindNode<2, Maths::Point2D<GeometricT>>(
+                        this->GetEntity().GetHandle(),
+                        [&TransformSystem](EntityHandle handle)->Maths::Point2D<GeometricT> { return TransformSystem->GetOf(handle)->Pos; }
+                    );
+                    if (nullptr != Node)
+                    {
+                        auto NodeTransformComponent = TransformSystem->GetOf(Node->GetContent());
+                        const auto MaxSize = ComputeMaxDistanceFromTransform();
+
+                        const EntityKdTreeNode* CurrentNode = Node;
+                        auto CurrentTransformComponent = TransformSystem->GetOf(Node->GetContent());
+                        while (MaxSize < CurrentTransformComponent->Pos.GetVector(NodeTransformComponent->Pos).GetLength())
+                        {
+                            CurrentNode = static_cast<const EntityKdTreeNode*>(Node)->GetParent();
+                            CurrentTransformComponent = TransformSystem->GetOf(Node->GetContent());
+                        }
+
+                        ExecuteOnNodes(
+                            RigidBodyComponentSystem,
+                            Node,
+                            NodeTransformComponent,
+                            CurrentNode
+                        );
+                    }
+                    // tmp because would not work with multiple rigidbodies?
+                    break;
                 }
+
                 currentTimeMs += StepMs;
             }
         }
@@ -206,12 +312,14 @@ namespace Engine::Components::Physics
             return MaxDistance;
         }
 
+        // @deprecated
         bool IsPointInside(const Maths::Point2D<GeometricT>& Point) const
         {
             IRigidBody2DT*& IgnoredInRigidBody = nullptr;
             return IsPointInside(Point, IgnoredInRigidBody);
         }
 
+        // @deprecated
         bool IsPointInside(const Maths::Point2D<GeometricT>& Point, IRigidBody2DT*& InRigidBody) const
         {
             for (const auto& Body : this->m_RigidBodies)
@@ -219,7 +327,7 @@ namespace Engine::Components::Physics
                 const auto& BoundingBox = Body->GetBoundingBox();
                 auto EntityTransform = GetEntityTransform();
                 const auto FinalPoint = BoundingBox->Position
-                                        - GeometricVector2DT(EntityTransform->Pos.x, EntityTransform->Pos.y)
+                    - GeometricVector2DT(EntityTransform->Pos.x, EntityTransform->Pos.y)
                 ;
                 if (BoundingBox->IsPointInside(FinalPoint))
                 {
@@ -230,32 +338,6 @@ namespace Engine::Components::Physics
             return false;
         }
 
-        std::vector<GeometricPoint2DT> GetProjectablePoints() const
-        {
-            const auto Transform = GetEntityTransform();
-            const auto PosVec = Transform::VectorT{Transform->Pos.Values};
-            std::vector<GeometricPoint2DT> Points;
-            for (const auto& Body : m_RigidBodies)
-            {
-                const auto BodyPoints = Body->GetBoundingBox()->GetProjectablePoints();
-                for (const auto& P : BodyPoints) {
-                    Points.push_back(P + PosVec);
-                }
-            }
-            return Points;
-        }
-
-        std::vector<GeometricVector2DT> GetAxes() const
-        {
-            std::vector<GeometricVector2DT> Axes;
-            for (const auto& Body : m_RigidBodies)
-            {
-                const auto BodyAxes = Body->GetBoundingBox()->GetAxes();
-                Axes.insert(Axes.end(), BodyAxes.begin(), BodyAxes.end());
-            }
-            return Axes;
-        }
-
         std::vector<IRigidBody2DT*>& GetRigidBodies()
         {
             return m_RigidBodies;
@@ -264,20 +346,133 @@ namespace Engine::Components::Physics
         // @todo can be useful to have multiple rigidbodies but will not work with this implementation bc of gravity?
         std::vector<IRigidBody2DT*> m_RigidBodies;
 
-        static void ComputeRigidBodyInertia(IRigidBody2DT* RigidBody)
+        static void ComputeRigidBodyInertia(
+            const Maths::Vector2D<GeometricT>& Scale,
+            IRigidBody2DT* RigidBody
+        )
         {
-            RigidBody->ComputeInertia();
+            RigidBody->ComputeInertia(Scale);
         }
 
-        void ComputeForceAndTorque(const float& StepMs, IRigidBody2DT* RigidBody)
+        void ComputeForceAndTorque(
+            const GeometricT& RotationDegrees,
+            const Maths::Vector2D<GeometricT>& Scale,
+            const float& StepMs,
+            IRigidBody2DT* RigidBody
+        )
         {
-            const auto GravityVec = GravityDirection * Gravity * (StepMs / 1000);
-            RigidBody->ComputeForceAndTorque(HasGravity, GravityVec);
+            const auto GravityVec = GravityDirection * Gravity * (PhysicsT(HasGravity ? 1 : 0)) * (StepMs / 1000);
+//            const auto GravityVec = GravityDirection * Gravity * (StepMs / 1000);
+            RigidBody->AddForce(
+                RotationDegrees,
+                Scale,
+                GravityVec
+            );
         }
 
         [[nodiscard]] Engine::Components::Transform* GetEntityTransform() const
         {
             return GetEntity().template GetComponent<Engine::Components::Transform>();
+        }
+
+        void ExecuteOnNodes(
+            ComponentSystem<RigidBody2DComponent>* ComponentSystem,
+            EntityKdTreeNode* NodeUnderCheck,
+            Engine::Components::Transform* NodeTransform,
+            const EntityKdTreeNode* FromNode
+        ) const
+        {
+            if (nullptr != FromNode->GetLeftChild()) {
+                CheckAndHandleCollision(
+                    ComponentSystem,
+                    NodeUnderCheck,
+                    NodeTransform,
+                    FromNode->GetLeftChild()->GetContent()
+                );
+                ExecuteOnNodes(
+                    ComponentSystem,
+                    NodeUnderCheck,
+                    NodeTransform,
+                    FromNode->GetLeftChild()
+                );
+            }
+            if (nullptr != FromNode->GetRightChild()) {
+                CheckAndHandleCollision(
+                    ComponentSystem,
+                    NodeUnderCheck,
+                    NodeTransform,
+                    FromNode->GetRightChild()->GetContent()
+                );
+                ExecuteOnNodes(
+                    ComponentSystem,
+                    NodeUnderCheck,
+                    NodeTransform,
+                    FromNode->GetRightChild()
+                );
+            }
+        }
+
+        void CheckAndHandleCollision(
+            ComponentSystem<RigidBody2DComponent>* ComponentSystem,
+            EntityKdTreeNode* NodeUnderCheck,
+            Engine::Components::Transform* NodeTransform,
+            EntityHandle WithHandle
+        ) const
+        {
+            if (WithHandle == NodeUnderCheck->GetContent())
+                return;
+
+            auto WithBodyComponent = ComponentSystem->GetOf(WithHandle);
+            auto WithBodyTransform = WithBodyComponent->GetEntity().template GetComponent<Engine::Components::Transform>();
+            for (const auto& NodeBody : this->m_RigidBodies)
+            {
+                for (const auto& WithBody : WithBodyComponent->m_RigidBodies)
+                {
+                    std::vector<GeometricVector2DT> Axes = {};
+                    std::vector<GeometricPoint2DT> NodeProjectablePoints = {};
+                    std::vector<GeometricPoint2DT> ProjectablePoints = {};
+                    Maths::Collisions::SAT::ComputeAxesAndPointsToCheck<GeometricT, 2>(
+                        NodeTransform->Scale,
+                        WithBodyTransform->Scale,
+                        NodeTransform->Angle,
+                        WithBodyTransform->Angle,
+                        NodeTransform->Pos,
+                        WithBodyTransform->Pos,
+                        NodeBody->GetBoundingBox(),
+                        WithBody->GetBoundingBox(),
+                        Axes,
+                        NodeProjectablePoints,
+                        ProjectablePoints
+                    );
+
+                    GeometricVector2DT OverlapResolvingVector;
+                    if (Maths::Collisions::SAT::CheckOverlap(
+                        Axes,
+                        NodeProjectablePoints,
+                        ProjectablePoints,
+                        OverlapResolvingVector
+                    )) {
+                        if (this->IsMovable) {
+                            NodeTransform->Pos = NodeTransform->Pos + (OverlapResolvingVector);
+                            // tmp
+                            for (auto& Body : this->m_RigidBodies)
+                            {
+                                Body->Force = RigidBody2DComponent::PhysicsVector2DT{};
+                                Body->LinearVelocity = RigidBody2DComponent::PhysicsVector2DT{};
+                            }
+                        } else {
+                            WithBodyTransform->Pos = WithBodyTransform->Pos + (OverlapResolvingVector * -1);
+                            // tmp
+                            for (auto& Body : WithBodyComponent->GetRigidBodies())
+                            {
+                                Body->Force = RigidBody2DComponent::PhysicsVector2DT{};
+                                Body->LinearVelocity = RigidBody2DComponent::PhysicsVector2DT{};
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
         }
     };
 

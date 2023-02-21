@@ -4,6 +4,7 @@
 #include <vector>
 #include <functional>
 #include <stdexcept>
+#include <iostream>
 #include <cmath>
 
 namespace Maths::Graph {
@@ -119,6 +120,7 @@ namespace Maths::Graph {
 
         void Reset()
         {
+            this->m_Root = nullptr;
             for (auto It = this->rbegin(); It != this->rend(); It++)
             {
                 delete *It;
@@ -217,44 +219,30 @@ namespace Maths::Graph {
     public:
         using NodeType = NT;
         using NodeTypePtr = NodeType*;
+        using ConstNodeTypePtr = const NodeType*;
 
         KdTree() = default;
 
-        template <size_t Dimensions, bool AddLastNodes = true>
+        template <size_t Dimensions, typename PositionT, bool AddLastNodes = true>
         void CreateKdTree(
-            std::array<std::vector<typename NodeType::ContentT>, Dimensions>& DataToBeOrdered
+            std::vector<typename NodeType::ContentT>& DataToBeOrdered,
+            const std::function<PositionT(const typename NodeType::ContentT)>& GetPositionOfContent
         )
         {
             this->Reset();
-            this->reserve(DataToBeOrdered[0].size());
-            for (size_t i = 0; i < Dimensions; i++)
-            {
-                std::sort(DataToBeOrdered[i].begin(), DataToBeOrdered[i].end(), [&i](
-                    const NodeType::ContentT& Content1,
-                    const NodeType::ContentT& Content2
-                ) {
-                    return Content1.GetKdTreePosition()[i] < Content2.GetKdTreePosition()[i];
-                });
-            }
+            this->reserve(DataToBeOrdered.size());
 
-            std::array<typename std::vector<typename NodeType::ContentT>::iterator, Dimensions> StartIters = {};
-            std::array<typename std::vector<typename NodeType::ContentT>::iterator, Dimensions> EndIters = {};
-
-            for (size_t i = 0; i < Dimensions; i++)
-            {
-                StartIters[i] = DataToBeOrdered[i].begin();
-                EndIters[i] = DataToBeOrdered[i].end();
-            }
-
-            CreateKdTreeNode<typename BinaryTree<NT>::NodePositionLeft, Dimensions, AddLastNodes>(
-                StartIters,
-                EndIters
+            CreateKdTreeNode<typename BinaryTree<NT>::NodePositionLeft, PositionT, Dimensions, AddLastNodes>(
+                DataToBeOrdered,
+                GetPositionOfContent
             );
         }
 
-        template <size_t Dimensions>
+        template <size_t Dimensions, typename PositionT>
         NodeTypePtr FindNode(
-            NodeType::ContentT& Content,
+            const NodeType::ContentT& Content,
+            const std::function<PositionT(const typename NodeType::ContentT)>& GetPositionOfContent,
+            size_t& AtDepth,
             NodeTypePtr FromNode = nullptr,
             size_t Depth = Dimensions - 1
         )
@@ -269,12 +257,18 @@ namespace Maths::Graph {
                 return FromNode;
             }
 
-            auto& Position = Content.GetKdTreePosition();
-            auto& NodePosition = FromNode->GetContent().GetKdTreePosition();
+            auto Position = GetPositionOfContent(Content);
+            auto NodePosition = GetPositionOfContent(FromNode->GetContent());
             auto OnIndex = GetAxisIndexForKdTreeNode<Dimensions>(Depth);
             if (Position[OnIndex] <= NodePosition[OnIndex] && nullptr != FromNode->GetLeftChild())
             {
-                auto OnLeftNode = FindNode<Dimensions>(Content, FromNode->GetLeftChild(), Depth + 1);
+                AtDepth = Depth;
+                auto OnLeftNode = FindNode<Dimensions, PositionT>(
+                    Content,
+                    GetPositionOfContent,
+                    FromNode->GetLeftChild(),
+                    Depth + 1
+                );
                 if (nullptr != OnLeftNode || Position[OnIndex] < NodePosition[OnIndex]) {
                     return OnLeftNode;
                 }
@@ -282,56 +276,118 @@ namespace Maths::Graph {
 
             if (Position[OnIndex] >= NodePosition[OnIndex] && nullptr != FromNode->GetRightChild())
             {
-                auto OnRightNode = FindNode<Dimensions>(Content, FromNode->GetRightChild(), Depth + 1);
-                return OnRightNode;
+                AtDepth = Depth;
+                return FindNode<Dimensions, PositionT>(
+                    Content,
+                    GetPositionOfContent,
+                    FromNode->GetRightChild(),
+                    Depth + 1
+                );
             }
 
             return nullptr;
         }
+
+        template <size_t Dimensions, typename PositionT>
+        NodeTypePtr FindNode(
+            const NodeType::ContentT& Content,
+            const std::function<PositionT(const typename NodeType::ContentT)>& GetPositionOfContent,
+            NodeTypePtr FromNode = nullptr,
+            size_t Depth = Dimensions - 1
+        )
+        {
+            size_t AtDepth = 0;
+            return FindNode<Dimensions, PositionT>(
+                Content,
+                GetPositionOfContent,
+                AtDepth,
+                FromNode,
+                Depth
+            );
+        }
+
+        template <size_t Dimensions>
+        void DeleteNode(
+            const NodeType::ContentT& Content
+        )
+        {
+            size_t AtDepth = 0;
+            auto Node = FindNode<Dimensions>(Content, AtDepth);
+            if (nullptr == Node)
+            {
+                throw std::runtime_error("Node is not part of the tree");
+            }
+
+            // recreate tree from here
+        }
+
     protected:
-        template <typename NodePosition, size_t Dimensions, bool AddLastNodes = true>
+        template <typename PositionT>
+        void SortNodeData(
+            std::vector<typename NodeType::ContentT> Data,
+            const std::function<PositionT(const typename NodeType::ContentT)>& GetPositionOfContent,
+            const size_t& AxisIndex
+        )
+        {
+            std::sort(Data.begin(), Data.end(), [&AxisIndex, &GetPositionOfContent](
+                const NodeType::ContentT& Content1,
+                const NodeType::ContentT& Content2
+            ) {
+                return GetPositionOfContent(Content1)[AxisIndex] < GetPositionOfContent(Content2)[AxisIndex];
+            });
+        }
+
+        template <typename NodePosition, typename PositionT, size_t Dimensions, bool AddLastNodes = true>
         NodeTypePtr CreateKdTreeNode(
-            std::array<typename std::vector<typename NodeType::ContentT>::iterator, Dimensions> OnAxisStart,
-            std::array<typename std::vector<typename NodeType::ContentT>::iterator, Dimensions> OnAxisEnd,
+            std::vector<typename NodeType::ContentT> Data,
+            const std::function<PositionT(const typename NodeType::ContentT)>& GetPositionOfContent,
             NodeTypePtr Parent = nullptr,
             // Dimensions - 1 to start with only 1 line and then cycle
             size_t Depth = Dimensions - 1
         )
         {
-            const size_t SelectedIdx = Maths::Graph::GetAxisIndexForKdTreeNode<Dimensions>(Depth);
-            const auto& DistanceBetweenStartEnd = std::distance(OnAxisStart[SelectedIdx], OnAxisEnd[SelectedIdx]);
-            if (DistanceBetweenStartEnd < 2)
+            const auto RestSize = Data.size();
+            if (RestSize < 2)
             {
                 if constexpr (AddLastNodes) {
-                    if (DistanceBetweenStartEnd == 1) {
-                        this->template AddNode<NodePosition>(*(OnAxisStart[SelectedIdx]), Parent);
+                    if (RestSize == 1) {
+                        this->template AddNode<NodePosition>(Data[0], Parent);
                     }
                 }
                 return nullptr;
             }
 
-            const typename std::vector<typename NodeType::ContentT>::difference_type Index = std::floor(DistanceBetweenStartEnd / 2);
+            const size_t SelectedIdx = Maths::Graph::GetAxisIndexForKdTreeNode<Dimensions>(Depth);
+            SortNodeData(Data, GetPositionOfContent, SelectedIdx);
+
+            const typename std::vector<typename NodeType::ContentT>::difference_type HalfSize = std::floor(RestSize / 2);
+            const auto Index = HalfSize - 1;
             auto NewNode = this->template AddNode<NodePosition>(
-                *(OnAxisStart[SelectedIdx] + Index),
+                Data[Index],
                 Parent
             );
 
             {
-                auto NewAxisEnd = OnAxisEnd;
-                NewAxisEnd[SelectedIdx] = OnAxisStart[SelectedIdx] + Index;
-                CreateKdTreeNode<typename BinaryTree<NT>::NodePositionLeft, Dimensions, AddLastNodes>(
-                    OnAxisStart,
-                    NewAxisEnd,
+                std::vector<typename NodeType::ContentT> NewData;
+                if (Index > 0) {
+                    NewData.insert(NewData.begin(), Data.begin(), Data.begin() + Index);
+                }
+                CreateKdTreeNode<typename BinaryTree<NT>::NodePositionLeft, PositionT, Dimensions, AddLastNodes>(
+                    NewData,
+                    GetPositionOfContent,
                     NewNode,
                     Depth + 1
                 );
             }
             {
-                auto NewAxisStart = OnAxisStart;
-                NewAxisStart[SelectedIdx] += Index + 1;
-                CreateKdTreeNode<typename BinaryTree<NT>::NodePositionRight, Dimensions, AddLastNodes>(
-                    NewAxisStart,
-                    OnAxisEnd,
+                std::vector<typename NodeType::ContentT> NewData;
+                if (Index + 1 < Data.size())
+                {
+                    NewData.insert(NewData.begin(), Data.begin() + Index + 1, Data.end());
+                }
+                CreateKdTreeNode<typename BinaryTree<NT>::NodePositionRight, PositionT, Dimensions, AddLastNodes>(
+                    NewData,
+                    GetPositionOfContent,
                     NewNode,
                     Depth + 1
                 );

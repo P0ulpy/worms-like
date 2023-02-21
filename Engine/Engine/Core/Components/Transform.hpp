@@ -21,6 +21,11 @@ namespace Engine::Components {
         float Angle = .0f;
 
         sf::Transform TransformationMatrix;
+
+        ~Transform()
+        {
+            auto i = 0;
+        }
     };
 
 } // Engine

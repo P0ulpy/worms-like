@@ -12,47 +12,20 @@
 #include "SFML/Graphics/RenderTarget.hpp"
 
 #include "../ComponentSystem/ComponentSystem.hpp"
-#include "../../Core/RTTI/ClassType.hpp"
-#include "../../Core/Components/Physics.hpp"
+#include "../../RTTI/ClassType.hpp"
 #include "../../Maths/Graph.hpp"
 
 namespace Engine
 {
-    namespace PhysicsCalculations
-    {
-        struct EntityKdTreeNodeContent
-        {
-            EntityKdTreeNodeContent(
-                EntityHandle H,
-                Engine::Components::Transform* TC,
-                Engine::Components::Physics::RigidBody2DdComponent* BC
-            ) : Handle(H), TransformComponent(TC), BodyComponent(BC) {};
-
-            EntityHandle Handle;
-            Engine::Components::Transform* TransformComponent;
-            Engine::Components::Physics::RigidBody2DdComponent* BodyComponent;
-
-            [[nodiscard]] const Engine::Components::Transform::PointT& GetKdTreePosition() const
-            {
-                return TransformComponent->Pos;
-            }
-
-            bool operator==(const EntityKdTreeNodeContent& Other) const
-            {
-                return Handle == Other.Handle;
-            }
-        };
-
-        using EntityKdTreeNode = Maths::Graph::BinaryTreeNode<EntityKdTreeNodeContent>;
-        using EntityKdTree = Maths::Graph::KdTree<EntityKdTreeNode>;
-    }
-
     /* Entities registry is the core interface for our ESC system
      * it manages Components association with Entities
      * */
     class EntitiesRegistry
     {
     public:
+        using EntityKdTreeNode = Maths::Graph::BinaryTreeNode<EntityHandle>;
+        using EntityKdTree = Maths::Graph::KdTree<EntityKdTreeNode>;
+
         EntityHandle CreateEntity();
 
         void DestroyEntity(EntityHandle handle);
@@ -90,10 +63,10 @@ namespace Engine
     private:
         bool m_markedForDestruction = false;
 
-        std::unordered_map<ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
+        std::unordered_map<RTTI::ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
 
-        std::unordered_map<ClassType*, IComponentSystem*> m_updatableSystems;
-        std::unordered_map<ClassType*, IComponentSystem*> m_renderableSystems;
+        std::unordered_map<RTTI::ClassType*, IComponentSystem*> m_updatableSystems;
+        std::unordered_map<RTTI::ClassType*, IComponentSystem*> m_renderableSystems;
 
         void View(IComponentSystem::ViewCallback callback);
     };

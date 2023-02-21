@@ -6,7 +6,7 @@
 #define PATHFINDER_COMPONENT_HPP
 
 #include "../../Core/UUID.hpp"
-#include "../../Core/RTTI/ClassType.hpp"
+#include "../../RTTI/ClassType.hpp"
 #include "../Handles/Handles.hpp"
 #include "../Entity/Entity.hpp"
 
@@ -15,7 +15,7 @@ namespace Engine
     class Component : public IClassType
     {
     public:
-        DECLARE_CLASS_TYPE(Component, NoClassTypeAncestor)
+        DECLARE_CLASS_TYPE(Component, RTTI::NoClassTypeAncestor)
 
     public:
         Component() = default;

@@ -5,6 +5,8 @@
 #include <iostream>
 
 namespace Maths {
+    // @todo maybe inherit Vector and Point from std::array
+    // @todo replace for loops with constexpr sequences
     template <typename T, size_t Size>
     struct Vector;
 
@@ -28,6 +30,21 @@ namespace Maths {
         T& operator[](const int& Index)
         {
             return Values[Index];
+        }
+
+        bool operator==(const Point& Other) const
+        {
+            for (size_t i = 0; i < Size; i++)
+            {
+                if (Values[i] != Other[i])
+                    return false;
+            }
+            return true;
+        }
+
+        bool operator!=(const Point& Other) const
+        {
+            return !(*this == Other);
         }
 
         Point operator+(const Vector<T, Size>& Other) const;
@@ -102,6 +119,21 @@ namespace Maths {
         T& operator[](const int& Index)
         {
             return Values[Index];
+        }
+
+        bool operator==(const Vector& Other) const
+        {
+            for (size_t i = 0; i < Size; i++)
+            {
+                if (Values[i] != Other[i])
+                    return false;
+            }
+            return true;
+        }
+
+        bool operator!=(const Vector& Other) const
+        {
+            return !(*this == Other);
         }
 
         T GetSquareLength() const
@@ -214,10 +246,20 @@ namespace Maths {
             return *this;
         }
 
+        Vector operator*(const Vector& Other) const
+        {
+            Vector newVec;
+            for (size_t i = 0; i <= Size; i++)
+            {
+                newVec[i] = Values[i] * Other[i];
+            }
+            return newVec;
+        }
+
         Vector operator*(const T& Other) const
         {
             Vector newVec;
-            for (size_t i = 1; i <= Size; i++)
+            for (size_t i = 0; i <= Size; i++)
             {
                 newVec[i] = Values[i] * Other;
             }
