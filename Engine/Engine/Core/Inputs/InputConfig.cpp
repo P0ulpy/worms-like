@@ -3,3 +3,5 @@
 //
 
 #include "InputConfig.hpp"
+
+InputConfig* InputConfig::m_inputConfig = nullptr;

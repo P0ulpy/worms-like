@@ -28,10 +28,13 @@ set(ENGINE_HEADERS
         Engine/Renderer/AllRenderComponents.hpp
 
         Engine/AssetLoader/AssetLoader.hpp
-        Engine/Core/Inputs/InputSignal.h
+        Engine/Core/Inputs/InputSignal.hpp
 
         Engine/Core/Inputs/Connection.hpp
         Engine/Core/Inputs/InputConfig.hpp
+
+        Engine/Core/Inputs/Binding.hpp
+        Engine/Vendor/mINI/ini.hpp
 )
 
 set(ENGINE_SOURCES

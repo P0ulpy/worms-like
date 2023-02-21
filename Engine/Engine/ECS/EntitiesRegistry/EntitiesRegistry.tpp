@@ -4,7 +4,6 @@
 #include "SFML/Graphics/RenderWindow.hpp"
 
 #include <memory>
-#include <amp_short_vectors.h>
 
 namespace Engine
 {

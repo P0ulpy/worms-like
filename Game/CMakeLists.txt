@@ -7,7 +7,8 @@ set(GAME_SOURCES
 )
 
 # TODO : Temporary solution, copy is not done each time the project is compiled
-# file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY Config DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable(Game ${GAME_HEADERS} ${GAME_SOURCES})
 

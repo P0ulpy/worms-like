@@ -2,8 +2,7 @@
 // Created by Admin on 22/01/2023.
 //
 
-#ifndef POPOSIBENGINE_INPUTSIGNAL_H
-#define POPOSIBENGINE_INPUTSIGNAL_H
+#pragma once
 
 #include <SFML/Window/Keyboard.hpp>
 
@@ -18,14 +17,13 @@
 #include <stdexcept>
 
 class InputSignal {
-    friend class InputConfig;
-
+    using EventType = std::string_view;
     using Callback = typename Connection::Callback;
     using Observers = std::vector<Connection*>;
     using ObserversMap = std::map<EventType, Observers>;
 
 public:
-    static InputSignal* GetInstance() {
+    static InputSignal* Get() {
         if (nullptr == m_inputSignal) {
             m_inputSignal = new InputSignal();
         }
@@ -111,40 +109,22 @@ public:
         }
     }
 
-    void Emit(const EventSignalType& eventSignalType) const {
-        auto eventTypes = m_inputConfig->GetEventTypes(eventSignalType);
-
-        if (eventTypes.empty())
+    void Emit(const EventType& eventType) const {
+        if(eventType.empty())
             return;
 
-        for (auto eventType : eventTypes)
-        {
-            auto it = m_observers.find(eventType);
-            if (it != m_observers.end())
-                for (auto observer : it->second)
-                    observer->m_callback();
-        }
+        auto it = m_observers.find(eventType);
+        if (it != m_observers.end())
+            for (auto observer : it->second)
+                observer->m_callback();
     }
 
-    void operator()(const EventSignalType& eventSignalType) const {
-        Emit(eventSignalType);
-    }
-
-    void ChangeInputConfig(EventType eventType, EventSignalType eventSignalType)
-    {
-        auto PreviousEventSignalType = m_inputConfig->GetEventSignalType(eventType);
-
-        if (PreviousEventSignalType == EventSignalType().Null())
-            return;
-
-        m_inputConfig->SetEventSignalType(eventType, eventSignalType);
+    void operator()(const EventType& eventType) const {
+        Emit(eventType);
     }
 
 private:
-    InputSignal()
-    {
-        m_inputConfig = std::make_unique<InputConfig>();
-    }
+    InputSignal() = default;
     ~InputSignal()
     {
         for (auto& observer : m_observers) {
@@ -159,11 +139,8 @@ private:
 
 
 private:
-    std::unique_ptr<InputConfig> m_inputConfig;
     static InputSignal* m_inputSignal;
 
     mutable ObserversMap m_observers;
 
 };
-
-#endif //POPOSIBENGINE_INPUTSIGNAL_H

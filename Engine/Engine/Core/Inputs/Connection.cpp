@@ -3,7 +3,7 @@
 //
 
 #include "Connection.hpp"
-#include "InputSignal.h"
+#include "InputSignal.hpp"
 
 Connection::Connection(Connection::Callback callback, Connection::StateType state, InputSignal* signal)
         : m_callback(callback), m_state(state), m_signal(signal)
@@ -33,7 +33,7 @@ void ScopedConnection::disconnect() const {
 
 }
 
-SlotConnection::SlotConnection(InputSignal& signal, EventType eventType, const Connection::Callback& callback) :
+SlotConnection::SlotConnection(InputSignal& signal, const EventType& eventType, const Connection::Callback& callback) :
         m_scopedConnection(signal.connectScoped(eventType, [=]() {
             if (!m_semaphore.isDisabled())
                 return;

@@ -58,6 +58,8 @@ struct ScopedConnection
 {
     friend class InputSignal;
 
+    using EventType = std::string_view;
+
     ScopedConnection();
     ScopedConnection(const ScopedConnection& other) = default;
     ScopedConnection(ScopedConnection&& other);
@@ -66,7 +68,7 @@ struct ScopedConnection
     ~ScopedConnection();
 
 private:
-    explicit ScopedConnection(EventType eventType, Connection* connection)
+    explicit ScopedConnection(const EventType& eventType, Connection* connection)
             : m_eventType(eventType), m_connection(connection)
     {}
 
@@ -79,11 +81,13 @@ struct SlotConnection
 {
     friend class InputSignal;
 
+    using EventType = std::string_view;
+
     void block();
     void unblock();
     auto scopedBlock();
 
-    SlotConnection(InputSignal& signal, EventType eventType, const Connection::Callback& callback);
+    SlotConnection(InputSignal& signal, const EventType& eventType, const Connection::Callback& callback);
     SlotConnection(const SlotConnection& other) = delete;
     SlotConnection(SlotConnection&& other) = delete;
     SlotConnection& operator=(const SlotConnection& other) = delete;
