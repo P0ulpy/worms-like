@@ -17,12 +17,12 @@ class InputConfig {
 public:
     static InputConfig* Get()
     {
-        if (m_inputConfig == nullptr)
-            m_inputConfig = new InputConfig();
-        return m_inputConfig;
+        static InputConfig m_inputConfig;
+
+        return &m_inputConfig;
     }
 
-    void LoadConfig(const ConfigKey& path)
+    void LoadConfig(const std::string& path)
     {
         mINI::INIFile file(path);
 
@@ -39,14 +39,14 @@ public:
         for (auto& key : mouse)
         {
             auto binding = BindingsMap.at(key.second);
-            m_bindingsmouse[key.first] = binding;
+            m_bindingsmouse.emplace(key.first, binding);
         }
 
         auto events = ini["events"];
         for (auto& key : events)
         {
             auto binding = BindingsMap.at(key.second);
-            m_bindingsevents[key.first] = binding;
+            m_bindingsevents.emplace(key.first, binding);
         }
 
     }
@@ -114,7 +114,6 @@ public:
     }
 
 private:
-    static InputConfig* m_inputConfig;
     explicit InputConfig() = default;
 
     std::unordered_map<ConfigKey, ConfigType> m_bindingskeys;

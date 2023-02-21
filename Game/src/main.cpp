@@ -9,7 +9,7 @@
 #include "Engine/Core/Inputs/InputConfig.hpp"
 #include "Engine/Core/Inputs/InputSignal.hpp"
 
-#include <iostream>
+/*#include <iostream>*/
 
 class App : public Engine::EngineApplication
 {
@@ -70,10 +70,10 @@ int main(int argc, char* argv[])
     app.PushLayer(&gameLayer);
     app.Init();
 
-    InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
+/*    InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
     InputSignal::Get()->connect("close_window", [&app = app](){ std::cout << "Close" << std::endl; });
     InputSignal::Get()->connect("pause", [&app = app](){ std::cout << "Pause" << std::endl; });
-    InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });
+    InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });*/
 
     app.Run();
 }
