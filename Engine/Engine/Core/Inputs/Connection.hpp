@@ -10,6 +10,10 @@
 #include <variant>
 
 class InputSignal;
+
+template<typename... Args>
+class InputSlot;
+
 enum class EventType;
 
 template<typename... Types>
@@ -37,47 +41,48 @@ private:
     size_t m_counter;
 };
 
-struct Connection {
-    friend class InputSignal;
-
+struct ConnectionSignal {
     using Callback = std::function<void()>;
+    using Signal = InputSignal;
+    using SignalPtr = Signal*;
+
     struct Managed {};
     struct Scoped {};
     struct Zombified {};
 
     using StateType = std::variant<Managed, Scoped, Zombified>;
 
-    Connection(Callback callback, StateType state, InputSignal* signal);
+    ConnectionSignal(Callback callback, StateType state, SignalPtr signal);
 
     Callback m_callback;
     StateType m_state;
-    InputSignal* m_signal;
+    SignalPtr m_signal;
 };
 
-struct ScopedConnection
+struct ScopedConnectionSignal
 {
     friend class InputSignal;
 
     using EventType = std::string_view;
 
-    ScopedConnection();
-    ScopedConnection(const ScopedConnection& other) = default;
-    ScopedConnection(ScopedConnection&& other);
-    ScopedConnection& operator=(const ScopedConnection& other) = default;
-    ScopedConnection& operator=(ScopedConnection&& other);
-    ~ScopedConnection();
+    ScopedConnectionSignal();
+    ScopedConnectionSignal(const ScopedConnectionSignal& other) = default;
+    ScopedConnectionSignal(ScopedConnectionSignal&& other);
+    ScopedConnectionSignal& operator=(const ScopedConnectionSignal& other) = default;
+    ScopedConnectionSignal& operator=(ScopedConnectionSignal&& other);
+    ~ScopedConnectionSignal();
 
 private:
-    explicit ScopedConnection(const EventType& eventType, Connection* connection)
+    explicit ScopedConnectionSignal(const EventType& eventType, ConnectionSignal* connection)
             : m_eventType(eventType), m_connection(connection)
     {}
 
     void disconnect() const;
-    mutable Connection* m_connection = nullptr;
+    mutable ConnectionSignal* m_connection = nullptr;
     mutable EventType m_eventType;
 };
 
-struct SlotConnection
+struct SlotConnectionSignal
 {
     friend class InputSignal;
 
@@ -87,14 +92,72 @@ struct SlotConnection
     void unblock();
     auto scopedBlock();
 
-    SlotConnection(InputSignal& signal, const EventType& eventType, const Connection::Callback& callback);
+    SlotConnectionSignal(InputSignal& signal, const EventType& eventType, const ConnectionSignal::Callback& callback);
+    SlotConnectionSignal(const SlotConnectionSignal& other) = delete;
+    SlotConnectionSignal(SlotConnectionSignal&& other) = delete;
+    SlotConnectionSignal& operator=(const SlotConnectionSignal& other) = delete;
+    SlotConnectionSignal& operator=(SlotConnectionSignal&& other) = delete;
+
+private:
+    ScopedConnectionSignal m_scopedConnection;
+    Semaphore m_semaphore;
+};
+
+template<typename... Args>
+struct Connection {
+    using Callback = std::function<void(Args...)>;
+    using Signal = InputSlot<Args...>;
+    using SignalPtr = Signal*;
+
+    struct Managed {};
+    struct Scoped {};
+    struct Zombified {};
+
+    using StateType = std::variant<Managed, Scoped, Zombified>;
+
+    Connection(Callback callback, StateType state, SignalPtr* signal);
+
+    Callback m_callback;
+    StateType m_state;
+    SignalPtr* m_signal;
+};
+
+template<typename... Args>
+struct ScopedConnection
+{
+    friend class InputSlot<Args...>;
+
+    ScopedConnection();
+    ScopedConnection(const ScopedConnection& other) = default;
+    ScopedConnection(ScopedConnection&& other);
+    ScopedConnection& operator=(const ScopedConnection& other) = default;
+    ScopedConnection& operator=(ScopedConnection&& other);
+    ~ScopedConnection();
+
+private:
+    explicit ScopedConnection(Connection<Args...>* connection)
+            : m_connection(connection)
+    {}
+
+    void disconnect() const;
+    mutable Connection<Args...>* m_connection = nullptr;
+};
+
+template<typename... Args>
+struct SlotConnection
+{
+    void block();
+    void unblock();
+    auto scopedBlock();
+
+    SlotConnection(InputSignal& signal, const typename Connection<Args...>::Callback& callback);
     SlotConnection(const SlotConnection& other) = delete;
     SlotConnection(SlotConnection&& other) = delete;
     SlotConnection& operator=(const SlotConnection& other) = delete;
     SlotConnection& operator=(SlotConnection&& other) = delete;
 
 private:
-    ScopedConnection m_scopedConnection;
+    ScopedConnection<Args...> m_scopedConnection;
     Semaphore m_semaphore;
 };
 
