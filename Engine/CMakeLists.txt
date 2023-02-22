@@ -31,6 +31,7 @@ set(ENGINE_HEADERS
         Engine/Core/Inputs/InputSignal.hpp
         Engine/Core/Inputs/InputSignal.tpp
         Engine/Core/Inputs/Connection.hpp
+        Engine/Core/Inputs/Connection.tpp
         Engine/Core/Inputs/InputConfig.hpp
         Engine/Core/Inputs/Observable.hpp
         Engine/Core/Inputs/Observable.tpp

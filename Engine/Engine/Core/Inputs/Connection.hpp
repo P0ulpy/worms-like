@@ -2,9 +2,7 @@
 // Created by Admin on 30/01/2023.
 //
 
-#ifndef POPOSIBENGINE_CONNECTION_HPP
-#define POPOSIBENGINE_CONNECTION_HPP
-
+#pragma once
 
 #include <functional>
 #include <variant>
@@ -14,7 +12,7 @@ namespace SignalSystem
     class InputSignal;
 
     template<typename... Args>
-    class InputSlot;
+    class Signal;
 
     enum class EventType;
 
@@ -108,7 +106,7 @@ namespace SignalSystem
     template<typename... Args>
     struct Connection {
         using Callback = std::function<void(Args...)>;
-        using Signal = InputSlot<Args...>;
+        using Signal = Signal<Args...>;
         using SignalPtr = Signal*;
 
         struct Managed {};
@@ -127,7 +125,7 @@ namespace SignalSystem
     template<typename... Args>
     struct ScopedConnection
     {
-        friend class InputSlot<Args...>;
+        friend class Signal<Args...>;
 
         ScopedConnection();
         ScopedConnection(const ScopedConnection& other) = default;
@@ -152,7 +150,7 @@ namespace SignalSystem
         void unblock();
         auto scopedBlock();
 
-        SlotConnection(InputSignal& signal, const typename Connection<Args...>::Callback& callback);
+        SlotConnection(Signal<Args...>& signal, const typename Signal<Args...>::Callback& callback);
         SlotConnection(const SlotConnection& other) = delete;
         SlotConnection(SlotConnection&& other) = delete;
         SlotConnection& operator=(const SlotConnection& other) = delete;
@@ -164,5 +162,4 @@ namespace SignalSystem
     };
 }
 
-
-#endif //POPOSIBENGINE_CONNECTION_HPP
+#include "Connection.tpp"

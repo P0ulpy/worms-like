@@ -152,7 +152,7 @@ namespace SignalSystem
     };
 
     template<typename... Args>
-    class InputSlot {
+    class Signal {
         using ConnectionType = Connection<Args...>;
         using ScopedConnectionType = ScopedConnection<Args...>;
         using SlotConnectionType = SlotConnection<Args...>;
@@ -161,34 +161,26 @@ namespace SignalSystem
         using Observers = std::vector<ConnectionType*>;
 
     public:
-        InputSlot() = default;
-        ~InputSlot()
-        {
-            for (auto& connection : m_observers) {
-                match(connection->m_state,
-                      [&](typename ConnectionType::Managed) { delete connection; },
-                      [&](typename ConnectionType::Scoped) { connection->m_state = typename ConnectionType::Zombified{}; },
-                      [&](typename ConnectionType::Zombified) { delete connection; });
-            }
-        }
+        Signal() = default;
+        ~Signal();
 
         void connect(const Callback& callback) const;
         template<typename Type>
-        void connect(Type* instance, void (Type::* fn)()) const;
+        void connect(Type* instance, void (Type::* fn)(Args...)) const;
         template<typename Type>
-        void connect(Type* instance, void (Type::* fn)() const) const;
+        void connect(Type* instance, void (Type::* fn)(Args...) const) const;
 
         ScopedConnectionType connectScoped(const Callback& callback) const;
         template<typename Type>
-        ScopedConnectionType connectScoped(Type* instance, void (Type::* fn)()) const;
+        ScopedConnectionType connectScoped(Type* instance, void (Type::* fn)(Args...)) const;
         template<typename Type>
-        ScopedConnectionType connectScoped(Type* instance, void (Type::* fn)() const) const;
+        ScopedConnectionType connectScoped(Type* instance, void (Type::* fn)(Args...) const) const;
 
         SlotConnectionType connectSlot(const Callback& callback) const;
         template<typename Type>
-        SlotConnectionType connectSlot(Type* instance, void (Type::* fn)()) const;
+        SlotConnectionType connectSlot(Type* instance, void (Type::* fn)(Args...)) const;
         template<typename Type>
-        SlotConnectionType connectSlot(Type* instance, void (Type::* fn)() const) const;
+        SlotConnectionType connectSlot(Type* instance, void (Type::* fn)(Args...) const) const;
 
         void Disconnect(ConnectionType* connection) const;
         void Emit(const Args&... args) const;

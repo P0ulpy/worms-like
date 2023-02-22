@@ -26,7 +26,7 @@ namespace SignalSystem
         void notify();
 
         Type m_value;
-        InputSlot<Type> m_signal;
+        Signal<Type> m_signal;
         ScopedConnection<Type> m_scopedConnection;
     };
 }
