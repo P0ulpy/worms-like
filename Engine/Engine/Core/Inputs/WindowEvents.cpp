@@ -25,19 +25,19 @@ namespace Engine
             s_events[event.type] = event;
 
 
-            auto mouse = InputConfig::Get()->GetMouseBindingName(event.type, event.mouseButton.button);
+            auto mouse = SignalSystem::InputConfig::Get()->GetMouseBindingName(event.type, event.mouseButton.button);
             if (!mouse.empty())
                 for(const auto& name : mouse)
-                    InputSignal::Get()->Emit(name);
+                    SignalSystem::InputSignal::Get()->Emit(name);
 
-            auto key = InputConfig::Get()->GetKeyBindingName(event.type, event.key.code);
+            auto key = SignalSystem::InputConfig::Get()->GetKeyBindingName(event.type, event.key.code);
             if (!key.empty())
                 for(const auto& name : key)
-                    InputSignal::Get()->Emit(name);
+                    SignalSystem::InputSignal::Get()->Emit(name);
 
-            auto eventName = InputConfig::Get()->GetEventBindingName(event.type);
+            auto eventName = SignalSystem::InputConfig::Get()->GetEventBindingName(event.type);
             if (!eventName.empty())
-                InputSignal::Get()->Emit(eventName);
+                SignalSystem::InputSignal::Get()->Emit(eventName);
         }
     }
 

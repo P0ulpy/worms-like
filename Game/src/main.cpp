@@ -6,10 +6,9 @@
 #include "Engine/Core/Components/SpriteRenderer.hpp"
 #include "Engine/ECS/Entity/Entity.hpp"
 
-#include "Engine/Core/Inputs/InputConfig.hpp"
-#include "Engine/Core/Inputs/InputSignal.hpp"
+#include "Engine/Core/Inputs/Observable.hpp"
 
-/*#include <iostream>*/
+#include <iostream>
 
 class App : public Engine::EngineApplication
 {
@@ -70,10 +69,18 @@ int main(int argc, char* argv[])
     app.PushLayer(&gameLayer);
     app.Init();
 
-/*    InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
-    InputSignal::Get()->connect("close_window", [&app = app](){ std::cout << "Close" << std::endl; });
-    InputSignal::Get()->connect("pause", [&app = app](){ std::cout << "Pause" << std::endl; });
-    InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });*/
+    /*SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
+    SignalSystem::InputSignal::Get()->connect("close_window", [&app = app](){ std::cout << "Close" << std::endl; });
+    SignalSystem::InputSignal::Get()->connect("pause", [&app = app](){ std::cout << "Pause" << std::endl; });
+    SignalSystem::InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });*/
+
+    SignalSystem::Observable<int> t;
+    t.connect([](int value)
+              {
+                  std::cout << value << std::endl;
+              });
+    t = 2;
+    t = 4;
 
     app.Run();
 }

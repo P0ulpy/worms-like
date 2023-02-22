@@ -4,4 +4,7 @@
 
 #include "InputSignal.hpp"
 
-InputSignal* InputSignal::m_inputSignal = nullptr;
+namespace SignalSystem
+{
+
+}

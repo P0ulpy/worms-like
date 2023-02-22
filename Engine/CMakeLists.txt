@@ -29,9 +29,11 @@ set(ENGINE_HEADERS
 
         Engine/AssetLoader/AssetLoader.hpp
         Engine/Core/Inputs/InputSignal.hpp
-
+        Engine/Core/Inputs/InputSignal.tpp
         Engine/Core/Inputs/Connection.hpp
         Engine/Core/Inputs/InputConfig.hpp
+        Engine/Core/Inputs/Observable.hpp
+        Engine/Core/Inputs/Observable.tpp
 
         Engine/Core/Inputs/Binding.hpp
         Engine/Vendor/mINI/ini.hpp
@@ -59,6 +61,7 @@ set(ENGINE_SOURCES
         Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/Connection.cpp
         Engine/Core/Inputs/InputConfig.cpp
+        Engine/Core/Inputs/Observable.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)

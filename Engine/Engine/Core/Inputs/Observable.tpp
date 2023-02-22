@@ -1,12 +1,8 @@
-//
-// Created by Admin on 22/02/2023.
-//
-
-#include "Observable.hpp"
+#pragma once
 
 namespace SignalSystem
 {
-    /*template<typename Type>
+    template<typename Type>
     Observable<Type>::Observable(const Type &value)
             : m_value(value)
     {}
@@ -42,5 +38,5 @@ namespace SignalSystem
     void Observable<Type>::notify()
     {
         m_signal(m_value);
-    }*/
+    }
 }
