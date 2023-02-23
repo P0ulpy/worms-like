@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 #include "Vector.hpp"
 #include "Shape.hpp"
 
@@ -101,7 +102,7 @@ namespace Maths::Collisions
             }
         }
 
-        // OverlapSizeResult must be < 0 to correctly compute
+        // OverlapSizeResult must be initialized with < 0 to correctly compute
         template <typename GeometricType, size_t Dimensions>
         bool IntersectOnAxis(
             const Maths::Vector<GeometricType, Dimensions>& Axis,
@@ -121,6 +122,53 @@ namespace Maths::Collisions
                 {
                     OverlapSizeResult = std::abs(OverlapSize);
                     OverlapDirectionResult = Axis * (MinA <= MinB && MaxA <= MaxB ? -1 : 1);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        // TimesOfCollisions must be initialized with +inf, -inf to correctly compute
+        template <typename GeometricType, size_t Dimensions>
+        bool IntersectOnAxis(
+            std::array<float, 2>& TimesOfCollision,
+            const Maths::Vector<GeometricType, Dimensions>& VelocityA,
+            const Maths::Vector<GeometricType, Dimensions>& VelocityB,
+            const Maths::Vector<GeometricType, Dimensions>& Axis,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
+        )
+        {
+            GeometricType MinA = 0, MaxA = 0, MinB = 0, MaxB = 0;
+            GetMinAndMaxProjectedValues(Axis, PointsA, MinA, MaxA);
+            GetMinAndMaxProjectedValues(Axis, PointsB, MinB, MaxB);
+            if ((MaxA >= MinB) && (MaxB >= MinA))
+            {
+                GeometricType OverlapSize = std::min(MaxA, MaxB) - std::max(MinA, MinB) + 1;
+                auto RelativeVelocity = Maths::ProjectOnUnitVectorVector(VelocityA, Axis) - Maths::ProjectOnUnitVectorVector(VelocityB, Axis);
+                auto RelativeSpeed = RelativeVelocity.GetLength();
+                if (RelativeSpeed == 0) {
+//                    TimesOfCollision[0] = std::min(TimesOfCollision[0], 0.f);
+//                    TimesOfCollision[1] = std::max(TimesOfCollision[1], 0.f);
+                } else if (RelativeSpeed > 0) {
+                    if ((MinA < MinB < MaxA) || (MinB < MinA < MaxB))
+                    {
+                        TimesOfCollision[0] = std::min(TimesOfCollision[0], (float) ((MaxA - MinB) / RelativeSpeed));
+                        TimesOfCollision[1] = std::max(TimesOfCollision[1], 0.f);
+                    } else {
+                        TimesOfCollision[0] = std::min(TimesOfCollision[0], (float) ((MaxA - MinB) / RelativeSpeed));
+                        TimesOfCollision[1] = std::max(TimesOfCollision[1], (float) ((MinA - MaxB) / RelativeSpeed));
+                    }
+                } else {
+                    if ((MinA < MinB < MaxA) || (MinB < MinA < MaxB))
+                    {
+                        TimesOfCollision[0] = std::min(TimesOfCollision[0], (float) ((MaxB - MinA) / RelativeSpeed));
+                        TimesOfCollision[1] = std::max(TimesOfCollision[1], 0.f);
+                    } else {
+                        TimesOfCollision[0] = std::min(TimesOfCollision[0], (float) ((MaxB - MinA) / RelativeSpeed));
+                        TimesOfCollision[1] = std::max(TimesOfCollision[1], (float) ((MinB - MaxA) / RelativeSpeed));
+                    }
                 }
                 return true;
             }
@@ -172,6 +220,37 @@ namespace Maths::Collisions
             );
             ResolvingVector = OverlapDirectionResult * OverlapSizeResult;
             return Overlap;
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        bool CheckOverlap(
+            std::array<float, 2>& TimesOfCollision,
+            const Maths::Vector<GeometricType, Dimensions>& VelocityA,
+            const Maths::Vector<GeometricType, Dimensions>& VelocityB,
+            const std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
+        )
+        {
+            TimesOfCollision = {
+                std::numeric_limits<float>::infinity(),
+                -std::numeric_limits<float>::infinity(),
+            };
+            for (const auto& Axis : Axes)
+            {
+                if (!IntersectOnAxis(
+                    TimesOfCollision,
+                    VelocityA,
+                    VelocityB,
+                    Axis,
+                    PointsA,
+                    PointsB
+                ))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         // RTTI casting

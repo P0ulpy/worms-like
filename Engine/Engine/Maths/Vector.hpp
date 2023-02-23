@@ -430,4 +430,27 @@ namespace Maths {
         T Scalar = ProjectOnUnitVector<T, Size, true>(Point, NormalizedUnitVector);
         return NormalizedUnitVector * Scalar;
     }
+
+    template <typename T, size_t Size, bool IsNormalized = true>
+    T ProjectOnUnitVector(const Vector<T, Size>& Vec, const Vector<T, Size>& UnitVector)
+    {
+        auto NormalizedUnitVector = UnitVector;
+        if constexpr (!IsNormalized)
+        {
+            NormalizedUnitVector = UnitVector.GetNormalized();
+        }
+        return Vec.Scalar(NormalizedUnitVector);
+    }
+
+    template <typename T, size_t Size, bool IsNormalized = true>
+    Vector<T, Size> ProjectOnUnitVectorVector(const Vector<T, Size>& Vec, const Vector<T, Size>& UnitVector)
+    {
+        auto NormalizedUnitVector = UnitVector;
+        if constexpr (!IsNormalized)
+        {
+            NormalizedUnitVector = UnitVector.GetNormalized();
+        }
+        T Scalar = ProjectOnUnitVector<T, Size, true>(Vec, NormalizedUnitVector);
+        return NormalizedUnitVector * Scalar;
+    }
 }
