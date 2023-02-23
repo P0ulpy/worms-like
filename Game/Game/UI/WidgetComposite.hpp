@@ -2,9 +2,7 @@
 // Created by Admin on 19/02/2023.
 //
 
-#ifndef POPOSIBENGINE_WIDGETCOMPOSITE_HPP
-#define POPOSIBENGINE_WIDGETCOMPOSITE_HPP
-
+#pragma once
 
 #include "IWidget.hpp"
 #include <vector>
@@ -12,7 +10,8 @@
 class WidgetComposite : public IWidget {
 public:
     WidgetComposite() = default;
-    ~WidgetComposite() override {
+    ~WidgetComposite() override
+    {
         for (auto& child : m_children) {
             delete child;
         }
@@ -57,6 +56,3 @@ protected:
 
     std::vector<IWidget*> m_children;
 };
-
-
-#endif //POPOSIBENGINE_WIDGETCOMPOSITE_HPP

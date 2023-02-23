@@ -12,12 +12,6 @@
 
 namespace Engine
 {
-    namespace ComponentID
-    {
-        using ID = uint64_t;
-        constexpr ID Null = 0;
-    }
-
     class Component : public IClassType
     {
     public:
@@ -25,7 +19,6 @@ namespace Engine
 
     public:
         Component() = default;
-        virtual ~Component() = default;
 
         /* Implementable Component Events methods
         void OnAwake();
@@ -36,9 +29,12 @@ namespace Engine
         void OnDestroy();
         */
 
-        [[nodiscard]] Entity GetEntity() const { return { m_entityHandle }; }
+        virtual void SetActive(bool active)     { m_active = active; }
+        [[nodiscard]] bool IsActive() const     { return m_active; }
+        [[nodiscard]] Entity GetEntity() const  { return { m_entityHandle }; }
 
     private:
+        bool m_active = true;
         ComponentHandle m_handle = ComponentHandle::Null;
         EntityHandle m_entityHandle = EntityHandle::Null;
 

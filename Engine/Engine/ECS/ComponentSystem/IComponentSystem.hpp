@@ -7,6 +7,8 @@
 
 #include <functional>
 
+#include <SFML/Graphics/RenderTarget.hpp>
+
 #include "../Component/Component.hpp"
 
 namespace Engine

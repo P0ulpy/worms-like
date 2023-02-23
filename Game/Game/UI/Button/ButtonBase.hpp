@@ -27,7 +27,8 @@ public:
         m_button.setFillColor(sf::Color::Transparent);
     }
 
-    void OnUpdateWidget(const float& deltaTime) override {
+    void OnUpdateWidget(const float& deltaTime) override
+    {
         if(m_button.getGlobalBounds().contains(sf::Vector2f{sf::Mouse::getPosition(Engine::EngineApplication::Get()->GetWindow())}))
         {
             if(!m_isHovered)
@@ -44,13 +45,14 @@ public:
                 m_button.setFillColor(m_defaultColor);
             }
         }
-    };
+    }
+
     void OnRenderWidget(sf::RenderTarget& renderTarget) override {
         renderTarget.draw(m_button);
-    };
+    }
 
-    void AddWidget(IWidget* child) override {  };
-    void RemoveWidget(IWidget* child) override {  };
+    void AddWidget(IWidget* child) override {  }
+    void RemoveWidget(IWidget* child) override {  }
 
     void Init(const sf::Vector2f& position, const sf::Vector2f& size)
     {
@@ -75,7 +77,9 @@ public:
         m_onClick = onClick;
         m_OnClickConnection = InputSignal::GetInstance()->connectScoped(EventType::Click, this, &ButtonBase::OnClick);
     }
-    virtual void OnClick() {
+
+    virtual void OnClick()
+    {
         if(m_isHovered && isVisibled)
             m_onClick();
     }

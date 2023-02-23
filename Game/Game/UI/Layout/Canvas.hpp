@@ -17,7 +17,8 @@ public:
     Canvas() = default;
     ~Canvas() override = default;
 
-    void AddWidget(IWidget *child) override {
+    void AddWidget(IWidget *child) override
+    {
         m_children.push_back(child);
         child->SetPosition(m_position + child->GetPosition());
     }

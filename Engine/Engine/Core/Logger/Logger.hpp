@@ -2,8 +2,7 @@
 // Created by Flo on 28/11/2022.
 //
 
-#ifndef PATHFINDER_LOGGER_HPP
-#define PATHFINDER_LOGGER_HPP
+#pragma once
 
 #include <list>
 #include <thread>
@@ -41,5 +40,3 @@ namespace Engine
         static std::unordered_map<std::thread::id, std::string> _threadsLabels;
     };
 } // Engine
-
-#endif //PATHFINDER_LOGGER_HPP

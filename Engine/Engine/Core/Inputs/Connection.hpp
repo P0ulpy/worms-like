@@ -2,9 +2,7 @@
 // Created by Admin on 30/01/2023.
 //
 
-#ifndef POPOSIBENGINE_CONNECTION_HPP
-#define POPOSIBENGINE_CONNECTION_HPP
-
+#pragma once
 
 #include <functional>
 #include <variant>
@@ -31,7 +29,7 @@ struct Semaphore
 
     void addBlocker() { m_counter++; }
     void removeBlocker() { --m_counter; }
-    bool isDisabled() const { return m_counter == 0; }
+    [[nodiscard]] bool isDisabled() const { return m_counter == 0; }
 
 private:
     size_t m_counter;
@@ -60,9 +58,9 @@ struct ScopedConnection
 
     ScopedConnection();
     ScopedConnection(const ScopedConnection& other) = default;
-    ScopedConnection(ScopedConnection&& other);
+    ScopedConnection(ScopedConnection&& other) noexcept;
     ScopedConnection& operator=(const ScopedConnection& other) = default;
-    ScopedConnection& operator=(ScopedConnection&& other);
+    ScopedConnection& operator=(ScopedConnection&& other) noexcept;
     ~ScopedConnection();
 
 private:
@@ -81,7 +79,7 @@ struct SlotConnection
 
     void block();
     void unblock();
-    auto scopedBlock();
+    [[maybe_unused]] auto scopedBlock();
 
     SlotConnection(InputSignal& signal, EventType eventType, const Connection::Callback& callback);
     SlotConnection(const SlotConnection& other) = delete;
@@ -93,6 +91,3 @@ private:
     ScopedConnection m_scopedConnection;
     Semaphore m_semaphore;
 };
-
-
-#endif //POPOSIBENGINE_CONNECTION_HPP

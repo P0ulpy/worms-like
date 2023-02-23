@@ -2,8 +2,7 @@
 // Created by Admin on 20/02/2023.
 //
 
-#ifndef POPOSIBENGINE_SPRITEBUTTON_HPP
-#define POPOSIBENGINE_SPRITEBUTTON_HPP
+#pragma once
 
 #include "ButtonBase.hpp"
 #include "SFML/Graphics/Sprite.hpp"
@@ -25,7 +24,7 @@ public:
                 m_isHovered = false;
         }
     };
-    void OnRenderWidget(sf::RenderTarget& renderTarget) {
+    void OnRenderWidget(sf::RenderTarget& renderTarget) override {
         ButtonBase::OnRenderWidget(renderTarget);
         renderTarget.draw(m_sprite);
     };
@@ -55,6 +54,3 @@ private:
     sf::Sprite m_sprite;
     float m_border = 0.0f;
 };
-
-
-#endif //POPOSIBENGINE_SPRITEBUTTON_HPP

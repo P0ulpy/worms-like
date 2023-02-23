@@ -15,16 +15,7 @@ set(GAME_HEADERS
 set(GAME_SOURCES
         src/main.cpp
         Game/MainMenu.cpp
-        Game/UI/IWidget.cpp
-        Game/UI/Button/TextButton.cpp
-        Game/UI/Button/SpriteButton.cpp
-        Game/UI/Button/ButtonBase.cpp
-        Game/UI/WidgetComposite.cpp
-        Game/UI/Layout/Canvas.cpp
-        Game/UI/Layout/HorizontalBox.cpp
-        Game/UI/Layout/VerticalBox.cpp
-        Game/UI/Layout/Grid.cpp
-        Game/UI/Other/ProgressBar.cpp Game/UI/Classique/Text.cpp Game/UI/Classique/Text.hpp Game/UI/Classique/Sprite.cpp Game/UI/Classique/Sprite.hpp Game/UI/Button/ItemButton.cpp Game/UI/Button/ItemButton.hpp)
+        Game/UI/Classique/Text.cpp Game/UI/Classique/Text.hpp Game/UI/Classique/Sprite.cpp Game/UI/Classique/Sprite.hpp Game/UI/Button/ItemButton.hpp)
 
 # TODO : Temporary solution, copy is not done each time the project is compiled
 file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})

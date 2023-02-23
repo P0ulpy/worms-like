@@ -20,14 +20,14 @@ public:
     void OnUpdateWidget(const float& deltaTime) override
     {
         //For tests
-        /*if (m_progress < m_maxProgress) {
+        if (m_progress < m_maxProgress) {
             m_progress += deltaTime;
         }
 
         if (m_progress > m_maxProgress) {
             m_progress = m_maxProgress;
         }
-*/
+
         auto progress = m_progress / m_maxProgress;
 
         m_progressBar.setSize({m_size.x * progress, m_size.y});
@@ -46,7 +46,6 @@ public:
         m_border = border;
         m_borderColor = borderColor;
         m_maxProgress = maxProgress;
-
 
         m_background.setFillColor(m_backgroundColor);
         m_progressBar.setFillColor(m_progressColor);

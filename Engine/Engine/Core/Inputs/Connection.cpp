@@ -14,11 +14,11 @@ ScopedConnection::ScopedConnection() {
 
 }
 
-ScopedConnection::ScopedConnection(ScopedConnection&& other) {
+ScopedConnection::ScopedConnection(ScopedConnection&& other) noexcept {
     std::swap(m_connection, other.m_connection);
 }
 
-ScopedConnection& ScopedConnection::operator=(ScopedConnection&& other) {
+ScopedConnection& ScopedConnection::operator=(ScopedConnection&& other) noexcept {
     std::swap(m_connection, other.m_connection);
     return *this;
 }

@@ -5,7 +5,6 @@
 #ifndef POPOSIBENGINE_TEXTBUTTON_HPP
 #define POPOSIBENGINE_TEXTBUTTON_HPP
 
-
 #include <functional>
 #include <utility>
 

@@ -2,8 +2,7 @@
 // Created by Admin on 30/01/2023.
 //
 
-#ifndef POPOSIBENGINE_INPUTCONFIG_HPP
-#define POPOSIBENGINE_INPUTCONFIG_HPP
+#pragma once
 
 #include <vector>
 #include <utility>
@@ -103,6 +102,3 @@ public:
 private:
     std::vector<std::pair<EventSignalType, EventType>> s_events;
 };
-
-
-#endif //POPOSIBENGINE_INPUTCONFIG_HPP

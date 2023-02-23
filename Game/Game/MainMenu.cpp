@@ -21,20 +21,20 @@ void MainMenuLayer::OnAttach() {
 
     auto windowSize = Engine::EngineApplication::Get()->GetWindow().getSize();
     {
-    /*mainCanvas = Engine::EngineApplication::Get()->GetScenesLayer().GetActiveScene()->CreateEntity().AddComponent<Canvas>();
-    mainCanvas->Init();*/
+    mainCanvas = Engine::EngineApplication::Get()->GetScenesLayer().GetActiveScene()->CreateEntity().AddComponent<Canvas>();
+    mainCanvas->Init();
 
-    /*inventoryCanvas = Engine::EngineApplication::Get()->GetScenesLayer().GetActiveScene()->CreateEntity().AddComponent<Canvas>();
+    inventoryCanvas = Engine::EngineApplication::Get()->GetScenesLayer().GetActiveScene()->CreateEntity().AddComponent<Canvas>();
     inventoryCanvas->Init({ static_cast<float>(windowSize.x) - 400, static_cast<float>(windowSize.y) - 400}, { 200, 200 });
     inventoryButtonConnection = InputSignal::GetInstance()->connectScoped(EventType::OpenInventory, [inventoryCanvas = inventoryCanvas]() {
         inventoryCanvas->SetVisibled(!inventoryCanvas->IsVisibled());
-    });*/
+    });
 
     /*auto horizontalBox = new HorizontalBox();
     horizontalBox->SetPosition({ 50, 50 });
     horizontalBox->SetSize({ 200, 100 });*/
 
-    /*auto verticalBox = new VerticalBox();
+    auto verticalBox = new VerticalBox();
     verticalBox->SetPosition({ 150, 100 });
     verticalBox->SetSize({ 200, 100 });
     verticalBox->SetSpacing(10);
@@ -107,7 +107,7 @@ void MainMenuLayer::OnAttach() {
     grid->AddWidget(buttonTest2);
     grid->AddWidget(buttonTest3);
     grid->AddWidget(buttonTest4);
-    grid->AddWidget(buttonTest5);*/
+    grid->AddWidget(buttonTest5);
 
 
     /*horizontalBox->AddWidget(buttonPlay);
@@ -116,7 +116,7 @@ void MainMenuLayer::OnAttach() {
 
     canvas->AddWidget(horizontalBox);*/
 
-    /*verticalBox->AddWidget(buttonPlay);
+    verticalBox->AddWidget(buttonPlay);
     verticalBox->AddWidget(buttonOption);
     verticalBox->AddWidget(buttonQuit);
 
@@ -125,9 +125,9 @@ void MainMenuLayer::OnAttach() {
     mainCanvas->AddWidget(text);
     mainCanvas->AddWidget(sprite);
 
-    inventoryCanvas->AddWidget(grid);*/
+    inventoryCanvas->AddWidget(grid);
 
-    /*auto itemButton = new ItemButton();
+    auto itemButton = new ItemButton();
     itemButton->Init(Engine::AssetLoader<sf::Texture>::StaticLoadAsset("../../Assets/hud_coins.png"), { 50, 350 }, ItemSide::BottomRight);
 
     auto text2 = new Text();
@@ -135,7 +135,7 @@ void MainMenuLayer::OnAttach() {
 
     itemButton->AddWidget(text2);
 
-    mainCanvas->AddWidget(itemButton);*/
+    mainCanvas->AddWidget(itemButton);
     }
 
     mainCanvas = Engine::EngineApplication::Get()->GetScenesLayer().GetActiveScene()->CreateEntity().AddComponent<Canvas>();

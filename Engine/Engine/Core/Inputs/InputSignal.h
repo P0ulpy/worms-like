@@ -163,7 +163,6 @@ private:
     static InputSignal* m_inputSignal;
 
     mutable ObserversMap m_observers;
-
 };
 
 #endif //POPOSIBENGINE_INPUTSIGNAL_H

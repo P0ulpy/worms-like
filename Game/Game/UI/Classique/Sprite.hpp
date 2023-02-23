@@ -54,7 +54,7 @@ private :
 
     void ChangeSize()
     {
-        m_size = {m_sprite.getGlobalBounds().width, m_sprite.getGlobalBounds().height};
+        m_size = { m_sprite.getGlobalBounds().width, m_sprite.getGlobalBounds().height };
     }
 };
 

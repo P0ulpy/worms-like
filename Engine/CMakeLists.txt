@@ -32,7 +32,10 @@ set(ENGINE_HEADERS
 
         Engine/Core/Inputs/Connection.hpp
         Engine/Core/Inputs/InputConfig.hpp
-)
+        Engine/Core/Components/CompositeComponent.hpp
+
+        Engine/UI/Widget/Widget.hpp
+        Engine/UI/Components/Text/TextWidget.cpp Engine/UI/Components/Text/TextWidget.hpp Engine/UI/Components/Sprite/SpriteWidget.cpp Engine/UI/Components/Sprite/SpriteWidget.hpp Engine/UI/Components/Buttons/ButtonWidget.cpp Engine/UI/Components/Buttons/ButtonWidget.hpp Engine/UI/Components/Buttons/TextButton/TextButtonWidget.cpp Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp Engine/UI/Components/Buttons/SpriteButton/SpriteButtonWidget.cpp Engine/UI/Components/Buttons/SpriteButton/SpriteButtonWidget.hpp Engine/UI/Components/Buttons/ItemButton/ItemButtonWidget.cpp Engine/UI/Components/Buttons/ItemButton/ItemButtonWidget.hpp Engine/UI/Canvas/WidgetCanvas.cpp Engine/UI/Canvas/WidgetCanvas.hpp Engine/UI/Layout/Grid/WidgetGrid.cpp Engine/UI/Layout/Grid/WidgetGrid.hpp Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.cpp Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp Engine/UI/Layout/VerticalBox/WidgetVerticalBox.cpp Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp)
 
 set(ENGINE_SOURCES
         Engine/Core/Application/EngineApplication.cpp
@@ -56,7 +59,10 @@ set(ENGINE_SOURCES
         Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/Connection.cpp
         Engine/Core/Inputs/InputConfig.cpp
-)
+        Engine/Core/Components/CompositeComponent.cpp
+
+        Engine/UI/Widget/Widget.cpp
+        Engine/UI/Components/Text/TextWidget.cpp Engine/UI/Components/Text/TextWidget.hpp Engine/UI/Components/Sprite/SpriteWidget.cpp Engine/UI/Components/Sprite/SpriteWidget.hpp Engine/UI/Components/Buttons/ButtonWidget.cpp Engine/UI/Components/Buttons/ButtonWidget.hpp Engine/UI/Components/Buttons/TextButton/TextButtonWidget.cpp Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp Engine/UI/Components/Buttons/SpriteButton/SpriteButtonWidget.cpp Engine/UI/Components/Buttons/SpriteButton/SpriteButtonWidget.hpp Engine/UI/Components/Buttons/ItemButton/ItemButtonWidget.cpp Engine/UI/Components/Buttons/ItemButton/ItemButtonWidget.hpp Engine/UI/Canvas/WidgetCanvas.cpp Engine/UI/Canvas/WidgetCanvas.hpp Engine/UI/Layout/Grid/WidgetGrid.cpp Engine/UI/Layout/Grid/WidgetGrid.hpp Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.cpp Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp Engine/UI/Layout/VerticalBox/WidgetVerticalBox.cpp Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 

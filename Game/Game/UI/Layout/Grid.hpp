@@ -11,16 +11,11 @@
 
 class Grid : public WidgetComposite {
 public:
-    explicit Grid()
-        : m_columns(0)
-        , m_rows(0)
-        , m_cellWidth(0)
-        , m_cellHeight(0)
-        , m_spacing(0)
-    {}
+    explicit Grid() = default;
 
-    void OnRenderWidget(sf::RenderTarget& renderTarget) override {
-/*        float x = m_position.x;
+    void OnRenderWidget(sf::RenderTarget& renderTarget) override
+    {
+/*      float x = m_position.x;
         float y = m_position.y;
 
         for(int row = 0; row < m_rows; row++) {
@@ -38,17 +33,22 @@ public:
             x = m_position.x;
             y += m_cellHeight + m_spacing;
         }*/
+
         for(auto& child : m_children) {
             child->OnRenderWidget(renderTarget);
         }
     }
 
     void SetSpacing(float spacing) { m_spacing = spacing; }
-    void SetGridSize(int rows, int columns) {
+
+    void SetGridSize(int rows, int columns)
+    {
         m_columns = columns;
         m_rows = rows;
     }
-    void SetCellSize(float width, float height) {
+
+    void SetCellSize(float width, float height)
+    {
         m_cellWidth = width;
         m_cellHeight = height;
     }
@@ -76,7 +76,10 @@ private:
             m_cellWidth = childSize.x;
             m_cellHeight = childSize.y;
 
-            SetSize({m_cellWidth * m_columns + m_spacing * (m_columns - 1), m_cellHeight * m_rows + m_spacing * (m_rows - 1)});
+            SetSize({
+                (m_cellWidth * (float)m_columns) + m_spacing * (float)(m_columns - 1),
+                (m_cellHeight * (float)m_rows) + m_spacing * (float)(m_rows - 1)
+            });
         }
 
         for (auto& child : m_children) {

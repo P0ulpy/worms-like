@@ -9,14 +9,10 @@
 #include "Engine/ECS/Component/Component.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 
-class IWidget {
-
+class IWidget
+{
 public:
-    IWidget()
-        : m_position(0, 0)
-        , m_size(0, 0)
-        , isVisibled(true)
-    {}
+    IWidget() = default;
     virtual ~IWidget() = default;
 
     virtual void AddWidget(IWidget* child) = 0;
@@ -37,10 +33,10 @@ public:
     [[nodiscard]] bool IsVisibled() const { return isVisibled; }
 
 protected:
-    sf::Vector2f m_position;
-    sf::Vector2f m_size;
+    sf::Vector2f m_position { .0f, .0f };
+    sf::Vector2f m_size { .0f, .0f };
 
-    bool isVisibled;
+    bool isVisibled { true };
 };
 
 
