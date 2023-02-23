@@ -64,5 +64,19 @@ int main(int argc, char* argv[])
 {
     app.PushLayer(&gameLayer);
     app.Init();
+
+    /*SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
+    SignalSystem::InputSignal::Get()->connect("close_window", [&app = app](){ std::cout << "Close" << std::endl; });
+    SignalSystem::InputSignal::Get()->connect("pause", [&app = app](){ std::cout << "Pause" << std::endl; });
+    SignalSystem::InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });*/
+
+    /*SignalSystem::Observable<int> t;
+    t.connect([](int value)
+              {
+                  std::cout << value << std::endl;
+              });
+    t = 2;
+    t = 4;*/
+
     app.Run();
 }
