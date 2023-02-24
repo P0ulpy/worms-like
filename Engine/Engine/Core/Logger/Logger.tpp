@@ -1,40 +1,33 @@
-//
-// Created by Flo on 28/11/2022.
-//
-
-#ifndef PATHFINDER_LOGGER_TPP
-#define PATHFINDER_LOGGER_TPP
-/*
-#include <iomanip>
-#include <sstream>
-#include "ConsoleColor.hpp"
+#pragma once
 
 namespace Engine
 {
-    template <LogType type> std::string_view LogTypeLabel();
-    template <> std::string_view LogTypeLabel<LogType::LOG_INFO>() { return "INFO"; }
-    template <> std::string_view LogTypeLabel<LogType::LOG_WARNING>() { return "WARN"; }
-    template <> std::string_view LogTypeLabel<LogType::LOG_ERROR>() { return "ERR"; }
-
-    template <LogType type> std::ostream& LogTypeColor(std::ostream &s);
-    template <> std::ostream& LogTypeColor<LogType::LOG_INFO>(std::ostream &s) { return ConsoleColor::blue(s); }
-    template <> std::ostream& LogTypeColor<LogType::LOG_WARNING>(std::ostream &s) { return ConsoleColor::yellow(s); }
-    template <> std::ostream& LogTypeColor<LogType::LOG_ERROR>(std::ostream &s) { return ConsoleColor::red(s); }
-
-    namespace
+    template<typename FirstMessage, typename ...Args>
+    void Logger::BuildMessage(std::stringstream& out, const FirstMessage& first, Args... args)
     {
-        std::string CurrentDateTimeToString()
-        {
-            std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        out << ' ' << first;
 
-            //std::string output(30, '\0');
-            //std::strftime(&output[0], output.size(), "%d-%b-%Y %H:%M:%S", std::localtime(&now));
+        if constexpr (sizeof...(args) > 0)
+            BuildMessage(out, args...);
+    }
 
-            std::stringstream formatBuffer;
-            formatBuffer << std::put_time(std::localtime(&now), "%H:%M:%S");
+    template <LogType logType>
+    LogEntry Logger::ConstructEntry()
+    {
+        LogEntry logEntry;
+        logEntry.type = logType;
+        logEntry.threadId = std::this_thread::get_id();
 
-            return formatBuffer.str();
-        }
+        std::stringstream headerBuffer;
+        headerBuffer << "["
+                     << CurrentDateTimeToString()
+                     << "] "
+                     << "test" //LogTypeLabel<logType>()
+                     << ": ";
+
+        logEntry.message = headerBuffer.str();
+
+        return logEntry;
     }
 
     template<LogType logType, typename... Args>
@@ -50,7 +43,7 @@ namespace Engine
                                        ? _threadsLabels.at(logEntry.threadId)
                                        : std::string_view("");
 
-        ostream << ConsoleColor::blue
+        ostream << ConsoleColor::blue //LogTypeColor<logType>()
                 << '[';
 
         if(!threadLabel.empty())
@@ -95,33 +88,4 @@ namespace Engine
 
         //messages.push_back(logEntry);
     }
-
-    template <LogType logType>
-    LogEntry Logger::ConstructEntry()
-    {
-        LogEntry logEntry;
-        logEntry.type = logType;
-        logEntry.threadId = std::this_thread::get_id();
-
-        std::stringstream headerBuffer;
-        headerBuffer << "["
-                     << CurrentDateTimeToString()
-                     << "] "
-                     << LogTypeLabel<logType>()
-                     << ": ";
-
-        return logEntry;
-    }
-
-    template<typename FirstMessage, typename ...Args>
-    void Logger::BuildMessage(std::stringstream& out, const FirstMessage& first, Args... args)
-    {
-        out << ' ' << first;
-
-        if constexpr (sizeof...(args) > 0)
-            BuildMessage(out, args...);
-    }
-
-} // Engine
-*/
-#endif //PATHFINDER_LOGGER_TPP
+}

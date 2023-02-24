@@ -10,6 +10,7 @@
 #include <string>
 #include <mutex>
 #include <unordered_map>
+#include <sstream>
 
 namespace Engine
 {
@@ -42,6 +43,11 @@ namespace Engine
         static void SetThreadLabel(const std::string_view& label, std::thread::id threadID);
 
     private:
+        static std::string CurrentDateTimeToString();
+
+        template <LogType type> static std::string_view LogTypeLabel();
+        template <LogType type> static std::ostream& LogTypeColor(std::ostream &s);
+
         template<LogType logType, typename ...Args>
         static LogEntry PrintMessage(std::ostream& ostream, Args... args);
 
@@ -54,6 +60,15 @@ namespace Engine
         static std::mutex _mutex;
         static std::unordered_map<std::thread::id, std::string> _threadsLabels;
     };
+
+    template <> std::string_view Logger::LogTypeLabel<LogType::LOG_INFO>();
+    template <> std::string_view Logger::LogTypeLabel<LogType::LOG_WARNING>();
+    template <> std::string_view Logger::LogTypeLabel<LogType::LOG_ERROR>();
+
+    template <> std::ostream& Logger::LogTypeColor<LogType::LOG_INFO>(std::ostream &s);
+    template <> std::ostream& Logger::LogTypeColor<LogType::LOG_WARNING>(std::ostream &s);
+    template <> std::ostream& Logger::LogTypeColor<LogType::LOG_ERROR>(std::ostream &s);
+
 } // Engine
 
 #include "Logger.tpp"
