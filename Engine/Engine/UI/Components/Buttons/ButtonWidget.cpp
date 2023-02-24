@@ -23,7 +23,7 @@ namespace Engine::UI
             if(!m_isHovered)
             {
                 m_isHovered = true;
-                m_button.setFillColor(m_hoverColor);
+                SetButtonColor(m_hoverColor);
             }
         }
         else
@@ -31,7 +31,7 @@ namespace Engine::UI
             if(m_isHovered)
             {
                 m_isHovered = false;
-                m_button.setFillColor(m_defaultColor);
+                SetButtonColor(m_defaultColor);
             }
         }
     }
@@ -56,6 +56,10 @@ namespace Engine::UI
         m_button.setSize(size);
     }
 
+    void ButtonWidget::SetButtonColor(const sf::Color &color) {
+        m_button.setFillColor(color);
+    }
+
     void ButtonWidget::SetOnClick(const ButtonWidget::Callback &onClick) {
         m_onClick = onClick;
         m_OnClickConnection.~ScopedConnection();
@@ -63,8 +67,11 @@ namespace Engine::UI
     }
 
     void ButtonWidget::OnClick() {
-        if(m_isHovered && IsActive())
+        if(m_isHovered && IsActive()) {
+            SetButtonColor(m_clickedColor);
             m_onClick();
+        }
+
     }
 }
 

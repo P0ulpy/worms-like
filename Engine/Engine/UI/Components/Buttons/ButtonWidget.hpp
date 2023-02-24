@@ -2,8 +2,7 @@
 // Created by Flo on 22/02/2023.
 //
 
-#ifndef WORMS_LIKE_BUTTONWIDGET_HPP
-#define WORMS_LIKE_BUTTONWIDGET_HPP
+#pragma once
 
 #include <functional>
 
@@ -30,6 +29,7 @@ namespace Engine::UI
         void SetPosition(const sf::Vector2f& position) override;
         void SetSize(const sf::Vector2f& size) override;
 
+        virtual void SetButtonColor(const sf::Color& color);
         void SetDefaultColor(const sf::Color& color)    { m_defaultColor = color; }
         void SetHoverColor(const sf::Color& color)      { m_hoverColor = color; }
         void SetClickedColor(const sf::Color& color)    { m_clickedColor = color; }
@@ -38,7 +38,7 @@ namespace Engine::UI
         virtual void OnClick();
 
     protected:
-        sf::RectangleShape m_button;
+        sf::RectangleShape m_button { };
 
         sf::Color m_defaultColor = sf::Color::White;
         sf::Color m_hoverColor = sf::Color::Red;
@@ -50,5 +50,3 @@ namespace Engine::UI
         ScopedConnection m_OnClickConnection;
     };
 }
-
-#endif //WORMS_LIKE_BUTTONWIDGET_HPP

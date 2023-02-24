@@ -2,17 +2,27 @@
 // Created by Flo on 22/02/2023.
 //
 
-#ifndef WORMS_LIKE_SPRITEWIDGET_HPP
-#define WORMS_LIKE_SPRITEWIDGET_HPP
+#pragma once
 
-namespace Engine {
-    namespace UI {
+#include "../../Widget/Widget.hpp"
+#include "SFML/Graphics/Sprite.hpp"
+#include "SFML/Graphics/RenderTarget.hpp"
 
-        class SpriteWidget {
+namespace Engine::UI {
 
+        class SpriteWidget : public Widget {
+        public:
+            virtual void OnRender(sf::RenderTarget& renderTarget);
+
+            void Init(const sf::Texture& texture, const sf::Vector2f& position);
+
+            void SetPosition(const sf::Vector2f& position) override;
+            void SetScale(const sf::Vector2f& scale);
+
+        private:
+            void UpdateSize() const override;
+
+        private:
+            sf::Sprite m_sprite;
         };
-
-    } // Engine
 } // UI
-
-#endif //WORMS_LIKE_SPRITEWIDGET_HPP

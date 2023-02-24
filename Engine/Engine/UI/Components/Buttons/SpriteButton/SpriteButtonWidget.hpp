@@ -2,17 +2,26 @@
 // Created by Flo on 22/02/2023.
 //
 
-#ifndef WORMS_LIKE_SPRITEBUTTONWIDGET_HPP
-#define WORMS_LIKE_SPRITEBUTTONWIDGET_HPP
+#pragma once
 
-namespace Engine {
-    namespace UI {
+#include "../ButtonWidget.hpp"
+#include "SFML/Graphics/Sprite.hpp"
 
-        class SpriteButtonWidget {
+namespace Engine::UI {
 
+        class SpriteButtonWidget : public ButtonWidget {
+        public:
+            void OnRender(sf::RenderTarget& renderTarget) override;
+
+            void Init(const sf::Texture* texture, const sf::Vector2f& position, const float& border = 0.0f);
+
+            void SetButtonColor(const sf::Color& color) override {}
+
+            void SetPosition(const sf::Vector2f& position) override;
+            void SetSize(const sf::Vector2f& size) override      { ButtonWidget::SetSize(size); }
+
+        private:
+            sf::Sprite m_sprite { };
+            float m_border = 0.0f;
         };
-
-    } // Engine
 } // UI
-
-#endif //WORMS_LIKE_SPRITEBUTTONWIDGET_HPP

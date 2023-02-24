@@ -2,17 +2,19 @@
 // Created by Flo on 22/02/2023.
 //
 
-#ifndef WORMS_LIKE_WIDGETVERTICALBOX_HPP
-#define WORMS_LIKE_WIDGETVERTICALBOX_HPP
+#pragma once
 
-namespace Engine {
-    namespace UI {
+#include "../../Widget/Widget.hpp"
 
-        class WidgetVerticalBox {
+namespace Engine::UI {
 
+        class WidgetVerticalBox : public Widget {
+        public:
+            void Init(const sf::Vector2f& position, const float spacing);
+
+        private:
+            void UpdatePosition() const override;
+
+            float m_spacing { 0.0f };
         };
-
-    } // Engine
 } // UI
-
-#endif //WORMS_LIKE_WIDGETVERTICALBOX_HPP

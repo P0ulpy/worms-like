@@ -23,7 +23,7 @@ namespace Engine
         DECLARE_CLASS_TYPE(CompositeComponent<TCompositeBaseClass>, Component)
 
         virtual void AddChild(TCompositeBaseClass* child);
-        virtual void RemoveChild(TCompositeBaseClass* child);
+        virtual void RemoveChild(TCompositeBaseClass* child) const;
         void SetActive(bool active) override;
 
         virtual void SetParent(TCompositeBaseClass* parent)             { m_parent = parent; };
@@ -31,8 +31,8 @@ namespace Engine
         const std::vector<TCompositeBaseClass*>& GetChildren() const    { return m_children; };
 
     private:
-        TCompositeBaseClass* m_parent { nullptr };
-        std::vector<TCompositeBaseClass*> m_children;
+        mutable TCompositeBaseClass* m_parent { nullptr };
+        mutable std::vector<TCompositeBaseClass*> m_children;
     };
 
     template<class TCompositeBaseClass>
@@ -52,7 +52,7 @@ namespace Engine
     }
 
     template<class TCompositeBaseClass>
-    void CompositeComponent<TCompositeBaseClass>::RemoveChild(TCompositeBaseClass* child)
+    void CompositeComponent<TCompositeBaseClass>::RemoveChild(TCompositeBaseClass* child) const
     {
         child->SetParent(nullptr);
         m_children.erase(std::remove(m_children.begin(), m_children.end(), child), m_children.end());

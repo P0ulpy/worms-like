@@ -2,17 +2,25 @@
 // Created by Flo on 22/02/2023.
 //
 
-#ifndef WORMS_LIKE_TEXTWIDGET_HPP
-#define WORMS_LIKE_TEXTWIDGET_HPP
+#pragma once
 
-namespace Engine {
-    namespace UI {
+#include "../../Widget/Widget.hpp"
+#include "SFML/Graphics/RenderTarget.hpp"
+#include "SFML/Graphics/Text.hpp"
 
-        class TextWidget {
+namespace Engine::UI {
 
+        class TextWidget : public Widget {
+        public:
+            virtual void OnUpdate(float deltaTime);
+            virtual void OnRender(sf::RenderTarget& renderTarget);
+
+            void Init(const std::string& text, sf::Font* font, const sf::Vector2f& position, unsigned int characterSize = 30,  const sf::Color& color = sf::Color::White);
+
+            void SetPosition(const sf::Vector2f& position) override;
+
+        private:
+            sf::Text m_text;
         };
 
-    } // Engine
 } // UI
-
-#endif //WORMS_LIKE_TEXTWIDGET_HPP

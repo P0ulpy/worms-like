@@ -4,7 +4,6 @@
 
 #include "WidgetCanvas.hpp"
 
-namespace Engine {
-    namespace UI {
-    } // Engine
+namespace Engine::UI {
+
 } // UI
