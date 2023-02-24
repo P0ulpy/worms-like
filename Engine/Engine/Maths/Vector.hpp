@@ -149,7 +149,7 @@ namespace Maths {
         Vector GetNormalized() const
         {
             const auto length = GetLength();
-            Vector normalized = this;
+            Vector normalized = *this;
             if (length == 0)
                 return normalized;
             for (size_t i = 0; i < Size; i++)

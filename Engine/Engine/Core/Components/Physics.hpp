@@ -226,35 +226,33 @@ namespace Engine::Components::Physics
             while (currentTimeMs < ElapsedTimeMs) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(StepMs)));
 
-                float CurrentElapsedTimeMs = 0.f;
-                while (CurrentElapsedTimeMs < StepMs) {
-                    float TimeToSimulate = StepMs - CurrentElapsedTimeMs;
-                    for (auto &rigidBody: this->m_RigidBodies) {
-                        ComputeForceAndTorque(
-                            EntityTransform->Angle,
-                            EntityTransform->Scale,
-                            TimeToSimulate,
-                            rigidBody
-                        );
-                        const PhysicsVector2DT linearAcceleration = PhysicsVector2DT(
-                            rigidBody->Force.GetX() / rigidBody->Mass,
-                            rigidBody->Force.GetY() / rigidBody->Mass
-                        );
-                        rigidBody->LinearVelocity.GetX() += linearAcceleration.GetX() * TimeToSimulate;
-                        rigidBody->LinearVelocity.GetY() += linearAcceleration.GetY() * TimeToSimulate;
-                        auto BoundingBox = rigidBody->GetBoundingBox();
-                        const auto angularAcceleration = rigidBody->Torque / rigidBody->MomentOfInertia;
-                        EntityTransform->Angle += rigidBody->AngularVelocity * TimeToSimulate;
-                        rigidBody->AngularVelocity += angularAcceleration * TimeToSimulate;
+                for (auto &rigidBody: this->m_RigidBodies) {
+                    rigidBody->Force = PhysicsVector2DT{};
+                    rigidBody->Torque = 0;
 
-                        // check collisions
-                        if (!HasCollisions)
-                        {
-                            // tmp
-                            break;
-                        }
+                    ComputeForceAndTorque(
+                        EntityTransform->Angle,
+                        EntityTransform->Scale,
+                        StepMs,
+                        rigidBody
+                    );
+                    const PhysicsVector2DT linearAcceleration = PhysicsVector2DT(
+                        rigidBody->Force.GetX() / rigidBody->Mass,
+                        rigidBody->Force.GetY() / rigidBody->Mass
+                    );
+                    rigidBody->LinearVelocity.GetX() += linearAcceleration.GetX() * StepMs;
+                    rigidBody->LinearVelocity.GetY() += linearAcceleration.GetY() * StepMs;
+                    auto BoundingBox = rigidBody->GetBoundingBox();
+                    const auto angularAcceleration = rigidBody->Torque / rigidBody->MomentOfInertia;
+                    EntityTransform->Angle += rigidBody->AngularVelocity * StepMs;
+                    rigidBody->AngularVelocity += angularAcceleration * StepMs;
 
-                        auto& EntitiesRegistry = EngineApplication::Get()
+                    EntityTransform->Pos.GetX() += rigidBody->LinearVelocity.GetX() * StepMs;
+                    EntityTransform->Pos.GetY() += rigidBody->LinearVelocity.GetY() * StepMs;
+
+                    // check collisions
+                    if (HasCollisions) {
+                        auto &EntitiesRegistry = EngineApplication::Get()
                             ->GetScenesLayer()
                             .GetActiveScene()
                             ->GetEntitiesRegistry();
@@ -265,42 +263,32 @@ namespace Engine::Components::Physics
 
                         auto Node = EntitiesRegistry.PhysicsEntityKdTree.FindNode<2, Maths::Point2D<GeometricT>>(
                             this->GetEntity().GetHandle(),
-                            [&TransformSystem](EntityHandle handle)->Maths::Point2D<GeometricT> { return TransformSystem->GetOf(handle)->Pos; }
+                            [&TransformSystem](EntityHandle handle) -> Maths::Point2D<GeometricT> {
+                                return TransformSystem->GetOf(handle)->Pos;
+                            }
                         );
-                        if (nullptr != Node)
-                        {
+                        if (nullptr != Node) {
                             auto NodeTransformComponent = TransformSystem->GetOf(Node->GetContent());
                             const auto MaxSize = ComputeMaxDistanceFromTransform();
 
-                            const EntityKdTreeNode* CurrentNode = Node;
+                            const EntityKdTreeNode *CurrentNode = Node;
                             auto CurrentTransformComponent = TransformSystem->GetOf(Node->GetContent());
-                            while (MaxSize < CurrentTransformComponent->Pos.GetVector(NodeTransformComponent->Pos).GetLength())
-                            {
-                                CurrentNode = static_cast<const EntityKdTreeNode*>(Node)->GetParent();
+                            while (MaxSize <
+                                   CurrentTransformComponent->Pos.GetVector(NodeTransformComponent->Pos).GetLength()) {
+                                CurrentNode = static_cast<const EntityKdTreeNode *>(Node)->GetParent();
                                 CurrentTransformComponent = TransformSystem->GetOf(Node->GetContent());
                             }
 
-                            float ElapsedMsRatio = 1.f;
                             ExecuteOnNodes(
-                                ElapsedMsRatio,
                                 RigidBodyComponentSystem,
                                 Node,
                                 NodeTransformComponent,
                                 CurrentNode
                             );
-                            TimeToSimulate = TimeToSimulate * ElapsedMsRatio;
                         }
-
-                        EntityTransform->Pos.GetX() += rigidBody->LinearVelocity.GetX() * TimeToSimulate;
-                        EntityTransform->Pos.GetY() += rigidBody->LinearVelocity.GetY() * TimeToSimulate;
-
-                        rigidBody->Force = PhysicsVector2DT{};
-                        rigidBody->Torque = 0;
-                        // tmp because would not work with multiple rigidbodies?
-                        break;
-                        CurrentElapsedTimeMs += TimeToSimulate;
                     }
-                    CurrentElapsedTimeMs = StepMs;
+                    // tmp because would not work with multiple rigidbodies?
+                    break;
                 }
 
                 currentTimeMs += StepMs;
@@ -399,7 +387,6 @@ namespace Engine::Components::Physics
         }
 
         void ExecuteOnNodes(
-            float& ElapsedMsRatio,
             ComponentSystem<RigidBody2DComponent>* ComponentSystem,
             EntityKdTreeNode* NodeUnderCheck,
             Engine::Components::Transform* NodeTransform,
@@ -408,14 +395,12 @@ namespace Engine::Components::Physics
         {
             if (nullptr != FromNode->GetLeftChild()) {
                 CheckAndHandleCollision(
-                    ElapsedMsRatio,
                     ComponentSystem,
                     NodeUnderCheck,
                     NodeTransform,
                     FromNode->GetLeftChild()->GetContent()
                 );
                 ExecuteOnNodes(
-                    ElapsedMsRatio,
                     ComponentSystem,
                     NodeUnderCheck,
                     NodeTransform,
@@ -424,14 +409,12 @@ namespace Engine::Components::Physics
             }
             if (nullptr != FromNode->GetRightChild()) {
                 CheckAndHandleCollision(
-                    ElapsedMsRatio,
                     ComponentSystem,
                     NodeUnderCheck,
                     NodeTransform,
                     FromNode->GetRightChild()->GetContent()
                 );
                 ExecuteOnNodes(
-                    ElapsedMsRatio,
                     ComponentSystem,
                     NodeUnderCheck,
                     NodeTransform,
@@ -441,7 +424,6 @@ namespace Engine::Components::Physics
         }
 
         void CheckAndHandleCollision(
-            float& ElapsedMsRatio,
             ComponentSystem<RigidBody2DComponent>* ComponentSystem,
             EntityKdTreeNode* NodeUnderCheck,
             Engine::Components::Transform* NodeTransform,
@@ -474,45 +456,40 @@ namespace Engine::Components::Physics
                         ProjectablePoints
                     );
 
-                    std::array<float, 2> TimesOfCollision{};
+                    GeometricPoint2DT CollisionPoint = GeometricPoint2DT(GeometricT(0), GeometricT(0));
+                    GeometricVector2DT OverlapResolvingVector;
                     if (Maths::Collisions::SAT::CheckOverlap(
-                        TimesOfCollision,
-                        NodeBody->LinearVelocity,
-                        WithBody->LinearVelocity,
                         Axes,
                         NodeProjectablePoints,
-                        ProjectablePoints
+                        ProjectablePoints,
+                        OverlapResolvingVector,
+                        CollisionPoint
                     )) {
-                        if (ElapsedMsRatio > TimesOfCollision[0]) {
-                            ElapsedMsRatio = TimesOfCollision[0];
+                        if (this->IsMovable) {
+                            NodeTransform->Pos = NodeTransform->Pos + (OverlapResolvingVector);
+                            const auto ForceToApply = OverlapResolvingVector.GetNormalized() * NodeBody->Force.GetLength();
+                            // tmp
+                            NodeBody->AddForce(
+                                ForceToApply,
+                                CollisionPoint,
+                                NodeTransform->Angle,
+                                NodeTransform->Scale,
+                                NodeTransform->Pos
+                            );
+                        } else {
+                            WithBodyTransform->Pos = WithBodyTransform->Pos + (OverlapResolvingVector * -1);
+                            const auto ForceToApply = (OverlapResolvingVector * -1).GetNormalized() * NodeBody->Force.GetLength();
+                            // tmp
+                            WithBody->AddForce(
+                                ForceToApply,
+                                CollisionPoint,
+                                WithBodyTransform->Angle,
+                                WithBodyTransform->Scale,
+                                WithBodyTransform->Pos
+                            );
                         }
+                        return;
                     }
-//                    GeometricVector2DT OverlapResolvingVector;
-//                    if (Maths::Collisions::SAT::CheckOverlap(
-//                        Axes,
-//                        NodeProjectablePoints,
-//                        ProjectablePoints,
-//                        OverlapResolvingVector
-//                    )) {
-//                        if (this->IsMovable) {
-//                            NodeTransform->Pos = NodeTransform->Pos + (OverlapResolvingVector);
-//                            // tmp
-//                            for (auto& Body : this->m_RigidBodies)
-//                            {
-//                                Body->Force = RigidBody2DComponent::PhysicsVector2DT{};
-//                                Body->LinearVelocity = RigidBody2DComponent::PhysicsVector2DT{};
-//                            }
-//                        } else {
-//                            WithBodyTransform->Pos = WithBodyTransform->Pos + (OverlapResolvingVector * -1);
-//                            // tmp
-//                            for (auto& Body : WithBodyComponent->GetRigidBodies())
-//                            {
-//                                Body->Force = RigidBody2DComponent::PhysicsVector2DT{};
-//                                Body->LinearVelocity = RigidBody2DComponent::PhysicsVector2DT{};
-//                            }
-//                        }
-//                        return;
-//                    }
                 }
             }
         }
