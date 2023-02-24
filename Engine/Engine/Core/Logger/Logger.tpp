@@ -22,8 +22,8 @@ namespace Engine
         headerBuffer << "["
                      << CurrentDateTimeToString()
                      << "] "
-                     << "test" //LogTypeLabel<logType>()
-                     << ": ";
+                     << LogTypeLabel<logType>::value
+                     << ":";
 
         logEntry.message = headerBuffer.str();
 
@@ -43,7 +43,7 @@ namespace Engine
                                        ? _threadsLabels.at(logEntry.threadId)
                                        : std::string_view("");
 
-        ostream << ConsoleColor::blue //LogTypeColor<logType>()
+        ostream << LogTypeColor<logType>::value
                 << '[';
 
         if(!threadLabel.empty())

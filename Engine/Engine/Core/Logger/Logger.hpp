@@ -27,6 +27,17 @@ namespace Engine
         std::string message;
     };
 
+    template <LogType type> struct LogTypeLabel;
+    template <> struct LogTypeLabel<LOG_INFO>       { static constexpr std::string_view value = "INFO"; };
+    template <> struct LogTypeLabel<LOG_WARNING>    { static constexpr std::string_view value = "WARN"; };
+    template <> struct LogTypeLabel<LOG_ERROR>      { static constexpr std::string_view value = "ERR"; };
+
+    template <LogType type> struct LogTypeColor;
+    template <> struct LogTypeColor<LOG_INFO>       { static constexpr auto value = ConsoleColor::blue; };
+    template <> struct LogTypeColor<LOG_WARNING>    { static constexpr auto value = ConsoleColor::yellow; };
+    template <> struct LogTypeColor<LOG_ERROR>      { static constexpr auto value = ConsoleColor::red; };
+
+
     class Logger
     {
     public:
@@ -45,9 +56,6 @@ namespace Engine
     private:
         static std::string CurrentDateTimeToString();
 
-        template <LogType type> static std::string_view LogTypeLabel();
-        template <LogType type> static std::ostream& LogTypeColor(std::ostream &s);
-
         template<LogType logType, typename ...Args>
         static LogEntry PrintMessage(std::ostream& ostream, Args... args);
 
@@ -61,13 +69,16 @@ namespace Engine
         static std::unordered_map<std::thread::id, std::string> _threadsLabels;
     };
 
-    template <> std::string_view Logger::LogTypeLabel<LogType::LOG_INFO>();
-    template <> std::string_view Logger::LogTypeLabel<LogType::LOG_WARNING>();
-    template <> std::string_view Logger::LogTypeLabel<LogType::LOG_ERROR>();
+    /*
+    template <> constexpr std::string_view Logger::LogTypeLabel<LogType::LOG_INFO>()      { return { "INFO" }; }
+    template <> constexpr std::string_view Logger::LogTypeLabel<LogType::LOG_WARNING>()   { return { "WARN" }; }
+    template <> constexpr std::string_view Logger::LogTypeLabel<LogType::LOG_ERROR>()     { return { "ERR" }; }
 
-    template <> std::ostream& Logger::LogTypeColor<LogType::LOG_INFO>(std::ostream &s);
-    template <> std::ostream& Logger::LogTypeColor<LogType::LOG_WARNING>(std::ostream &s);
-    template <> std::ostream& Logger::LogTypeColor<LogType::LOG_ERROR>(std::ostream &s);
+    template <LogType type> static std::ostream& LogTypeColor(std::ostream &s);
+    template <> constexpr std::ostream& Logger::LogTypeColor<LogType::LOG_INFO>(std::ostream &s)      { return ConsoleColor::blue(s); }
+    template <> constexpr std::ostream& Logger::LogTypeColor<LogType::LOG_WARNING>(std::ostream &s)   { return ConsoleColor::yellow(s); }
+    template <> constexpr std::ostream& Logger::LogTypeColor<LogType::LOG_ERROR>(std::ostream &s)     { return ConsoleColor::red(s); }
+*/
 
 } // Engine
 
