@@ -49,7 +49,7 @@ namespace Engine
         void AwakeAll();
         void StartAll();
         void UpdateAllUpdatable(const float& deltaTime);
-        void HandleCollisions();
+        void CreateCollisionsKdTree();
         void RenderAllRenderer(sf::RenderTarget& renderTarget);
 
         template<class TSystem, class T>

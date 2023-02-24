@@ -112,7 +112,7 @@ namespace Maths::Collisions
             const Maths::Vector<GeometricType, Dimensions>& Axis,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB,
-            Maths::Vector<GeometricType, Dimensions>& OverlapDirectionResult,
+            Maths::Vector<GeometricType, Dimensions>& CollisionNormal,
             GeometricType& OverlapSizeResult,
             Maths::Point<GeometricType, Dimensions>& CollisionPoint
         )
@@ -140,7 +140,7 @@ namespace Maths::Collisions
                 {
                     const auto Modifier = (MinA <= MinB && MaxA <= MaxB ? -1 : 1);
                     OverlapSizeResult = std::abs(OverlapSize);
-                    OverlapDirectionResult = Axis * Modifier;
+                    CollisionNormal = Axis * Modifier;
                     CollisionPoint = Modifier < 0 ? MaxPoint - (Axis * OverlapSizeResult) : MinPoint + (Axis * OverlapSizeResult);
                 }
                 return true;
@@ -154,7 +154,7 @@ namespace Maths::Collisions
             const std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB,
-            Maths::Vector<GeometricType, Dimensions>& OverlapDirectionResult,
+            Maths::Vector<GeometricType, Dimensions>& CollisionNormal,
             GeometricType& OverlapSizeResult,
             Maths::Point<GeometricType, Dimensions>& CollisionPoint
         )
@@ -165,7 +165,7 @@ namespace Maths::Collisions
                     Axis,
                     PointsA,
                     PointsB,
-                    OverlapDirectionResult,
+                    CollisionNormal,
                     OverlapSizeResult,
                     CollisionPoint
                 ))
@@ -185,17 +185,17 @@ namespace Maths::Collisions
             Maths::Point<GeometricType, Dimensions>& CollisionPoint
         )
         {
-            Maths::Vector<GeometricType, Dimensions> OverlapDirectionResult;
+            Maths::Vector<GeometricType, Dimensions> CollisionNormal;
             GeometricType OverlapSizeResult = -1;
             bool Overlap = CheckOverlap(
                 Axes,
                 PointsA,
                 PointsB,
-                OverlapDirectionResult,
+                CollisionNormal,
                 OverlapSizeResult,
                 CollisionPoint
             );
-            ResolvingVector = OverlapDirectionResult * OverlapSizeResult;
+            ResolvingVector = CollisionNormal * OverlapSizeResult;
             return Overlap;
         }
 

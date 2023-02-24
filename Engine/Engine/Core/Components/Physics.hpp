@@ -47,6 +47,7 @@ namespace Engine::Components::Physics
         // kg
         PhysicsT Mass = 1;
         PhysicsT MomentOfInertia;
+        // 0 - 1
         PhysicsT Bounciness = 0;
 
         virtual Maths::Point<GeometricT, Dimensions> GetCenterOfMass(
@@ -230,25 +231,17 @@ namespace Engine::Components::Physics
                     rigidBody->Force = PhysicsVector2DT{};
                     rigidBody->Torque = 0;
 
-                    ComputeForceAndTorque(
+                    AddGravityToBody(
                         EntityTransform->Angle,
                         EntityTransform->Scale,
                         StepMs,
                         rigidBody
                     );
-                    const PhysicsVector2DT linearAcceleration = PhysicsVector2DT(
-                        rigidBody->Force.GetX() / rigidBody->Mass,
-                        rigidBody->Force.GetY() / rigidBody->Mass
+                    ApplyRigidBodyToEntity(
+                        StepMs,
+                        EntityTransform,
+                        rigidBody
                     );
-                    rigidBody->LinearVelocity.GetX() += linearAcceleration.GetX() * StepMs;
-                    rigidBody->LinearVelocity.GetY() += linearAcceleration.GetY() * StepMs;
-                    auto BoundingBox = rigidBody->GetBoundingBox();
-                    const auto angularAcceleration = rigidBody->Torque / rigidBody->MomentOfInertia;
-                    EntityTransform->Angle += rigidBody->AngularVelocity * StepMs;
-                    rigidBody->AngularVelocity += angularAcceleration * StepMs;
-
-                    EntityTransform->Pos.GetX() += rigidBody->LinearVelocity.GetX() * StepMs;
-                    EntityTransform->Pos.GetY() += rigidBody->LinearVelocity.GetY() * StepMs;
 
                     // check collisions
                     if (HasCollisions) {
@@ -279,11 +272,19 @@ namespace Engine::Components::Physics
                                 CurrentTransformComponent = TransformSystem->GetOf(Node->GetContent());
                             }
 
+                            rigidBody->Force = PhysicsVector2DT{};
+                            rigidBody->Torque = 0;
+
                             ExecuteOnNodes(
                                 RigidBodyComponentSystem,
                                 Node,
                                 NodeTransformComponent,
                                 CurrentNode
+                            );
+                            ApplyRigidBodyToEntity(
+                                StepMs,
+                                EntityTransform,
+                                rigidBody
                             );
                         }
                     }
@@ -355,7 +356,7 @@ namespace Engine::Components::Physics
             RigidBody->ComputeInertia(Scale);
         }
 
-        void ComputeForceAndTorque(
+        void AddGravityToBody(
             const GeometricT& RotationDegrees,
             const Maths::Vector2D<GeometricT>& Scale,
             const float& StepMs,
@@ -379,6 +380,26 @@ namespace Engine::Components::Physics
                 Scale,
                 OnPos
             );
+        }
+
+        void ApplyRigidBodyToEntity(
+            const float& StepMs,
+            Engine::Components::Transform* EntityTransform,
+            IRigidBody2DT* RigidBody
+        )
+        {
+            const PhysicsVector2DT linearAcceleration = PhysicsVector2DT(
+                RigidBody->Force.GetX() / RigidBody->Mass,
+                RigidBody->Force.GetY() / RigidBody->Mass
+            );
+            RigidBody->LinearVelocity.GetX() += linearAcceleration.GetX() * StepMs;
+            RigidBody->LinearVelocity.GetY() += linearAcceleration.GetY() * StepMs;
+            const auto angularAcceleration = RigidBody->Torque / RigidBody->MomentOfInertia;
+            EntityTransform->Angle += RigidBody->AngularVelocity * StepMs;
+            RigidBody->AngularVelocity += angularAcceleration * StepMs;
+
+            EntityTransform->Pos.GetX() += RigidBody->LinearVelocity.GetX() * StepMs;
+            EntityTransform->Pos.GetY() += RigidBody->LinearVelocity.GetY() * StepMs;
         }
 
         [[nodiscard]] Engine::Components::Transform* GetEntityTransform() const
@@ -457,17 +478,25 @@ namespace Engine::Components::Physics
                     );
 
                     GeometricPoint2DT CollisionPoint = GeometricPoint2DT(GeometricT(0), GeometricT(0));
-                    GeometricVector2DT OverlapResolvingVector;
+                    GeometricVector2DT CollisionNormal;
+                    GeometricT OverlapSizeResult = GeometricT(-1);
                     if (Maths::Collisions::SAT::CheckOverlap(
                         Axes,
                         NodeProjectablePoints,
                         ProjectablePoints,
-                        OverlapResolvingVector,
+                        CollisionNormal,
+                        OverlapSizeResult,
                         CollisionPoint
                     )) {
+                        const auto OverlapResolvingVector = CollisionNormal * OverlapSizeResult;
+                        const auto Bounciness = (NodeBody->Bounciness + WithBody->Bounciness) / 2;
                         if (this->IsMovable) {
                             NodeTransform->Pos = NodeTransform->Pos + (OverlapResolvingVector);
-                            const auto ForceToApply = OverlapResolvingVector.GetNormalized() * NodeBody->Force.GetLength();
+                            const PhysicsT VelocityNormalScalar = NodeBody->LinearVelocity.Scalar(CollisionNormal);
+                            const auto ForceToApply = CollisionNormal * (-(1 + Bounciness)
+                                * VelocityNormalScalar
+                                / CollisionNormal.GetSquareLength());
+                            NodeBody->LinearVelocity = PhysicsVector2DT{};
                             // tmp
                             NodeBody->AddForce(
                                 ForceToApply,
@@ -478,7 +507,11 @@ namespace Engine::Components::Physics
                             );
                         } else {
                             WithBodyTransform->Pos = WithBodyTransform->Pos + (OverlapResolvingVector * -1);
-                            const auto ForceToApply = (OverlapResolvingVector * -1).GetNormalized() * NodeBody->Force.GetLength();
+                            const PhysicsT VelocityNormalScalar = WithBody->LinearVelocity.Scalar(CollisionNormal);
+                            const auto ForceToApply = CollisionNormal * (-(1 + Bounciness)
+                                  * VelocityNormalScalar
+                                  / CollisionNormal.GetSquareLength());
+                            WithBody->LinearVelocity = PhysicsVector2DT{};
                             // tmp
                             WithBody->AddForce(
                                 ForceToApply,
