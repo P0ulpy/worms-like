@@ -20,6 +20,8 @@ namespace Engine::UI
     class ButtonWidget : public Widget
     {
     public:
+        DECLARE_CLASS_TYPE(ButtonWidget, Widget)
+
         using Callback = std::function<void()>;
 
         explicit ButtonWidget();

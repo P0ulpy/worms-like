@@ -14,14 +14,13 @@ namespace Engine::UI {
                                     const sf::Vector2f &position,
                                     const float &border, unsigned int characterSize) {
             m_border = border;
-            m_text.setFont(*font);
-            m_text.setCharacterSize(characterSize);
+            m_text = sf::Text(text, *font, characterSize);
             m_text.setFillColor(m_defaultColor);
             SetText(text);
 
             sf::Vector2f textButtonSize = sf::Vector2f {
-                    m_text.getLocalBounds().width + m_border * 2,
-                    m_text.getLocalBounds().height + m_border * 2
+                    m_text.getGlobalBounds().width + m_border * 2,
+                    m_text.getGlobalBounds().height + m_border * 2
             };
 
             SetSize(textButtonSize);

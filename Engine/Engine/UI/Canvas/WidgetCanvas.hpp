@@ -12,6 +12,8 @@ namespace Engine::UI
         class WidgetCanvas : public Widget
         {
         public:
+            DECLARE_CLASS_TYPE(WidgetCanvas, Widget)
+
             void Init(const sf::Vector2f& position = {0, 0}, const sf::Vector2f& size = {
                     static_cast<float>(Engine::EngineApplication::Get()->GetWindow().getSize().x),
                     static_cast<float>(Engine::EngineApplication::Get()->GetWindow().getSize().y)

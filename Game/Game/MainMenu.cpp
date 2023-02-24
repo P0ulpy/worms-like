@@ -27,22 +27,20 @@ void MainMenuLayer::OnAttach() {
     auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
     buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0});
 
-    /*auto buttonSettingsEntity = scene->CreateEntity();
+    auto buttonSettingsEntity = scene->CreateEntity();
     auto buttonSettingsWidget = buttonSettingsEntity.AddComponent<Engine::UI::TextButtonWidget>();
     buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0});
 
     auto buttonExitEntity = scene->CreateEntity();
     auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0});*/
-    /*buttonExitWidget->SetOnClick([]() {
+    buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0});
+    buttonExitWidget->SetOnClick([]() {
         Engine::EngineApplication::Get()->GetWindow().close();
-    });*/
+    });
 
     verticalBoxWidget->AddChild(buttonPlayWidget);
-    /*verticalBoxWidget->AddChild(buttonSettingsWidget);
-    verticalBoxWidget->AddChild(buttonExitWidget);*/
-
-
+    verticalBoxWidget->AddChild(buttonSettingsWidget);
+    verticalBoxWidget->AddChild(buttonExitWidget);
 }
 
 void MainMenuLayer::OnDetach() {

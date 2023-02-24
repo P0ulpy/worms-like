@@ -10,6 +10,8 @@ namespace Engine::UI {
 
         class WidgetHorizontalBox : public Widget {
         public:
+            DECLARE_CLASS_TYPE(WidgetHorizontalBox, Widget)
+
             void Init(const sf::Vector2f& position, const float spacing);
 
         private:

@@ -11,6 +11,8 @@ namespace Engine::UI {
 
         class SpriteButtonWidget : public ButtonWidget {
         public:
+            DECLARE_CLASS_TYPE(SpriteButtonWidget, ButtonWidget)
+
             void OnRender(sf::RenderTarget& renderTarget) override;
 
             void Init(const sf::Texture* texture, const sf::Vector2f& position, const float& border = 0.0f);

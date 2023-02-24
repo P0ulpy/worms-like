@@ -12,6 +12,8 @@ namespace Engine::UI {
 
         class SpriteWidget : public Widget {
         public:
+            DECLARE_CLASS_TYPE(SpriteWidget, Widget)
+
             virtual void OnRender(sf::RenderTarget& renderTarget);
 
             void Init(const sf::Texture& texture, const sf::Vector2f& position);

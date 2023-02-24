@@ -12,6 +12,8 @@ namespace Engine::UI
     class TextButtonWidget : public ButtonWidget
     {
     public:
+        DECLARE_CLASS_TYPE(TextButtonWidget, ButtonWidget)
+
         void OnRender(sf::RenderTarget& renderTarget) override;
 
         void Init(const std::string& text, sf::Font* font, const sf::Vector2f& position, const float& border = 0.0f, unsigned int characterSize = 30);
@@ -20,7 +22,6 @@ namespace Engine::UI
         void SetText(const std::string& text)               { m_text.setString(text); }
 
         void SetPosition(const sf::Vector2f& position) override;
-        void SetSize(const sf::Vector2f& size) override     { ButtonWidget::SetSize(size); }
 
     private:
         sf::Text m_text { };

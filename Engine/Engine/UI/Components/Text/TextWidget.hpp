@@ -12,6 +12,8 @@ namespace Engine::UI {
 
         class TextWidget : public Widget {
         public:
+            DECLARE_CLASS_TYPE(TextWidget, Widget)
+
             virtual void OnUpdate(float deltaTime);
             virtual void OnRender(sf::RenderTarget& renderTarget);
 

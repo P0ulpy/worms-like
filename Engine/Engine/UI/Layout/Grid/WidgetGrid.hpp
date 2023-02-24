@@ -11,6 +11,8 @@ namespace Engine::UI {
 
         class WidgetGrid : public Widget {
         public:
+            DECLARE_CLASS_TYPE(WidgetGrid, Widget)
+
             void Init(const sf::Vector2u& gridSize, const sf::Vector2f& gridSpacing, const sf::Vector2f& position, const sf::Vector2f &cellSize = sf::Vector2f(70.0f, 70.0f));
 
             void SetGridSize(const sf::Vector2u& gridSize);
