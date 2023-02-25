@@ -17,15 +17,7 @@ namespace Engine
 
     private:
         static EngineApplication* s_Instance;
-<<<<<<< HEAD
-=======
-        static EngineApplication* Get();
-<<<<<<< HEAD
-        static constexpr float FixedTimeMs = 200.f;
->>>>>>> Update physics and collisions
-=======
-        static constexpr float FixedDeltaTime = 200.f;
->>>>>>> Update physics and collisions
+        static constexpr float FixedDeltaTime = 16.6666f;
 
     public:
         explicit EngineApplication(sf::VideoMode VideoMode = sf::VideoMode(500, 500));

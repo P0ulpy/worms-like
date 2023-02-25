@@ -22,7 +22,7 @@ namespace Engine::Camera {
         Camera2D() = default;
 
         // numbers of pixels for 1 centimeter
-        GeometricT PixelCentimeterRatio = 1;
+        GeometricT PixelCentimeterRatio = 0.5f;
         Maths::Point<GeometricT, 2> Position;
 
         void Render(

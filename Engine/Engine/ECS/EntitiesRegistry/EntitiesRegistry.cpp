@@ -42,8 +42,6 @@ namespace Engine
 
     void EntitiesRegistry::UpdateAllUpdatable(const float& deltaTime)
     {
-        CreateCollisionsKdTree();
-
         for(auto& [classType, system] : m_updatableSystems)
         {
             system->DispatchUpdate(deltaTime);

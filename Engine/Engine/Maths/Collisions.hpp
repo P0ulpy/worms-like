@@ -20,6 +20,102 @@ namespace Maths::Collisions
         }
     };
 
+    template <typename GeometricType, size_t Dimensions>
+    void GetMinAndMaxProjectedValues(
+        const Maths::Vector<GeometricType, Dimensions>& Axis,
+        const std::vector<Maths::Point<GeometricType, Dimensions>>& Points,
+        GeometricType& Min,
+        GeometricType& Max,
+        Maths::Point<GeometricType, Dimensions>& PointMin,
+        Maths::Point<GeometricType, Dimensions>& PointMax
+    )
+    {
+        Min = Max = Maths::ProjectOnUnitVector(Points[0], Axis);
+        PointMin = PointMax = Points[0];
+        for (int i = 1; i < Points.size(); i++)
+        {
+            GeometricType Projection = Maths::ProjectOnUnitVector(Points[i], Axis);
+            if (Projection > Max)
+            {
+                Max = Projection;
+                PointMax = Points[i];
+                continue;
+            }
+            if (Projection < Min)
+            {
+                Min = Projection;
+                PointMin = Points[i];
+                continue;
+            }
+        }
+    }
+
+    class SAP {
+    public:
+        template <typename GeometricType, size_t Dimensions>
+        static bool LikelyToCollide(
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
+        )
+        {
+            const auto Axis = Maths::Vector<GeometricType, Dimensions>::GetUnitVectorOnAxis(0);
+            return IntersectOnAxis(
+                Axis,
+                PointsA,
+                PointsB
+            );
+        }
+
+        // RTTI casting
+        template <typename GeometricType, size_t Dimensions>
+        static bool LikelyToCollide(
+            const Maths::Vector<GeometricType, Dimensions>& ScaleA,
+            const Maths::Vector<GeometricType, Dimensions>& ScaleB,
+            const GeometricType& RotationDegreesA,
+            const GeometricType& RotationDegreesB,
+            const Maths::Point2D<GeometricType>& OnPosA,
+            const Maths::Point2D<GeometricType>& OnPosB,
+            const Maths::IShape* ShapeA,
+            const Maths::IShape* ShapeB
+        )
+        {
+            if (
+                ShapeA->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
+                && ShapeB->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
+            )
+            {
+                return LikelyToCollide<GeometricType, Dimensions>(
+                    static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeA)->GetVertices(
+                        RotationDegreesA,
+                        ScaleA,
+                        OnPosA
+                    ),
+                    static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeB)->GetVertices(
+                        RotationDegreesB,
+                        ScaleB,
+                        OnPosB
+                    )
+                );
+            }
+
+            throw std::runtime_error("No matching function found.");
+        }
+    private:
+        template <typename GeometricType, size_t Dimensions>
+        static bool IntersectOnAxis(
+            const Maths::Vector<GeometricType, Dimensions>& Axis,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
+        )
+        {
+            GeometricType MinA = 0, MaxA = 0, MinB = 0, MaxB = 0;
+            Maths::Point<GeometricType, Dimensions> MinPointA, MaxPointA, MinPointB, MaxPointB;
+            GetMinAndMaxProjectedValues(Axis, PointsA, MinA, MaxA, MinPointA, MaxPointA);
+            GetMinAndMaxProjectedValues(Axis, PointsB, MinB, MaxB, MinPointB, MaxPointB);
+            return (MaxA >= MinB) && (MaxB >= MinA);
+        }
+    };
+
     class SAT {
     public:
         template <typename GeometricType, size_t Dimensions>
@@ -86,58 +182,6 @@ namespace Maths::Collisions
                     static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeA),
                     static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeB)
                 );
-            }
-
-            // todo how to detect dimensions for the next ones?
-            if (
-                ShapeA->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
-                && ShapeB->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
-            )
-            {
-//                return Collide<GeometricType, Dimensions>(
-//                    ScaleA,
-//                    ScaleB,
-//                    RotationDegreesA,
-//                    RotationDegreesB,
-//                    OnPosA,
-//                    OnPosB,
-//                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeA),
-//                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeB)
-//                );
-            }
-
-            if (
-                ShapeA->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
-                && ShapeB->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
-            )
-            {
-//                return Collide<GeometricType, Dimensions>(
-//                    ScaleA,
-//                    ScaleB,
-//                    RotationDegreesA,
-//                    RotationDegreesB,
-//                    OnPosA,
-//                    OnPosB,
-//                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeA),
-//                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeB)
-//                );
-            }
-
-            if (
-                ShapeA->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
-                && ShapeB->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
-            )
-            {
-//                return Collide<GeometricType, Dimensions>(
-//                    ScaleA,
-//                    ScaleB,
-//                    RotationDegreesA,
-//                    RotationDegreesB,
-//                    OnPosA,
-//                    OnPosB,
-//                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeA),
-//                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeB)
-//                );
             }
 
             throw std::runtime_error("No matching function found.");
@@ -212,36 +256,6 @@ namespace Maths::Collisions
                 return Edge1;
             } else {
                 return Edge2;
-            }
-        }
-
-        template <typename GeometricType, size_t Dimensions>
-        static void GetMinAndMaxProjectedValues(
-            const Maths::Vector<GeometricType, Dimensions>& Axis,
-            const std::vector<Maths::Point<GeometricType, Dimensions>>& Points,
-            GeometricType& Min,
-            GeometricType& Max,
-            Maths::Point<GeometricType, Dimensions>& PointMin,
-            Maths::Point<GeometricType, Dimensions>& PointMax
-        )
-        {
-            Min = Max = Maths::ProjectOnUnitVector(Points[0], Axis);
-            PointMin = PointMax = Points[0];
-            for (int i = 1; i < Points.size(); i++)
-            {
-                GeometricType Projection = Maths::ProjectOnUnitVector(Points[i], Axis);
-                if (Projection > Max)
-                {
-                    Max = Projection;
-                    PointMax = Points[i];
-                    continue;
-                }
-                if (Projection < Min)
-                {
-                    Min = Projection;
-                    PointMin = Points[i];
-                    continue;
-                }
             }
         }
 
@@ -435,5 +449,4 @@ namespace Maths::Collisions
             return Manifold;
         }
     };
-    // @todo maybe implement other types than SAT, like SAP and Impulse
 } // Collisions // Maths

@@ -60,12 +60,8 @@ namespace Engine
         void DestroyAll();
 
     private:
-<<<<<<< HEAD
         bool m_markedForDestruction = false;
 
-=======
-        void CreateCollisionsKdTree();
->>>>>>> Update physics and collisions
         std::unordered_map<RTTI::ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
 
         std::unordered_map<RTTI::ClassType*, IComponentSystem*> m_updatableSystems;
