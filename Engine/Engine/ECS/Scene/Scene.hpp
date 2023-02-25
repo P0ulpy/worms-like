@@ -11,6 +11,7 @@
 
 #include "../Entity/Entity.hpp"
 #include "../EntitiesRegistry/EntitiesRegistry.hpp"
+#include "../../Camera/Camera.hpp"
 
 namespace Engine
 {
@@ -18,7 +19,10 @@ namespace Engine
     {
     public:
         Scene() = default;
-        ~Scene() = default;
+        ~Scene()
+        {
+            delete m_ActiveCamera;
+        };
 
         void OnStart();
         void OnUpdate(Timestep ts);
@@ -48,8 +52,11 @@ namespace Engine
         template<class T>
         void RemoveComponentOf(const EntityHandle& entityHandle);
 
+        inline Engine::Camera::ICamera* GetActiveCamera() { return m_ActiveCamera; }
+        inline void SetActiveCamera(Engine::Camera::ICamera* Camera) { m_ActiveCamera = Camera; }
     private:
         EntitiesRegistry m_registry;
+        Engine::Camera::ICamera* m_ActiveCamera;
     };
 
     // Scene

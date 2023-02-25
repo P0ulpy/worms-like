@@ -42,6 +42,8 @@ namespace Engine
 
     void EntitiesRegistry::UpdateAllUpdatable(const float& deltaTime)
     {
+        CreateCollisionsKdTree();
+
         for(auto& [classType, system] : m_updatableSystems)
         {
             system->DispatchUpdate(deltaTime);
@@ -68,12 +70,9 @@ namespace Engine
         );
     }
 
-    void EntitiesRegistry::RenderAllRenderer(sf::RenderTarget& renderTarget)
+    std::unordered_map<RTTI::ClassType*, IComponentSystem*> EntitiesRegistry::GetAllRenderableSystems()
     {
-        for(auto& [classType, system] : m_renderableSystems)
-        {
-            system->DispatchRender(renderTarget);
-        }
+        return m_renderableSystems;
     }
 
     void EntitiesRegistry::DestroyAll()

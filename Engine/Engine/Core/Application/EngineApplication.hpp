@@ -20,7 +20,11 @@ namespace Engine
 <<<<<<< HEAD
 =======
         static EngineApplication* Get();
+<<<<<<< HEAD
         static constexpr float FixedTimeMs = 200.f;
+>>>>>>> Update physics and collisions
+=======
+        static constexpr float FixedDeltaTime = 200.f;
 >>>>>>> Update physics and collisions
 
     public:

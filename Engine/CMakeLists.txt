@@ -110,6 +110,8 @@ set(ENGINE_SOURCES
         Engine/Maths/Graph.hpp Engine/Maths/Collisions.cpp
         Engine/Maths/Collisions.hpp Engine/Maths/Angles.cpp
         Engine/Maths/Angles.hpp
+        Engine/Camera/Camera.cpp
+        Engine/Camera/Camera.hpp
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)

@@ -7,6 +7,7 @@
 #include <functional>
 #include <string_view>
 #include <variant>
+#include <string_view>
 
 namespace SignalSystem
 {

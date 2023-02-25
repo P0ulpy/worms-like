@@ -49,8 +49,7 @@ namespace Engine
         void AwakeAll();
         void StartAll();
         void UpdateAllUpdatable(const float& deltaTime);
-        void CreateCollisionsKdTree();
-        void RenderAllRenderer(sf::RenderTarget& renderTarget);
+        std::unordered_map<RTTI::ClassType*, IComponentSystem*> GetAllRenderableSystems();
 
         template<class TSystem, class T>
         void AddSystem();
@@ -61,8 +60,12 @@ namespace Engine
         void DestroyAll();
 
     private:
+<<<<<<< HEAD
         bool m_markedForDestruction = false;
 
+=======
+        void CreateCollisionsKdTree();
+>>>>>>> Update physics and collisions
         std::unordered_map<RTTI::ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
 
         std::unordered_map<RTTI::ClassType*, IComponentSystem*> m_updatableSystems;

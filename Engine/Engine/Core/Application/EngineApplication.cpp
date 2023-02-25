@@ -78,11 +78,6 @@ void Engine::EngineApplication::Run()
         if(!m_running)
             continue;
 
-        const auto Elapsed = Time::Get()->GetDeltaTime();
-        if (Elapsed < FixedTimeMs)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(FixedTimeMs - Elapsed)));
-        }
         Timestep timeStep = Time::Get()->RestartDeltaTimeClock();
 
         WindowEvents::ProcessEvents(m_window);
@@ -110,6 +105,14 @@ void Engine::EngineApplication::Run()
 
         if(WindowEvents::GetEvent(sf::Event::Closed))
             Stop();
+
+        const auto Elapsed = Time::Get()->GetDeltaTime();
+        if (Elapsed < FixedDeltaTime)
+        {
+            sf::sleep(sf::milliseconds((int) (FixedDeltaTime - Elapsed)));
+        } else {
+            std::cout << "Exceeding fixed update time :" << Elapsed << std::endl;
+        }
     }
 }
 

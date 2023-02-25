@@ -24,7 +24,6 @@ namespace Engine
 
     void Scene::OnUpdate(Timestep ts)
     {
-        m_registry.CreateCollisionsKdTree();
         m_registry.UpdateAllUpdatable(ts);
     }
 
@@ -35,7 +34,12 @@ namespace Engine
 
     void Scene::RenderScene(sf::RenderTarget &renderTarget)
     {
-        m_registry.RenderAllRenderer(renderTarget);
+        auto RenderableSystems = m_registry.GetAllRenderableSystems();
+        if (nullptr == m_ActiveCamera)
+        {
+            throw std::runtime_error("Camera is invalid.");
+        }
+        m_ActiveCamera->Render(renderTarget, RenderableSystems);
     }
 
     // NOTE : le problème principal de cette implémentation de destruction est global à toutes les méthodes de destruction des composants

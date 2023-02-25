@@ -14,7 +14,7 @@
 
 namespace Engine::Components::Physics
 {
-    // All distances are in meters
+    // All distances are in centimeters
     // All forces are in m/s²
     // All masses are in kg
 
@@ -80,7 +80,8 @@ namespace Engine::Components::Physics
         PhysicsT Torque = 0;
         // kg
         PhysicsT Mass = 1;
-        PhysicsT MomentOfInertia;
+        // m4
+        PhysicsT MomentOfInertiaOnZ;
         // 0 - 1
         PhysicsT Bounciness = 0;
 
@@ -133,9 +134,10 @@ namespace Engine::Components::Physics
         void ComputeInertia(const Maths::Vector2D<GeometricT>& Scale)
         {
             const auto mass = this->Mass;
-            const auto w = this->BoundingBox.Width * Scale.GetX();
-            const auto h = this->BoundingBox.Height * Scale.GetY();
-            this->MomentOfInertia = mass * (w * w + h * h) / 12;
+            // meters
+            const auto w = this->BoundingBox.Width * Scale.GetX() / 100.f;
+            const auto h = this->BoundingBox.Height * Scale.GetY() / 100.f;
+            this->MomentOfInertiaOnZ = mass * (w * w + h * h) / 12.f;
         }
 
         void AddForce(
@@ -152,7 +154,8 @@ namespace Engine::Components::Physics
                 RotationDegrees,
                 OnPos
             );
-            auto r = AtPoint.GetVectorTo(CenterOfMass);
+            // in meters
+            auto r = AtPoint.GetVectorTo(CenterOfMass) * (1 / 100);
             this->Torque += r ^ this->Force;
         }
     };
@@ -189,7 +192,7 @@ namespace Engine::Components::Physics
         static constexpr PT Gravity = PT(9.80665f);
         static PhysicsVector2DT GravityDirection;
         static constexpr PT LinearDrag = PT(0.05f);
-        static constexpr PT AngularDrag = PT(0.05f);
+        static constexpr PT AngularDrag = PT(0.5f);
         // 1 mm
         static constexpr GT DistanceStep = PT(0.001f);
 
@@ -218,6 +221,16 @@ namespace Engine::Components::Physics
         template <bool DShapes = DebugShapes, bool DPoints = DebugPoints, std::enable_if_t<(DShapes || DPoints), bool> = false>
         void OnRender(sf::RenderTarget& RenderTarget) const
         {
+            auto ActiveCamera = EngineApplication::Get()
+                ->GetScenesLayer()
+                .GetActiveScene()
+                ->GetActiveCamera();
+            auto PixelSize = 1.f;
+            if (dynamic_cast<Engine::Camera::Camera2D<GeometricT>*>(ActiveCamera))
+            {
+                PixelSize = PixelSize / static_cast<Engine::Camera::Camera2D<GeometricT>*>(ActiveCamera)->PixelCentimeterRatio;
+            }
+
             auto EntityTransform = GetEntityTransform();
 
             for (const auto & Body : m_RigidBodies)
@@ -249,7 +262,7 @@ namespace Engine::Components::Physics
                         Rect.setRotation(RectangleBoundingBox->Angle + EntityTransform->Angle);
                         Rect.setFillColor(sf::Color::Transparent);
                         Rect.setOutlineColor(sf::Color::White);
-                        Rect.setOutlineThickness(-1.f);
+                        Rect.setOutlineThickness(PixelSize);
                         RenderTarget.draw(Rect);
                     }
 
@@ -263,13 +276,14 @@ namespace Engine::Components::Physics
                         ))
                         {
                             sf::CircleShape Point;
-                            Point.setRadius(2.f);
-                            Point.setOrigin(2.f, 2.f);
+                            // 2 mm
+                            Point.setRadius(PixelSize * 2);
+                            Point.setOrigin(PixelSize * 2, PixelSize * 2);
                             Point.setFillColor(sf::Color::Red);
                             Point.setPosition({
-                                                  (float) Vertice.GetX(),
-                                                  (float) Vertice.GetY()
-                                              });
+                                (float) Vertice.GetX(),
+                                (float) Vertice.GetY()
+                            });
                             RenderTarget.draw(Point);
                             sf::Text PositionText;
                             PositionText.setFillColor(sf::Color::Red);
@@ -281,13 +295,14 @@ namespace Engine::Components::Physics
                             PositionText.setFont(Lato);
                             PositionText.setCharacterSize(12);
                             PositionText.setPosition({
-                                                         (float) Vertice.GetX(),
-                                                         (float) Vertice.GetY() - 10.f
-                                                     });
+                                 (float) Vertice.GetX(),
+                                 (float) Vertice.GetY() - (PixelSize * 10.f)
+                             });
                             PositionText.setOrigin(
                                 PositionText.getGlobalBounds().width / 2,
                                 PositionText.getGlobalBounds().height / 2
                             );
+                            PositionText.setScale({PixelSize, PixelSize});
                             RenderTarget.draw(PositionText);
                         }
                     }
@@ -300,13 +315,14 @@ namespace Engine::Components::Physics
             Simulate(deltaTime);
         }
 
-        void Simulate(const float& ElapsedTimeMs, const float& StepMs = 1.f)
+        void Simulate(const float& ElapsedTimeMs, const float& StepMs = 0.1f)
         {
+            if (this->IsStatic) {
+                return;
+            }
             auto currentTimeMs = 0.0;
             auto EntityTransform = GetEntityTransform();
             while (currentTimeMs < ElapsedTimeMs) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(StepMs)));
-
                 for (auto &rigidBody: this->m_RigidBodies) {
                     ApplyRigidBodyToEntity(
                         StepMs,
@@ -338,7 +354,8 @@ namespace Engine::Components::Physics
                             const EntityKdTreeNode *CurrentNode = Node;
                             auto CurrentTransformComponent = TransformSystem->GetOf(Node->GetContent());
                             while (MaxSize <
-                                   CurrentTransformComponent->Pos.GetVectorTo(NodeTransformComponent->Pos).GetLength()) {
+                                   CurrentTransformComponent->Pos.GetVectorTo(NodeTransformComponent->Pos).GetLength()
+                            ) {
                                 CurrentNode = static_cast<const EntityKdTreeNode *>(Node)->GetParent();
                                 CurrentTransformComponent = TransformSystem->GetOf(Node->GetContent());
                             }
@@ -460,10 +477,11 @@ namespace Engine::Components::Physics
                 WithBody->LinearVelocity = WithBody->LinearVelocity + Impulse * (1 / WithBody->Mass);
                 for (const auto& ContactPoint : CollisionManifold.Contacts)
                 {
-                    WithBody->AngularVelocity = WithBody->AngularVelocity + (
+                        WithBody->AngularVelocity = WithBody->AngularVelocity + (
                         (j / ContactsCount)
-                        * (1 / WithBody->MomentOfInertia)
-                        * ((ContactPoint).GetVectorTo(CollisionManifold.SecondCenterOfMassAtCollision) ^ (CollisionManifold.Normal))
+                        * (1 / WithBody->MomentOfInertiaOnZ)
+                        // meters
+                        * (((ContactPoint).GetVectorTo(CollisionManifold.SecondCenterOfMassAtCollision) * (1.f / 100.f)) ^ (CollisionManifold.Normal))
                     );
                 }
                 return;
@@ -475,8 +493,8 @@ namespace Engine::Components::Physics
                 {
                     NodeBody->AngularVelocity = NodeBody->AngularVelocity - (
                         (j / ContactsCount)
-                        * (1 / NodeBody->MomentOfInertia)
-                        * (ContactPoint.GetVectorTo(CollisionManifold.FirstCenterOfMassAtCollision) ^ (CollisionManifold.Normal))
+                        * (1 / NodeBody->MomentOfInertiaOnZ)
+                        * ((ContactPoint.GetVectorTo(CollisionManifold.FirstCenterOfMassAtCollision) * (1.f / 100.f)) ^ (CollisionManifold.Normal))
                     );
                 }
                 return;
@@ -488,13 +506,13 @@ namespace Engine::Components::Physics
             {
                 NodeBody->AngularVelocity = NodeBody->AngularVelocity - (
                     (j / ContactsCount)
-                    * (1 / NodeBody->MomentOfInertia)
-                    * (ContactPoint.GetVectorTo(CollisionManifold.FirstCenterOfMassAtCollision) ^ (CollisionManifold.Normal))
+                    * (1 / NodeBody->MomentOfInertiaOnZ)
+                    * ((ContactPoint.GetVectorTo(CollisionManifold.FirstCenterOfMassAtCollision) * (1.f / 100.f)) ^ (CollisionManifold.Normal))
                 );
                 WithBody->AngularVelocity = WithBody->AngularVelocity + (
                     (j / ContactsCount)
-                    * (1 / WithBody->MomentOfInertia)
-                    * (ContactPoint.GetVectorTo(CollisionManifold.SecondCenterOfMassAtCollision) ^ (CollisionManifold.Normal))
+                    * (1 / WithBody->MomentOfInertiaOnZ)
+                    * ((ContactPoint.GetVectorTo(CollisionManifold.SecondCenterOfMassAtCollision) * (1.f / 100.f)) ^ (CollisionManifold.Normal))
                 );
             }
         }
@@ -505,6 +523,9 @@ namespace Engine::Components::Physics
             IRigidBody2DT* RigidBody
         )
         {
+            if (this->IsStatic) {
+                return;
+            }
             const auto GravityVec = GravityDirection * GravityScale * Gravity;
             const PhysicsVector2DT linearAcceleration = PhysicsVector2DT(
                 RigidBody->Force.GetX() / RigidBody->Mass,
@@ -513,7 +534,7 @@ namespace Engine::Components::Physics
             const auto StepMsMultiplier = (StepMs / 1000);
             RigidBody->LinearVelocity.GetX() += (linearAcceleration.GetX() + GravityVec.GetX()) * StepMsMultiplier;
             RigidBody->LinearVelocity.GetY() += (linearAcceleration.GetY() + GravityVec.GetY()) * StepMsMultiplier;
-            const auto angularAcceleration = RigidBody->Torque / RigidBody->MomentOfInertia;
+            const auto angularAcceleration = RigidBody->Torque / RigidBody->MomentOfInertiaOnZ;
             EntityTransform->Angle += RigidBody->AngularVelocity * StepMsMultiplier;
             if (EntityTransform->Angle >= 360.f)
             {
@@ -521,16 +542,17 @@ namespace Engine::Components::Physics
             }
             RigidBody->AngularVelocity += angularAcceleration * StepMsMultiplier;
 
-            EntityTransform->Pos.GetX() += RigidBody->LinearVelocity.GetX() * StepMsMultiplier;
-            EntityTransform->Pos.GetY() += RigidBody->LinearVelocity.GetY() * StepMsMultiplier;
+            // in centimeters
+            EntityTransform->Pos.GetX() += (RigidBody->LinearVelocity.GetX() * 100.f) * StepMsMultiplier;
+            EntityTransform->Pos.GetY() += (RigidBody->LinearVelocity.GetY() * 100.f) * StepMsMultiplier;
 
             // reset applied force each time it is applied
             RigidBody->Force = PhysicsVector2DT{};
             RigidBody->Torque = 0;
 
             // apply drag to simulate air friction
-//            RigidBody->LinearVelocity = RigidBody->LinearVelocity * std::clamp(PhysicsT(1.f) - LinearDrag * StepMsMultiplier, PhysicsT(0.f), PhysicsT(1.f));
-//            RigidBody->AngularVelocity *= std::clamp(PhysicsT(1.f) - AngularDrag * StepMsMultiplier, PhysicsT(0.f), PhysicsT(1.f));
+            RigidBody->LinearVelocity = RigidBody->LinearVelocity * std::clamp(PhysicsT(1.f) - LinearDrag * StepMsMultiplier, PhysicsT(0.f), PhysicsT(1.f));
+            RigidBody->AngularVelocity *= std::clamp(PhysicsT(1.f) - AngularDrag * StepMsMultiplier, PhysicsT(0.f), PhysicsT(1.f));
         }
 
         [[nodiscard]] Engine::Components::Transform* GetEntityTransform() const
