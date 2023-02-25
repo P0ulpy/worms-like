@@ -6,6 +6,21 @@
 #include "Angles.hpp"
 
 namespace Maths {
+    template <typename T, size_t Dimensions>
+    Maths::Vector<T, Dimensions> GetNormal(Maths::Vector<T, Dimensions> Edge)
+    {
+        static const auto UnitAxisVector = Vector<T, Dimensions>::GetUnitVectorOnAxis(0);
+        Maths::Vector<T, Dimensions> Normal;
+        if constexpr (Dimensions == 2)
+        {
+            Normal = Vector<T, Dimensions>(-Edge.GetY(), Edge.GetX());
+        } else {
+            Normal = Normal ^ UnitAxisVector;
+        }
+        Normal.Normalize();
+        return Normal;
+    }
+
     struct IShape : public RTTI::IClassType
     {
         DECLARE_CLASS_TYPE(NSphere, RTTI::NoClassTypeAncestor);
@@ -46,7 +61,7 @@ namespace Maths {
             for (size_t i = 1; i <= Vertices.size(); i++)
             {
                 const auto CurrentIdx = i % (Vertices.size());
-                Edges[CurrentIdx] = Vertices[i - 1].GetVector(Vertices[CurrentIdx]);
+                Edges[CurrentIdx] = Vertices[i - 1].GetVectorTo(Vertices[CurrentIdx]);
             }
             return Edges;
         }
@@ -64,17 +79,10 @@ namespace Maths {
             const std::vector<Vector<T, Dimensions>>& Edges
         ) const
         {
-            static const auto UnitAxisVector = Vector<T, Dimensions>::GetUnitVectorOnAxis(0);
             auto Normals = Edges;
             for (size_t i = 0; i < Normals.size(); i++)
             {
-                if constexpr (Dimensions == 2)
-                {
-                    Normals[i] = Vector<T, Dimensions>(-Normals[i].GetY(), Normals[i].GetX());
-                } else {
-                    Normals[i] = Normals[i] ^ UnitAxisVector;
-                }
-                Normals[i].Normalize();
+                Normals[i] = GetNormal(Edges[i]);
             }
 
             return Normals;

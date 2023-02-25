@@ -7,9 +7,146 @@
 
 namespace Maths::Collisions
 {
-    namespace SAT {
+    template <typename GeometricT, size_t Dimensions>
+    struct CollisionManifold
+    {
+        Maths::Vector<GeometricT, Dimensions> Normal;
+        GeometricT Depth = GeometricT(0);
+        std::vector<Maths::Point<GeometricT, Dimensions>> Contacts;
+
+        bool HasCollided() const
+        {
+            return !Contacts.empty();
+        }
+    };
+
+    class SAT {
+    public:
+        template <typename GeometricType, size_t Dimensions>
+        static CollisionManifold<GeometricType, Dimensions> CollideRectangles(
+            const Maths::Vector2D<GeometricType>& ScaleA,
+            const Maths::Vector2D<GeometricType>& ScaleB,
+            const GeometricType& RotationDegreesA,
+            const GeometricType& RotationDegreesB,
+            const Maths::Point2D<GeometricType>& OnPosA,
+            const Maths::Point2D<GeometricType>& OnPosB,
+            const Maths::Rectangle2D<GeometricType>* RectangleA,
+            const Maths::Rectangle2D<GeometricType>* RectangleB
+        )
+        {
+            std::vector<Maths::Vector2D<GeometricType>> Axes;
+            std::vector<Maths::Point2D<GeometricType>> PointsA;
+            std::vector<Maths::Point2D<GeometricType>> PointsB;
+            ComputeAxesAndPointsToCheck(
+                ScaleA,
+                ScaleB,
+                RotationDegreesA,
+                RotationDegreesB,
+                OnPosA,
+                OnPosB,
+                RectangleA,
+                RectangleB,
+                Axes,
+                PointsA,
+                PointsB
+            );
+
+            return CheckCollisions(
+                Axes,
+                PointsA,
+                PointsB
+            );
+        }
+
+        // RTTI casting
+        template <typename GeometricType, size_t Dimensions>
+        static CollisionManifold<GeometricType, Dimensions> Collide(
+            const Maths::Vector<GeometricType, Dimensions>& ScaleA,
+            const Maths::Vector<GeometricType, Dimensions>& ScaleB,
+            const GeometricType& RotationDegreesA,
+            const GeometricType& RotationDegreesB,
+            const Maths::Point2D<GeometricType>& OnPosA,
+            const Maths::Point2D<GeometricType>& OnPosB,
+            const Maths::IShape* ShapeA,
+            const Maths::IShape* ShapeB
+        )
+        {
+            if (
+                ShapeA->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
+                && ShapeB->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
+            )
+            {
+                return CollideRectangles<GeometricType, Dimensions>(
+                    ScaleA,
+                    ScaleB,
+                    RotationDegreesA,
+                    RotationDegreesB,
+                    OnPosA,
+                    OnPosB,
+                    static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeA),
+                    static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeB)
+                );
+            }
+
+            // todo how to detect dimensions for the next ones?
+            if (
+                ShapeA->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
+                && ShapeB->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
+            )
+            {
+//                return Collide<GeometricType, Dimensions>(
+//                    ScaleA,
+//                    ScaleB,
+//                    RotationDegreesA,
+//                    RotationDegreesB,
+//                    OnPosA,
+//                    OnPosB,
+//                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeA),
+//                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeB)
+//                );
+            }
+
+            if (
+                ShapeA->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
+                && ShapeB->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
+            )
+            {
+//                return Collide<GeometricType, Dimensions>(
+//                    ScaleA,
+//                    ScaleB,
+//                    RotationDegreesA,
+//                    RotationDegreesB,
+//                    OnPosA,
+//                    OnPosB,
+//                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeA),
+//                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeB)
+//                );
+            }
+
+            if (
+                ShapeA->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
+                && ShapeB->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
+            )
+            {
+//                return Collide<GeometricType, Dimensions>(
+//                    ScaleA,
+//                    ScaleB,
+//                    RotationDegreesA,
+//                    RotationDegreesB,
+//                    OnPosA,
+//                    OnPosB,
+//                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeA),
+//                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeB)
+//                );
+            }
+
+            throw std::runtime_error("No matching function found.");
+        }
+    private:
+        SAT() = default;
+
         template <typename GeometricType>
-        void ComputeAxesAndPointsToCheck(
+        static void ComputeAxesAndPointsToCheck(
             const Maths::Vector2D<GeometricType>& ScaleA,
             const Maths::Vector2D<GeometricType>& ScaleB,
             const GeometricType& RotationDegreesA,
@@ -59,26 +196,27 @@ namespace Maths::Collisions
             PointsB.insert(PointsB.begin(), VerticesB.begin(), VerticesB.end());
         }
 
+        // Edges point to MaxPoint
+        // Only convex polygons
         template <typename GeometricType, size_t Dimensions>
-        void ComputeAxesAndPointsToCheck(
-            const Maths::Vector<GeometricType, Dimensions>& ScaleA,
-            const Maths::Vector<GeometricType, Dimensions>& ScaleB,
-            const GeometricType& RotationDegreesA,
-            const GeometricType& RotationDegreesB,
-            const Maths::Point2D<GeometricType>& OnPosA,
-            const Maths::Point2D<GeometricType>& OnPosB,
-            const Maths::Polygon<GeometricType, Dimensions>* PolygonA,
-            const Maths::Polygon<GeometricType, Dimensions>* PolygonB,
-            std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
-            std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
-            std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
+        static Maths::Vector<GeometricType, Dimensions> GetBestEdgeForCollisionPoint(
+            const Maths::Point<GeometricType, Dimensions>& MaxPoint,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& Points,
+            const Maths::Vector<GeometricType, Dimensions>& CollisionNormal
         )
         {
-
+            const size_t PointAIndex = std::find(Points.begin(), Points.end(), MaxPoint) - Points.begin();
+            const auto Edge1 = Points[PointAIndex == 0 ? Points.size() - 1 : PointAIndex - 1].GetVectorTo(MaxPoint);
+            const auto Edge2 = Points[PointAIndex + 1 % Points.size()].GetVectorTo(MaxPoint);
+            if (std::abs(Edge1.GetNormalized().Scalar(CollisionNormal)) <= std::abs(Edge2.GetNormalized().Scalar(CollisionNormal))) {
+                return Edge1;
+            } else {
+                return Edge2;
+            }
         }
 
         template <typename GeometricType, size_t Dimensions>
-        void GetMinAndMaxProjectedValues(
+        static void GetMinAndMaxProjectedValues(
             const Maths::Vector<GeometricType, Dimensions>& Axis,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& Points,
             GeometricType& Min,
@@ -88,6 +226,7 @@ namespace Maths::Collisions
         )
         {
             Min = Max = Maths::ProjectOnUnitVector(Points[0], Axis);
+            PointMin = PointMax = Points[0];
             for (int i = 1; i < Points.size(); i++)
             {
                 GeometricType Projection = Maths::ProjectOnUnitVector(Points[i], Axis);
@@ -106,15 +245,109 @@ namespace Maths::Collisions
             }
         }
 
-        // OverlapSizeResult must be initialized with < 0 to correctly compute
+        // CollisionManifold normal must always point from A to B
+        // @todo this only works with 2D ?
         template <typename GeometricType, size_t Dimensions>
-        bool IntersectOnAxis(
+        static std::vector<Maths::Point<GeometricType, Dimensions>> GetContactManifold(
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB,
+            const Maths::Vector<GeometricType, Dimensions>& CollisionNormal
+        )
+        {
+            GeometricType CollisionNormalMinA;
+            GeometricType CollisionNormalMaxA;
+            Maths::Point<GeometricType, Dimensions> MinAPointOnCollisionNormal;
+            Maths::Point<GeometricType, Dimensions> MaxAPointOnCollisionNormal;
+            GetMinAndMaxProjectedValues(
+                CollisionNormal,
+                PointsA,
+                CollisionNormalMinA,
+                CollisionNormalMaxA,
+                MinAPointOnCollisionNormal,
+                MaxAPointOnCollisionNormal
+            );
+            GeometricType CollisionNormalMinB;
+            GeometricType CollisionNormalMaxB;
+            Maths::Point<GeometricType, Dimensions> MinBPointOnCollisionNormal;
+            auto FlippedCollisionNormal = CollisionNormal * -1;
+            Maths::Point<GeometricType, Dimensions> MaxBPointOnCollisionNormal;
+            GetMinAndMaxProjectedValues(
+                FlippedCollisionNormal,
+                PointsB,
+                CollisionNormalMinB,
+                CollisionNormalMaxB,
+                MinBPointOnCollisionNormal,
+                MaxBPointOnCollisionNormal
+            );
+
+            auto BestA = GetBestEdgeForCollisionPoint(MaxAPointOnCollisionNormal, PointsA, CollisionNormal);
+            auto BestB = GetBestEdgeForCollisionPoint(MaxBPointOnCollisionNormal, PointsB, FlippedCollisionNormal);
+            bool Flipped = false;
+            auto ReferenceEdge = BestA;
+            auto ReferenceMaxPoint = MaxAPointOnCollisionNormal;
+            auto IncidentEdge = BestB;
+            auto IncidenceMaxPoint = MaxBPointOnCollisionNormal;
+            if (std::abs(BestB.Scalar(CollisionNormal)) < std::abs(BestA.Scalar(CollisionNormal)))
+            {
+                ReferenceEdge = BestB;
+                IncidentEdge = BestA;
+                Flipped = true;
+                ReferenceMaxPoint = MaxBPointOnCollisionNormal;
+                IncidenceMaxPoint = MaxAPointOnCollisionNormal;
+            }
+
+            // clip first part of the points, moving point along axis to keep it
+            auto ReferenceFurtherVertice = ReferenceMaxPoint - ReferenceEdge;
+            auto NormalizedRef = ReferenceEdge.GetNormalized();
+            GeometricType Max1 = NormalizedRef.Scalar(Maths::Vector<GeometricType, Dimensions>{(ReferenceFurtherVertice).Values});
+            auto ClippedPoints = ClipPoints<GeometricType, Dimensions, false>(
+                {IncidenceMaxPoint, IncidenceMaxPoint - IncidentEdge},
+                NormalizedRef,
+                Max1
+            );
+
+            // clip second part of the points, moving point along axis to keep it
+            GeometricType Max2 = NormalizedRef.Scalar(Maths::Vector<GeometricType, Dimensions>{ReferenceMaxPoint.Values});
+            ClippedPoints = ClipPoints<GeometricType, Dimensions, false>(
+                {ClippedPoints[0], ClippedPoints[1]},
+                NormalizedRef * -1,
+                -Max2
+            );
+
+            auto RefNormal = GetNormal(ReferenceEdge);
+            if (Flipped)
+                RefNormal = NormalizedRef * -1;
+
+            // clip third part of the points but this time deleting them if they are in a discarded part
+            GeometricType RefMin;
+            GeometricType RefMax;
+            Maths::Point<GeometricType, Dimensions> MinPointOnRef;
+            Maths::Point<GeometricType, Dimensions> MaxPointOnRef;
+            GetMinAndMaxProjectedValues(
+                NormalizedRef,
+                {ReferenceMaxPoint, ReferenceFurtherVertice},
+                RefMin,
+                RefMax,
+                MinPointOnRef,
+                MaxPointOnRef
+            );
+            GeometricType Max3 = RefNormal.Scalar(Maths::Vector<GeometricType, Dimensions>{MaxPointOnRef.Values});
+            ClippedPoints = ClipPoints<GeometricType, Dimensions, true>(
+                {ClippedPoints[0], ClippedPoints[1]},
+                RefNormal,
+                Max3
+            );
+            return ClippedPoints;
+        }
+
+        // OverlapDepth must be initialized with < 0 to correctly compute
+        template <typename GeometricType, size_t Dimensions>
+        static bool IntersectOnAxis(
             const Maths::Vector<GeometricType, Dimensions>& Axis,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB,
             Maths::Vector<GeometricType, Dimensions>& CollisionNormal,
-            GeometricType& OverlapSizeResult,
-            Maths::Point<GeometricType, Dimensions>& CollisionPoint
+            GeometricType& OverlapDepth
         )
         {
             GeometricType MinA = 0, MaxA = 0, MinB = 0, MaxB = 0;
@@ -123,25 +356,17 @@ namespace Maths::Collisions
             GetMinAndMaxProjectedValues(Axis, PointsB, MinB, MaxB, MinPointB, MaxPointB);
             if ((MaxA >= MinB) && (MaxB >= MinA))
             {
-                auto MaxPoint = MaxPointA;
-                auto MinPoint = MinPointA;
-                auto Max = MaxA;
-                auto Min = MinA;
-                if (MaxB < MaxA) {
-                    MaxPoint = MaxPointB;
-                    Max = MaxB;
-                }
-                if (MinB > MaxA) {
-                    MinPoint = MinPointB;
-                    Min = MinB;
-                }
-                GeometricType OverlapSize = Max - Min + 1;
-                if (OverlapSizeResult < 0 || OverlapSize > 0 && OverlapSize < OverlapSizeResult)
+                auto Max = std::min(MaxA, MaxB);
+                auto Min = std::max(MinA, MinB);
+                GeometricType AbsOverlapSize = std::abs(Max - Min);
+                if (OverlapDepth < 0 || AbsOverlapSize < OverlapDepth)
                 {
-                    const auto Modifier = (MinA <= MinB && MaxA <= MaxB ? -1 : 1);
-                    OverlapSizeResult = std::abs(OverlapSize);
+                    OverlapDepth = AbsOverlapSize;
+                    // CollisionManifold normal must always point from B to A
+                    auto Modifier = GeometricType(1.f);
+                    if (MaxA < MaxB && MinA < MinB)
+                        Modifier *= -1;
                     CollisionNormal = Axis * Modifier;
-                    CollisionPoint = Modifier < 0 ? MaxPoint - (Axis * OverlapSizeResult) : MinPoint + (Axis * OverlapSizeResult);
                 }
                 return true;
             }
@@ -149,16 +374,46 @@ namespace Maths::Collisions
             return false;
         }
 
-        template <typename GeometricType, size_t Dimensions>
-        bool CheckOverlap(
-            const std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
-            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
-            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB,
-            Maths::Vector<GeometricType, Dimensions>& CollisionNormal,
-            GeometricType& OverlapSizeResult,
-            Maths::Point<GeometricType, Dimensions>& CollisionPoint
+        template <typename GeometricType, size_t Dimensions, bool RemovePoints = false>
+        static std::vector<Maths::Point<GeometricType, Dimensions>> ClipPoints(
+            const std::array<Maths::Point<GeometricType, Dimensions>, 2>& Points,
+            const Maths::Vector<GeometricType, Dimensions>& Axis,
+            const GeometricType& Max
         )
         {
+            std::vector<Maths::Point<GeometricType, Dimensions>> FinalPoints;
+            FinalPoints.reserve(2);
+
+            GeometricType D1 = Axis.Scalar(Maths::Vector<GeometricType, Dimensions>{Points[0].Values}) - Max;
+            GeometricType D2 = Axis.Scalar(Maths::Vector<GeometricType, Dimensions>{Points[1].Values}) - Max;
+
+            if (D1 >= GeometricType(0) >= GeometricType(0)) FinalPoints.push_back(Points[0]);
+            if (D2 >= GeometricType(0) >= GeometricType(0)) FinalPoints.push_back(Points[1]);
+
+            if constexpr (!RemovePoints) {
+                if (D1 * D2 < GeometricType(0))
+                {
+                    Maths::Vector<GeometricType, Dimensions> Edge = Points[0].GetVectorTo(Points[1]);
+                    GeometricType Location = D1 / (D1 - D2);
+                    FinalPoints.push_back(
+                        Maths::Point<GeometricType, Dimensions>{(Edge * Location + Maths::Vector<GeometricType, Dimensions>{Points[0].Values}).Values}
+                    );
+                }
+            }
+
+            return FinalPoints;
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        static CollisionManifold<GeometricType, Dimensions> CheckCollisions(
+            const std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
+            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
+        )
+        {
+            CollisionManifold<GeometricType, Dimensions> Manifold;
+            Maths::Vector<GeometricType, Dimensions> CollisionNormal;
+            GeometricType OverlapDepth = -1;
             for (const auto& Axis : Axes)
             {
                 if (!IntersectOnAxis(
@@ -166,175 +421,19 @@ namespace Maths::Collisions
                     PointsA,
                     PointsB,
                     CollisionNormal,
-                    OverlapSizeResult,
-                    CollisionPoint
+                    OverlapDepth
                 ))
                 {
-                    return false;
+                    return Manifold;
                 }
             }
-            return true;
+
+            Manifold.Depth = OverlapDepth;
+            Manifold.Normal = CollisionNormal;
+            Manifold.Contacts = GetContactManifold(PointsA, PointsB, CollisionNormal * -1);
+
+            return Manifold;
         }
-
-        template <typename GeometricType, size_t Dimensions>
-        bool CheckOverlap(
-            const std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
-            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
-            const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB,
-            Maths::Vector<GeometricType, Dimensions>& ResolvingVector,
-            Maths::Point<GeometricType, Dimensions>& CollisionPoint
-        )
-        {
-            Maths::Vector<GeometricType, Dimensions> CollisionNormal;
-            GeometricType OverlapSizeResult = -1;
-            bool Overlap = CheckOverlap(
-                Axes,
-                PointsA,
-                PointsB,
-                CollisionNormal,
-                OverlapSizeResult,
-                CollisionPoint
-            );
-            ResolvingVector = CollisionNormal * OverlapSizeResult;
-            return Overlap;
-        }
-
-        // RTTI casting
-        template <typename GeometricType, size_t Dimensions>
-        void ComputeAxesAndPointsToCheck(
-            const Maths::Vector<GeometricType, Dimensions>& ScaleA,
-            const Maths::Vector<GeometricType, Dimensions>& ScaleB,
-            const GeometricType& RotationDegreesA,
-            const GeometricType& RotationDegreesB,
-            const Maths::Point2D<GeometricType>& OnPosA,
-            const Maths::Point2D<GeometricType>& OnPosB,
-            const Maths::IShape* ShapeA,
-            const Maths::IShape* ShapeB,
-            std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
-            std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
-            std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
-        )
-        {
-            if (
-                ShapeA->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
-                && ShapeB->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
-                )
-            {
-                return ComputeAxesAndPointsToCheck(
-                    ScaleA,
-                    ScaleB,
-                    RotationDegreesA,
-                    RotationDegreesB,
-                    OnPosA,
-                    OnPosB,
-                    static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeA),
-                    static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeB),
-                    Axes,
-                    PointsA,
-                    PointsB
-                );
-            }
-
-            // todo how to detect dimensions for the next ones?
-            if (
-                ShapeA->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
-                && ShapeB->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
-                )
-            {
-                return ComputeAxesAndPointsToCheck<GeometricType, Dimensions>(
-                    ScaleA,
-                    ScaleB,
-                    RotationDegreesA,
-                    RotationDegreesB,
-                    OnPosA,
-                    OnPosB,
-                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeA),
-                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeB),
-                    Axes,
-                    PointsA,
-                    PointsB
-                );
-            }
-
-            if (
-                ShapeA->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
-                && ShapeB->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
-                )
-            {
-                return ComputeAxesAndPointsToCheck<GeometricType, Dimensions>(
-                    ScaleA,
-                    ScaleB,
-                    RotationDegreesA,
-                    RotationDegreesB,
-                    OnPosA,
-                    OnPosB,
-                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeA),
-                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeB),
-                    Axes,
-                    PointsA,
-                    PointsB
-                );
-            }
-
-            if (
-                ShapeA->getType()->isInstanceOrChildOf(Maths::Polygon<GeometricType, Dimensions>::getClassType())
-                && ShapeB->getType()->isInstanceOrChildOf(Maths::NSphere<GeometricType, Dimensions>::getClassType())
-                )
-            {
-                return ComputeAxesAndPointsToCheck<GeometricType, Dimensions>(
-                    ScaleA,
-                    ScaleB,
-                    RotationDegreesA,
-                    RotationDegreesB,
-                    OnPosA,
-                    OnPosB,
-                    static_cast<const Maths::Polygon<GeometricType, Dimensions>*>(ShapeA),
-                    static_cast<const Maths::NSphere<GeometricType, Dimensions>*>(ShapeB),
-                    Axes,
-                    PointsA,
-                    PointsB
-                );
-            }
-
-            throw std::runtime_error("No matching function found.");
-        }
-
-        template <typename GeometricType, size_t Dimensions>
-        void ComputeAxesAndPointsToCheck(
-            const Maths::Vector<GeometricType, Dimensions>& ScaleA,
-            const Maths::Vector<GeometricType, Dimensions>& ScaleB,
-            const GeometricType& RotationDegreesA,
-            const GeometricType& RotationDegreesB,
-            const Maths::Point2D<GeometricType>& OnPosA,
-            const Maths::Point2D<GeometricType>& OnPosB,
-            const Maths::IBoundingBox2D<GeometricType>* ShapeA,
-            const Maths::IBoundingBox2D<GeometricType>* ShapeB,
-            std::vector<Maths::Vector<GeometricType, Dimensions>>& Axes,
-            std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
-            std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
-        )
-        {
-
-            auto CastedShapeA = dynamic_cast<const Maths::IShape*>(ShapeA);
-            auto CastedShapeB = dynamic_cast<const Maths::IShape*>(ShapeB);
-            if (CastedShapeA && CastedShapeB) {
-                return ComputeAxesAndPointsToCheck(
-                    ScaleA,
-                    ScaleB,
-                    RotationDegreesA,
-                    RotationDegreesB,
-                    OnPosA,
-                    OnPosB,
-                    static_cast<const Maths::IShape*>(CastedShapeA),
-                    static_cast<const Maths::IShape*>(CastedShapeB),
-                    Axes,
-                    PointsA,
-                    PointsB
-                );
-            }
-
-            throw std::runtime_error("No matching function found.");
-        }
-    }
+    };
     // @todo maybe implement other types than SAT, like SAP and Impulse
 } // Collisions // Maths

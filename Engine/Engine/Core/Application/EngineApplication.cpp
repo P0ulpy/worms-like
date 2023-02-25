@@ -78,6 +78,11 @@ void Engine::EngineApplication::Run()
         if(!m_running)
             continue;
 
+        const auto Elapsed = Time::Get()->GetDeltaTime();
+        if (Elapsed < FixedTimeMs)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(FixedTimeMs - Elapsed)));
+        }
         Timestep timeStep = Time::Get()->RestartDeltaTimeClock();
 
         WindowEvents::ProcessEvents(m_window);

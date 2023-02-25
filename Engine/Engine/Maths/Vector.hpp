@@ -51,7 +51,7 @@ namespace Maths {
 
         Point operator-(const Vector<T, Size>& Other) const;
 
-        Vector<T, Size> GetVector(const Point& Other) const;
+        Vector<T, Size> GetVectorTo(const Point& Other) const;
 
         const T& GetX() const
         {
@@ -286,7 +286,13 @@ namespace Maths {
             return scalar;
         }
 
-        template <size_t S = Size, std::enable_if_t<(S >= 3), bool> = false>
+        template <size_t S = Size, std::enable_if_t<(S == 2), bool> = false>
+        T operator^(const Vector& Other) const
+        {
+            return Values[0] * Other[1] - Values[1] * Other[0];
+        }
+
+        template <size_t S = Size, std::enable_if_t<(S == 3), bool> = false>
         Vector operator^(const Vector& Other) const
         {
             Vector newVec;
@@ -393,7 +399,7 @@ namespace Maths {
     }
 
     template <typename T, size_t Size>
-    Vector<T, Size> Point<T, Size>::GetVector(const Point<T, Size>& Other) const
+    Vector<T, Size> Point<T, Size>::GetVectorTo(const Point<T, Size>& Other) const
     {
         Vector<T, Size> newVec;
         for (size_t i = 0; i < Size; i++)

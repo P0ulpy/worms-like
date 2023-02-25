@@ -502,7 +502,7 @@ fabric.properties
 *.x86_64
 *.hex
 
-# Debug files
+# DebugShapes files
 *.dSYM/
 *.su
 *.idb

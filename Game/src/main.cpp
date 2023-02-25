@@ -7,7 +7,6 @@
 #include <Engine/AssetLoader/AssetLoader.hpp>
 #include <Engine/Core/Application/EngineApplication.hpp>
 
-
 #if defined(SFML_SYSTEM_WINDOWS)
 #include <windows.h>
 #endif

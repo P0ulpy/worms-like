@@ -17,6 +17,11 @@ namespace Engine
 
     private:
         static EngineApplication* s_Instance;
+<<<<<<< HEAD
+=======
+        static EngineApplication* Get();
+        static constexpr float FixedTimeMs = 200.f;
+>>>>>>> Update physics and collisions
 
     public:
         explicit EngineApplication(sf::VideoMode VideoMode = sf::VideoMode(500, 500));

@@ -119,3 +119,6 @@ add_library(Engine
 
 target_link_libraries(Engine
         PUBLIC sfml-system sfml-network sfml-graphics sfml-window)
+
+# TODO : Temporary solution, copy is not done each time the project is compiled
+file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR}/Engine)
