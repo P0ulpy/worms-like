@@ -2,98 +2,123 @@
 // Created by Admin on 30/01/2023.
 //
 
-#ifndef POPOSIBENGINE_INPUTCONFIG_HPP
-#define POPOSIBENGINE_INPUTCONFIG_HPP
+#pragma once
 
 #include <vector>
 #include <utility>
 
-#include "SFML/Window/Keyboard.hpp"
-#include "SFML/Window/Event.hpp"
+#include "Binding.hpp"
+#include "../../Vendor/mINI/ini.hpp"
 
-
-enum class EventType
+namespace SignalSystem
 {
-    PlayerUp = 0,
-    PlayerDown,
-    PlayerLeft,
-    PlayerRight,
-    PlayerShoot,
-    OpenInventory
-};
-
-struct EventSignalType
-{
-    sf::Event::EventType eventType = sf::Event::EventType::Count;
-    sf::Event::KeyEvent keyEvent = sf::Event::KeyEvent{ sf::Keyboard::Key::KeyCount, true, true, true, true };
-
-    bool operator==(const EventSignalType& other) const
-    {
-        return eventType == other.eventType && keyEvent.code == other.keyEvent.code && keyEvent.alt == other.keyEvent.alt && keyEvent.control == other.keyEvent.control && keyEvent.shift == other.keyEvent.shift && keyEvent.system == other.keyEvent.system;
-    }
-
-    EventSignalType Null()
-    {
-        return EventSignalType{ sf::Event::EventType::Count, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } };
-    }
-};
-
-class InputConfig {
-public:
-    void Init()
-    {
-        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::Z, false, false, false, false } }, EventType::PlayerUp );
-        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::S, false, false, false, false } }, EventType::PlayerDown );
-        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::Q, false, false, false, false } }, EventType::PlayerLeft );
-        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::D, false, false, false, false } }, EventType::PlayerRight );
-        s_events.emplace_back( EventSignalType{ sf::Event::EventType::MouseLeft, sf::Event::KeyEvent { sf::Keyboard::Key::KeyCount, true, true, true, true } }, EventType::PlayerShoot );
-        s_events.emplace_back( EventSignalType{ sf::Event::EventType::KeyPressed, sf::Event::KeyEvent { sf::Keyboard::Key::E, false, false, false, false } }, EventType::OpenInventory );
-    }
-    EventSignalType GetEventSignalType(EventType eventType)
-    {
-        for (auto pairEvent : s_events)
-            if (pairEvent.second == eventType)
-                return pairEvent.first;
-
-        return EventSignalType().Null();
-    }
-
-    std::vector<EventType> GetEventTypes(EventSignalType eventSignalType)
-    {
-        std::vector<EventType> v_eventType;
-
-        for (auto pairEvent : s_events)
-            if (pairEvent.first == eventSignalType)
-                v_eventType.push_back(pairEvent.second);
-
-        return v_eventType;
-    }
-    void SetEventSignalType(EventType eventType, EventSignalType eventSignalType)
-    {
-        for (auto it = s_events.begin(); it != s_events.end(); )
+    class InputConfig {
+        using ConfigKey = std::string;
+        using ConfigType = uint64_t;
+    public:
+        static InputConfig* Get()
         {
-            if (it->second == eventType)
-                it = s_events.erase(it);
-            else
-                ++it;
+            static InputConfig m_inputConfig;
+
+            return &m_inputConfig;
         }
 
-        s_events.emplace_back( eventSignalType, eventType );
-    }
-public:
-    InputConfig()
-    {
-        Init();
-    }
+        void LoadConfig(const std::string& path)
+        {
+            mINI::INIFile file(path);
 
-    ~InputConfig()
-    {
-        s_events.clear();
-    }
+            mINI::INIStructure ini;
+            file.read(ini);
+            auto keys = ini["keys"];
+            for (auto& key : keys)
+            {
+                auto binding = BindingsMap.at(key.second);
+                m_bindingskeys.emplace(key.first, binding);
+            }
 
-private:
-    std::vector<std::pair<EventSignalType, EventType>> s_events;
-};
+            auto mouse = ini["mouse"];
+            for (auto& key : mouse)
+            {
+                auto binding = BindingsMap.at(key.second);
+                m_bindingsmouse.emplace(key.first, binding);
+            }
 
+            auto events = ini["events"];
+            for (auto& key : events)
+            {
+                auto binding = BindingsMap.at(key.second);
+                m_bindingsevents.emplace(key.first, binding);
+            }
 
-#endif //POPOSIBENGINE_INPUTCONFIG_HPP
+        }
+
+        [[nodiscard]] ConfigType GetKeyBinding(const ConfigKey& eventType) const { return m_bindingskeys.at(eventType); }
+        [[nodiscard]] ConfigType GetMouseBinding(const ConfigKey& eventType) const { return m_bindingsmouse.at(eventType); }
+        [[nodiscard]] std::vector<ConfigKey> GetKeyBindingName(const ConfigType& event, const ConfigType& binding) const
+        {
+            std::vector<ConfigKey> names;
+
+            if(m_bindingskeys.empty())
+                return names;
+
+            if(event != sf::Event::EventType::KeyPressed && event != sf::Event::EventType::KeyReleased)
+                return names;
+
+            for (auto& key : m_bindingskeys)
+            {
+                if (key.second == binding)
+                    if(m_bindingsevents.at(key.first) == event)
+                        names.push_back(key.first);
+            }
+
+            return names;
+        }
+        [[nodiscard]] std::vector<ConfigKey> GetMouseBindingName(const ConfigType& event, const ConfigType& binding) const
+        {
+            std::vector<ConfigKey> names;
+
+            if(m_bindingsmouse.empty())
+                return names;
+
+            if(event != sf::Event::EventType::MouseWheelMoved && event != sf::Event::EventType::MouseWheelScrolled
+               && event != sf::Event::EventType::MouseButtonPressed && event != sf::Event::EventType::MouseButtonReleased
+               && event != sf::Event::EventType::MouseMoved && event != sf::Event::EventType::MouseEntered
+               && event != sf::Event::EventType::MouseLeft)
+                return names;
+
+            for (auto& key : m_bindingsmouse)
+            {
+                if (key.second == binding)
+                    if(m_bindingsevents.at(key.first) == event)
+                        names.push_back(key.first);
+            }
+            return names;
+        }
+        [[nodiscard]] ConfigKey GetEventBindingName(const ConfigType& event) const
+        {
+            if(m_bindingsevents.empty())
+                return "";
+
+            if(event == sf::Event::EventType::KeyPressed || event == sf::Event::EventType::KeyReleased
+               || event == sf::Event::EventType::MouseWheelMoved || event == sf::Event::EventType::MouseWheelScrolled
+               || event == sf::Event::EventType::MouseButtonPressed || event == sf::Event::EventType::MouseButtonReleased
+               || event == sf::Event::EventType::MouseMoved || event == sf::Event::EventType::MouseEntered
+               || event == sf::Event::EventType::MouseLeft)
+                return "";
+
+            for (auto& key : m_bindingsevents)
+            {
+                if (key.second == event)
+                    return key.first;
+            }
+            return "";
+        }
+
+    private:
+        explicit InputConfig() = default;
+
+        std::unordered_map<ConfigKey, ConfigType> m_bindingskeys;
+        std::unordered_map<ConfigKey, ConfigType> m_bindingsmouse;
+        std::unordered_map<ConfigKey, ConfigType> m_bindingsevents;
+    };
+}
