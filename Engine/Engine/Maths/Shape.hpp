@@ -6,21 +6,6 @@
 #include "Angles.hpp"
 
 namespace Maths {
-    template <typename T, size_t Dimensions>
-    Maths::Vector<T, Dimensions> GetNormal(Maths::Vector<T, Dimensions> Edge)
-    {
-        static const auto UnitAxisVector = Vector<T, Dimensions>::GetUnitVectorOnAxis(0);
-        Maths::Vector<T, Dimensions> Normal;
-        if constexpr (Dimensions == 2)
-        {
-            Normal = Vector<T, Dimensions>(-Edge.GetY(), Edge.GetX());
-        } else {
-            Normal = Normal ^ UnitAxisVector;
-        }
-        Normal.Normalize();
-        return Normal;
-    }
-
     struct IShape : public RTTI::IClassType
     {
         DECLARE_CLASS_TYPE(NSphere, RTTI::NoClassTypeAncestor);

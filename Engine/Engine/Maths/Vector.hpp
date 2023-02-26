@@ -266,6 +266,16 @@ namespace Maths {
             return newVec;
         }
 
+        Vector operator/(const Vector& Other) const
+        {
+            return *this * (T(1) / Other);
+        }
+
+        Vector operator/(const T& Other) const
+        {
+            return *this * (T(1) / Other);
+        }
+
         T Scalar(const Vector& Other) const
         {
             T scalar = T(0);
@@ -458,5 +468,20 @@ namespace Maths {
         }
         T Scalar = ProjectOnUnitVector<T, Size, true>(Vec, NormalizedUnitVector);
         return NormalizedUnitVector * Scalar;
+    }
+
+    template <typename T, size_t Dimensions>
+    Maths::Vector<T, Dimensions> GetNormal(Maths::Vector<T, Dimensions> Edge)
+    {
+        Maths::Vector<T, Dimensions> Normal;
+        if constexpr (Dimensions == 2)
+        {
+            Normal = Vector<T, Dimensions>(-Edge.GetY(), Edge.GetX());
+        } else {
+            static const auto UnitAxisVector = Vector<T, Dimensions>::GetUnitVectorOnAxis(0);
+            Normal = Normal ^ UnitAxisVector;
+        }
+        Normal.Normalize();
+        return Normal;
     }
 }

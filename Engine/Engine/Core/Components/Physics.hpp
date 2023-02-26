@@ -111,15 +111,16 @@ namespace Engine::Components::Physics
         // kg
         PhysicsT Mass = 1.f;
         // m4
-        PhysicsT MomentOfInertiaOnZ;
+        PhysicsT MomentOfInertiaForZ;
 
         // @todo maybe move this to PhysicsMaterial
         // 0 - 1, restitution
-        PhysicsT Bounciness = 0;
+        PhysicsT Restitution = 0;
         // @todo use threshold to stop calculations?
         PhysicsT BouncinessThreshold = 0.5f;
         // 0 - 1, friction on surface
-        PhysicsT SurfaceFriction = 1.f;
+        PhysicsT StaticFriction = 0.25f;
+        PhysicsT DynamicFriction = 0.25f;
 
         virtual Maths::Point<GeometricT, Dimensions> GetCenterOfMass(
             const Maths::Vector2D<GeometricT>& Scale,
@@ -173,7 +174,7 @@ namespace Engine::Components::Physics
             // meters
             const auto w = this->BoundingBox.Width * Scale.GetX() / 100.f;
             const auto h = this->BoundingBox.Height * Scale.GetY() / 100.f;
-            this->MomentOfInertiaOnZ = mass * (w * w + h * h) / 12.f;
+            this->MomentOfInertiaForZ = mass * (w * w + h * h) / 12.f;
         }
 
         void AddForce(
@@ -191,7 +192,7 @@ namespace Engine::Components::Physics
                 OnPos
             );
             // in meters
-            auto r = AtPoint.GetVectorTo(CenterOfMass) * (1 / 100);
+            auto r = AtPoint.GetVectorTo(CenterOfMass) / 100;
             this->Torque += r ^ this->Force;
         }
     };
@@ -504,123 +505,128 @@ namespace Engine::Components::Physics
                 return;
             }
             const auto WithBodyTransform = WithBodyComponent->GetEntityTransform();
-            const auto& Normal = CollisionManifold.Normal;
+            // direction from A to B
+            const auto Normal = CollisionManifold.Normal * -1;
 
             auto RelativeVelocity = WithBody->LinearVelocity - OnBody->LinearVelocity;
-            const auto RelativeVelocityOnNormal = RelativeVelocity.Scalar(Normal);
-            // @todo verify this?
-//            if (RelativeVelocityOnNormal > PhysicsT(0))
-//            {
-//                return;
-//            }
+            auto RelativeVelocityOnNormal = RelativeVelocity.Scalar(Normal);
+            if (RelativeVelocityOnNormal > PhysicsT(0))
+            {
+                RelativeVelocityOnNormal = 0;
+            }
 
-            const auto Bounciness = (OnBody->Bounciness + WithBody->Bounciness) / 2;
-            const auto j = -(PhysicsT(1) + Bounciness) * RelativeVelocityOnNormal;
-            const auto Impulse = CollisionManifold.Normal * j;
-
-            const auto TangentialVector = Maths::GetNormal(CollisionManifold.Normal);
-            const auto TangentialVelocity = Maths::ProjectOnUnitVectorVector(RelativeVelocity, TangentialVector);
             const auto ContactsCount = CollisionManifold.Contacts.size();
-            GeometricPoint2DT OnPos = GeometricPoint2DT(GeometricT(0), GeometricT(0));
 
+            // @todo move this in function
+            const auto Restitution = std::min(OnBody->Restitution, WithBody->Restitution);
+
+            // (-(1 + e)((Va - Vb) ⋅ n)) / (1 / ma + 1 / mb)
+            const auto jN = (-(PhysicsT(1) + Restitution) * RelativeVelocityOnNormal) / (1 / OnBody->Mass + 1 / WithBody->Mass);
+
+            // @todo move this in function
+            const auto StaticFrictionCoef = std::clamp((OnBody->StaticFriction + WithBody->StaticFriction) / 2, PhysicsT(0), PhysicsT(1));
+            // @todo move this in function
+            const auto DynamicFrictionCoef = std::clamp((OnBody->DynamicFriction + WithBody->DynamicFriction) / 2, PhysicsT(0), PhysicsT(1));
+
+            const auto ComputeFrictionImpulse = [&Normal, &jN, &StaticFrictionCoef, &DynamicFrictionCoef, &OnBody, &WithBody]()->PhysicsVector2DT
+            {
+                const auto RelativeVelocity = (WithBody->LinearVelocity - OnBody->LinearVelocity);
+                // Tangent must be in similar direction than velocity
+                const auto TangentialVector = (RelativeVelocity - (Normal * RelativeVelocity.Scalar(Normal))).GetNormalized();
+                const auto RelativeVelocityOnTangent = Maths::ProjectOnUnitVector(
+                    RelativeVelocity,
+                    TangentialVector * -1
+                );
+                // (-(1 + e)((Va - Vb) ⋅ t)) / (1 / ma + 1 / mb)
+                auto jT = RelativeVelocityOnTangent / (1 / OnBody->Mass + 1 / WithBody->Mass);
+
+                // Coulomb's Law
+                if (std::abs(jT) < jN * StaticFrictionCoef) {
+                    // static friction
+                    return TangentialVector * jT;
+                }
+                // dynamic friction
+                return TangentialVector * -jN * DynamicFrictionCoef;
+            };
+
+            const auto NormalImpulse = Normal * jN;
+
+            GeometricPoint2DT OnPos = GeometricPoint2DT(GeometricT(0), GeometricT(0));
             if (this->IsStatic)
             {
-                WithBody->LinearVelocity = WithBody->LinearVelocity + Impulse * (1 / WithBody->Mass);
-                PhysicsT TotalImpulse = PhysicsT(0);
+                WithBody->LinearVelocity = WithBody->LinearVelocity + NormalImpulse * (1 / WithBody->Mass);
+                const auto FrictionImpulse = ComputeFrictionImpulse();
+                WithBody->LinearVelocity = WithBody->LinearVelocity + FrictionImpulse * (1 / WithBody->Mass);
+
+                PhysicsT TotalAngularImpulse = PhysicsT(0);
                 for (const auto& ContactPoint : CollisionManifold.Contacts)
                 {
                     const auto VecFromCenterOfMass = (ContactPoint).GetVectorTo(CollisionManifold.SecondCenterOfMassAtCollision);
                     auto AngularImpulse = (
-                        (j / ContactsCount)
-                        * (1 / WithBody->MomentOfInertiaOnZ)
+                        ((jN * 1 / WithBody->Mass) / ContactsCount)
+                        * (1 / WithBody->MomentOfInertiaForZ)
                         // meters
-                        * ((VecFromCenterOfMass * (1.f / 100.f)) ^ (CollisionManifold.Normal))
+                        * ((VecFromCenterOfMass / 100.f) ^ (Normal))
                     );
-                    TotalImpulse += AngularImpulse;
-                    // @todo make this work
-//                    WithBody->AddForce(
-//                        TangentialVelocity * -1 * (OnBody->SurfaceFriction + WithBody->SurfaceFriction / 2),
-//                        GeometricPoint2DT{VecFromCenterOfMass.Values},
-//                        WithBodyTransform->Angle,
-//                        WithBodyTransform->Scale,
-//                        OnPos
-//                    );
+                    TotalAngularImpulse += AngularImpulse;
                 }
-                WithBody->AngularVelocity = WithBody->AngularVelocity + TotalImpulse;
+                WithBody->AngularVelocity = WithBody->AngularVelocity + TotalAngularImpulse;
                 return;
             }
             if (WithBodyComponent->IsStatic)
             {
-                OnBody->LinearVelocity = OnBody->LinearVelocity - Impulse * (1 / OnBody->Mass);
-                PhysicsT TotalImpulse = PhysicsT(0);
+                OnBody->LinearVelocity = OnBody->LinearVelocity - NormalImpulse * (1 / OnBody->Mass);
+                const auto FrictionImpulse = ComputeFrictionImpulse();
+                OnBody->LinearVelocity = OnBody->LinearVelocity - FrictionImpulse * (1 / OnBody->Mass);
+
+                PhysicsT TotalAngularImpulse = PhysicsT(0);
                 for (const auto& ContactPoint : CollisionManifold.Contacts)
                 {
                     const auto VecFromCenterOfMass = ContactPoint.GetVectorTo(CollisionManifold.FirstCenterOfMassAtCollision);
                     auto AngularImpulse = (
-                        (j / ContactsCount)
-                        * (1 / OnBody->MomentOfInertiaOnZ)
-                        * ((VecFromCenterOfMass * (1.f / 100.f)) ^ (CollisionManifold.Normal))
+                        ((jN * 1 / OnBody->Mass) / ContactsCount)
+                        * (1 / OnBody->MomentOfInertiaForZ)
+                        * ((VecFromCenterOfMass / 100.f) ^ (Normal))
                     );
-                    TotalImpulse += AngularImpulse;
-
-                    // @todo make this work
-//                    OnBody->AddForce(
-//                        TangentialVelocity * -1 * (OnBody->SurfaceFriction + WithBody->SurfaceFriction / 2),
-//                        GeometricPoint2DT{VecFromCenterOfMass.Values},
-//                        WithBodyTransform->Angle,
-//                        WithBodyTransform->Scale,
-//                        OnPos
-//                    );
+                    TotalAngularImpulse += AngularImpulse;
                 }
-                OnBody->AngularVelocity = OnBody->AngularVelocity - TotalImpulse;
+                OnBody->AngularVelocity = OnBody->AngularVelocity - TotalAngularImpulse;
                 return;
             }
 
             // apply on both bodies
-            OnBody->LinearVelocity = OnBody->LinearVelocity - Impulse * (1 / OnBody->Mass);
-            WithBody->LinearVelocity = WithBody->LinearVelocity + Impulse * (1 / WithBody->Mass);
+            OnBody->LinearVelocity = OnBody->LinearVelocity - NormalImpulse * (1 / OnBody->Mass);
+            WithBody->LinearVelocity = WithBody->LinearVelocity + NormalImpulse * (1 / WithBody->Mass);
+            const auto FrictionImpulse = ComputeFrictionImpulse();
+            OnBody->LinearVelocity = OnBody->LinearVelocity - FrictionImpulse * (1 / OnBody->Mass);
+            WithBody->LinearVelocity = WithBody->LinearVelocity + FrictionImpulse * (1 / WithBody->Mass);
 
-            PhysicsT TotalImpulseA = PhysicsT(0);
-            PhysicsT TotalImpulseB = PhysicsT(0);
+            PhysicsT TotalAngularImpulseA = PhysicsT(0);
+            PhysicsT TotalAngularImpulseB = PhysicsT(0);
 
             for (const auto& ContactPoint : CollisionManifold.Contacts)
             {
                 {
                     const auto VecFromCenterOfMass = ContactPoint.GetVectorTo(CollisionManifold.FirstCenterOfMassAtCollision);
                     auto AngularImpulse = (
-                        (j / ContactsCount)
-                        * (1 / OnBody->MomentOfInertiaOnZ)
-                        * ((VecFromCenterOfMass * (1.f / 100.f)) ^ (CollisionManifold.Normal))
+                        ((jN * 1 / OnBody->Mass) / ContactsCount)
+                        * (1 / OnBody->MomentOfInertiaForZ)
+                        * ((VecFromCenterOfMass / 100.f) ^ (Normal))
                     );
-                    TotalImpulseA += AngularImpulse;
+                    TotalAngularImpulseA += AngularImpulse;
                 }
                 {
                     const auto VecFromCenterOfMass = ContactPoint.GetVectorTo(CollisionManifold.SecondCenterOfMassAtCollision);
                     auto AngularImpulse = (
-                        (j / ContactsCount)
-                        * (1 / WithBody->MomentOfInertiaOnZ)
-                        * ((VecFromCenterOfMass * (1.f / 100.f)) ^ (CollisionManifold.Normal))
+                        ((jN * 1 / WithBody->Mass) / ContactsCount)
+                        * (1 / WithBody->MomentOfInertiaForZ)
+                        * ((VecFromCenterOfMass / 100.f) ^ (Normal))
                     );
-                    TotalImpulseB += AngularImpulse;
+                    TotalAngularImpulseB += AngularImpulse;
                 }
-                // @todo make this work
-//                OnBody->AddForce(
-//                    TangentialVelocity * -1 * (OnBody->SurfaceFriction + WithBody->SurfaceFriction / 2),
-//                    GeometricPoint2DT{VecFromCenterOfMassCurrent.Values},
-//                    WithBodyTransform->Angle,
-//                    WithBodyTransform->Scale,
-//                    OnPos
-//                );
-//                WithBody->AddForce(
-//                    TangentialVelocity * -1 * (OnBody->SurfaceFriction + WithBody->SurfaceFriction / 2),
-//                    GeometricPoint2DT{VecFromCenterOfMassWith.Values},
-//                    WithBodyTransform->Angle,
-//                    WithBodyTransform->Scale,
-//                    OnPos
-//                );
             }
-            OnBody->AngularVelocity = OnBody->AngularVelocity - TotalImpulseA;
-            WithBody->AngularVelocity = WithBody->AngularVelocity + TotalImpulseB;
+            OnBody->AngularVelocity = OnBody->AngularVelocity - TotalAngularImpulseA;
+            WithBody->AngularVelocity = WithBody->AngularVelocity + TotalAngularImpulseB;
         }
 
         void ApplyRigidBodyToEntity(
@@ -640,7 +646,7 @@ namespace Engine::Components::Physics
             const auto StepMsMultiplier = (StepMs / 1000);
             RigidBody->LinearVelocity.GetX() += (linearAcceleration.GetX() + GravityVec.GetX()) * StepMsMultiplier;
             RigidBody->LinearVelocity.GetY() += (linearAcceleration.GetY() + GravityVec.GetY()) * StepMsMultiplier;
-            const auto angularAcceleration = RigidBody->Torque / RigidBody->MomentOfInertiaOnZ;
+            const auto angularAcceleration = RigidBody->Torque / RigidBody->MomentOfInertiaForZ;
             EntityTransform->Angle += RigidBody->AngularVelocity * StepMsMultiplier;
             if (EntityTransform->Angle >= 360.f)
             {
