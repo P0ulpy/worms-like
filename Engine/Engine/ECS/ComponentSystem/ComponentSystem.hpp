@@ -7,10 +7,12 @@
 
 #include "IComponentSystem.hpp"
 #include "../../Core/Logger/Logger.hpp"
-#include <map>
+#include <unordered_map>
 
 namespace Engine
 {
+    // TODO : use a custom memory pool instead of std::unordered_map to store components contiguously
+
     template <class TComponent>
     class ComponentEntry
     {
@@ -21,7 +23,7 @@ namespace Engine
     class ComponentSystem : public IComponentSystem
     {
     public:
-        std::map<EntityHandle, TComponent> components {};
+        std::unordered_map<EntityHandle, TComponent> components {};
 
         Component* Add(EntityHandle entityHandle) override;
         void Remove(EntityHandle entityHandle) override;
@@ -37,11 +39,11 @@ namespace Engine
     };
 
     template<class TComponent>
-    Component *ComponentSystem<TComponent>::Add(EntityHandle entityHandle)
+    Component* ComponentSystem<TComponent>::Add(EntityHandle entityHandle)
     {
         if(components.contains(entityHandle))
         {
-            Logger::Err("this entity already have a TComponent allocated for him");
+            //Logger::Err("this entity already have a TComponent allocated for it");
             return nullptr;
         }
 

@@ -19,13 +19,12 @@ Engine::EngineApplication::EngineApplication()
     else
         throw std::runtime_error("An instance of EngineApplication already exists");
 
-    PushLayer(&m_scenesLayer);
+    m_scenesLayer = std::make_unique<ScenesLayer>(&m_window, "Scenes Layer");
+    PushLayer(m_scenesLayer.get());
 }
 
 Engine::EngineApplication::~EngineApplication()
 {
-    //RemoveLayer(&m_scenesLayer);
-
     Engine::EngineApplication::s_Instance = nullptr;
 }
 
@@ -52,7 +51,7 @@ void Engine::EngineApplication::Run()
     for(auto* layer : m_layers)
         layer->OnAttach();
 
-    Logger::Log("EngineApplication : Layers attached");
+    //Logger::Log("EngineApplication : Layers attached");
 
     while (m_window.isOpen())
     {

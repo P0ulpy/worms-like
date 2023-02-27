@@ -1,18 +1,22 @@
 set(ENGINE_HEADERS
         Engine/Engine.hpp
 
-        Engine/Core/Application/EngineApplication.hpp
         Engine/Core/UUID.hpp
         Engine/Core/Time.hpp
-        Engine/Core/Application/LayerStack.hpp
-        Engine/Core/Logger/Logger.hpp
-        Engine/Core/Application/ScenesLayer.hpp
-        Engine/Core/Logger/ConsoleColor.hpp
         Engine/Core/RTTI/ClassType.hpp
-        Engine/Core/Inputs/WindowEvents.hpp
+        Engine/Core/Logger/Logger.hpp
+        Engine/Core/Logger/Logger.tpp
+        Engine/Core/Logger/ConsoleColor.hpp
+        Engine/Core/Application/EngineApplication.hpp
+        Engine/Core/Application/LayerStack.hpp
+        Engine/Core/Application/ScenesLayer.hpp
+        Engine/Core/Application/ApplicationLayer.hpp
         Engine/Core/Components/Transform.hpp
         Engine/Core/Components/SpriteRenderer.hpp
-        Engine/Core/Application/ApplicationLayer.hpp
+        Engine/Core/Inputs/WindowEvents.hpp
+        Engine/Core/Inputs/InputSignal.h
+        Engine/Core/Inputs/Connection.hpp
+        Engine/Core/Inputs/InputConfig.hpp
 
         Engine/ECS/Handles/Handles.hpp
         Engine/ECS/Entity/Entity.hpp
@@ -41,15 +45,18 @@ set(ENGINE_HEADERS
 )
 
 set(ENGINE_SOURCES
-        Engine/Core/Application/EngineApplication.cpp
         Engine/Core/UUID.cpp
-        Engine/Core/Application/ApplicationLayer.cpp
-        Engine/Core/Logger/Logger.cpp
-        Engine/Core/Application/ScenesLayer.cpp
         Engine/Core/Time.cpp
-        Engine/Core/Inputs/WindowEvents.cpp
+        Engine/Core/Logger/Logger.cpp
+        Engine/Core/Application/EngineApplication.cpp
+        Engine/Core/Application/ApplicationLayer.cpp
+        Engine/Core/Application/ScenesLayer.cpp
         Engine/Core/Components/Transform.cpp
         Engine/Core/Components/SpriteRenderer.cpp
+        Engine/Core/Inputs/WindowEvents.cpp
+        Engine/Core/Inputs/InputSignal.cpp
+        Engine/Core/Inputs/Connection.cpp
+        Engine/Core/Inputs/InputConfig.cpp
 
         Engine/ECS/Entity/Entity.cpp
         Engine/ECS/Component/Component.cpp

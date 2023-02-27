@@ -7,17 +7,10 @@
 
 #include "../../Core/UUID.hpp"
 #include "../../Core/RTTI/ClassType.hpp"
-#include "../Handles/Handles.hpp"
 #include "../Entity/Entity.hpp"
 
 namespace Engine
 {
-    namespace ComponentID
-    {
-        using ID = uint64_t;
-        constexpr ID Null = 0;
-    }
-
     class Component : public IClassType
     {
     public:
@@ -25,9 +18,8 @@ namespace Engine
 
     public:
         Component() = default;
-        virtual ~Component() = default;
 
-        /* Implementable Component Events methods
+        /* Implementable Component Events
         void OnAwake();
         void OnStart();
         void OnUpdate(const float& deltaTime);
@@ -36,11 +28,32 @@ namespace Engine
         void OnDestroy();
         */
 
-        [[nodiscard]] Entity GetEntity() const { return { m_entityHandle }; }
+        [[nodiscard]] Entity& GetEntity() /* const */ { m_entity = Entity(m_entityHandle, m_scene); return m_entity; }
+        [[nodiscard]] Scene* GetScene() const { return m_scene; }
+
+        [[nodiscard]] inline EntityHandle GetHandle() const { return m_handle; }
+
+        operator bool() const               { return m_handle != ComponentHandle::Null; }
+        operator ComponentHandle() const    { return m_handle; }
+        operator uint64_t() const           { return (uint64_t)m_handle; }
+
+        bool operator==(const Component& other) const
+        {
+            return m_handle == other.m_handle && m_scene == other.m_scene;
+        }
+
+        bool operator!=(const Component& other) const
+        {
+            return !(*this == other);
+        }
 
     private:
         ComponentHandle m_handle = ComponentHandle::Null;
         EntityHandle m_entityHandle = EntityHandle::Null;
+        Entity m_entity { EntityHandle::Null, nullptr };
+
+        // Component can not exist if his scene is destroyed so a raw pointer is fine here
+        Scene* m_scene = nullptr;
 
         template <class TComponent>
         friend class ComponentSystem;

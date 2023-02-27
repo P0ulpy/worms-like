@@ -6,28 +6,29 @@
 #include "EngineApplication.hpp"
 
 #include <memory>
+#include <utility>
 
 namespace Engine
 {
-    ScenesLayer::ScenesLayer(const std::string_view &name)
+    ScenesLayer::ScenesLayer(sf::RenderTarget* renderTarget, const std::string_view &name)
         : ApplicationLayer::ApplicationLayer(name)
+        , p_renderTarget(renderTarget)
     {}
 
     void ScenesLayer::OnAttach()
     {
         m_activeScene = std::make_unique<Scene>();
-        Scene::SetActiveScene(m_activeScene.get());
     }
 
     void ScenesLayer::OnDetach()
     {
-        Scene::SetActiveScene(nullptr);
+
     }
 
     void ScenesLayer::OnUpdate(Timestep ts)
     {
         m_activeScene->OnUpdate(ts);
-        m_activeScene->RenderScene(EngineApplication::Get()->GetWindow());
+        m_activeScene->RenderScene(*p_renderTarget);
     }
 
 } // Engine

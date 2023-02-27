@@ -1,10 +1,7 @@
-#include <Engine/Engine.hpp>
-#include <SFML/Graphics.hpp>
-
-#include "Engine/AssetLoader/AssetLoader.hpp"
-#include "Engine/Core/Components/Transform.hpp"
-#include "Engine/Core/Components/SpriteRenderer.hpp"
-#include "Engine/ECS/Entity/Entity.hpp"
+#include <Engine/AssetLoader/AssetLoader.hpp>
+#include <Engine/Core/Components/Transform.hpp>
+#include <Engine/Core/Components/SpriteRenderer.hpp>
+#include <Engine/Core/Application/EngineApplication.hpp>
 
 class App : public Engine::EngineApplication
 {
@@ -36,8 +33,8 @@ public:
     {
         // Testing purposes
 
-        auto& sceneLayer = app.GetScenesLayer();
-        auto* scene = sceneLayer.GetActiveScene();
+        auto* sceneLayer = app.GetScenesLayer();
+        auto* scene = sceneLayer->GetActiveScene();
 
         auto krab = scene->CreateEntity();
 
@@ -46,7 +43,9 @@ public:
 
         spriteRenderer->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("./Assets/krab.png"));
 
-        transform->Pos = { 100.f, 100.f };
+        auto windowSize = app.GetWindow().getSize();
+
+        transform->Pos = { (float)windowSize.x / 2.f, (float)windowSize.y / 2.f };
     }
 
     void OnDetach() override
