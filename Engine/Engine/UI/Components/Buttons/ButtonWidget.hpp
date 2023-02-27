@@ -13,7 +13,7 @@
 #include "../../../Core/Inputs/Connection.hpp"
 #include "../../../Core/Application/EngineApplication.hpp"
 #include "../../Widget/Widget.hpp"
-#include "../../../Core/Inputs/InputSignal.h"
+#include "../../../Core/Inputs/InputSignal.hpp"
 
 namespace Engine::UI
 {
@@ -49,6 +49,6 @@ namespace Engine::UI
         bool m_isHovered = false;
 
         Callback m_onClick;
-        ScopedConnection m_OnClickConnection;
+        SignalSystem::ScopedConnectionSignal m_OnClickConnection;
     };
 }

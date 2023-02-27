@@ -30,9 +30,9 @@ namespace SignalSystem
 
     public:
         static InputSignal* Get() {
-            static InputSignal* m_inputSignal;
+            static InputSignal m_inputSignal;
 
-            return m_inputSignal;
+            return &m_inputSignal;
         }
 
         void connect(EventType eventType, const Callback& callback) const
