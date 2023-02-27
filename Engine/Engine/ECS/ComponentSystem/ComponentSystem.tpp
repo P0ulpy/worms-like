@@ -1,7 +1,7 @@
 //
 // Created by Flo on 18/01/2023.
 //
-//#include "Engine/Core/Logger/Logger.hpp"
+#include "../../Core/Logger/Logger.hpp"
 
 namespace Engine
 {
@@ -10,7 +10,7 @@ namespace Engine
     {
         if(components.contains(entityHandle))
         {
-            //Logger::Err("this entity already have a TComponent allocated for him");
+            Logger::Err("this entity already have a (", TComponent::getClassType()->getTypeName(), ") allocated for him");
             return nullptr;
         }
 
@@ -27,12 +27,23 @@ namespace Engine
     template<class TComponent>
     void ComponentSystem<TComponent>::Remove(EntityHandle entityHandle)
     {
+        typename std::unordered_map<EntityHandle, TComponent>::iterator itr;
+        Remove(entityHandle, itr);
+    }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::Remove(EntityHandle entityHandle, typename std::unordered_map<EntityHandle, TComponent>::iterator& removedComponentIt)
+    {
         if constexpr (requires (TComponent& c) { c.OnDestroy(); })
             components[entityHandle].OnDestroy();
 
-        // Remove from his parent this component if TComponent extends from CompositeComponent (maybe use std::is_base_of_v instead of requires)
-        if constexpr (requires (TComponent& c) { c.GetParent(); })
+        // Remove from his parent this component if TComponent extends from CompositeComponent
+        // NOTE : (maybe use std::is_base_of_v instead of requires)
+        if constexpr (requires (TComponent& c) { c.GetParent(); c.GetChildren(); })
         {
+            for(auto& child : components[entityHandle].GetChildren())
+                child->SetParent(nullptr);
+
             auto* parent = components[entityHandle].GetParent();
             if(parent)
             {
@@ -40,7 +51,8 @@ namespace Engine
             }
         }
 
-        components.erase(entityHandle);
+        auto toRemove = components.find(entityHandle);
+        removedComponentIt = components.erase(toRemove);
     }
 
     template<class TComponent>
@@ -63,6 +75,24 @@ namespace Engine
             callback(&component);
         }
     }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::Clear()
+    {
+        for (auto it = components.begin(); it != components.end(); )
+        {
+            Remove(it->first, it);
+        }
+    }
+
+    template<class TComponent>
+    ComponentSystem<TComponent>::~ComponentSystem()
+    {
+        Clear();
+    }
+
+
+    // Dispatch
 
     template<class TComponent>
     void ComponentSystem<TComponent>::DispatchAwake()

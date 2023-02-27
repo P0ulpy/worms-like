@@ -13,7 +13,7 @@ set(ENGINE_HEADERS
         Engine/Core/Application/ApplicationLayer.hpp
         Engine/Core/Components/Transform.hpp
         Engine/Core/Components/SpriteRenderer.hpp
-        Engine/Core/Inputs/WindowEvents.hpp
+        Engine/Core/Components/CompositeComponent.hpp
 
         Engine/ECS/Handles/Handles.hpp
         Engine/ECS/Entity/Entity.hpp
@@ -25,17 +25,17 @@ set(ENGINE_HEADERS
         Engine/ECS/EntitiesRegistry/EntitiesRegistry.tpp
         Engine/ECS/Scene/Scene.hpp
 
-        Engine/Renderer/Renderer.hpp
-        Engine/Renderer/AllRenderComponents.hpp
-
         Engine/AssetLoader/AssetLoader.hpp
+
+        Engine/Core/Inputs/WindowEvents.hpp
         Engine/Core/Inputs/InputSignal.hpp
         Engine/Core/Inputs/InputSignal.tpp
         Engine/Core/Inputs/Connection.hpp
         Engine/Core/Inputs/Connection.tpp
         Engine/Core/Inputs/InputConfig.hpp
-
-        Engine/Core/Components/CompositeComponent.hpp
+        Engine/Core/Inputs/Observable.hpp
+        Engine/Core/Inputs/Observable.tpp
+        Engine/Core/Inputs/Binding.hpp
 
         Engine/UI/Widget/Widget.hpp
         Engine/UI/Components/Text/TextWidget.hpp
@@ -48,11 +48,8 @@ set(ENGINE_HEADERS
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp
 
-        Engine/Core/Inputs/Observable.hpp
-        Engine/Core/Inputs/Observable.tpp
-
-        Engine/Core/Inputs/Binding.hpp
-        Engine/Vendor/mINI/ini.hpp
+        Engine/Core/EntityPrefab/EntityPrefab.hpp
+        Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp
 )
 
 set(ENGINE_SOURCES
@@ -64,21 +61,20 @@ set(ENGINE_SOURCES
         Engine/Core/Application/ScenesLayer.cpp
         Engine/Core/Components/Transform.cpp
         Engine/Core/Components/SpriteRenderer.cpp
-        Engine/Core/Inputs/WindowEvents.cpp
+        Engine/Core/Components/CompositeComponent.cpp
 
         Engine/ECS/Entity/Entity.cpp
         Engine/ECS/Component/Component.cpp
         Engine/ECS/EntitiesRegistry/EntitiesRegistry.cpp
         Engine/ECS/Scene/Scene.cpp
 
-        Engine/Renderer/Renderer.cpp
-
         Engine/AssetLoader/AssetLoader.cpp
+
+        Engine/Core/Inputs/WindowEvents.cpp
         Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/Connection.cpp
         Engine/Core/Inputs/InputConfig.cpp
-
-        Engine/Core/Components/CompositeComponent.cpp
+        Engine/Core/Inputs/Observable.cpp
 
         Engine/UI/Widget/Widget.cpp
         Engine/UI/Components/Text/TextWidget.cpp
@@ -91,14 +87,17 @@ set(ENGINE_SOURCES
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.cpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.cpp
 
-        Engine/Core/Inputs/Observable.cpp
+        Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.cpp
 )
 
+set(ENGINE_VENDORS
+        Engine/Vendor/mINI/ini.hpp
+)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 
 add_library(Engine
-        STATIC ${ENGINE_HEADERS} ${ENGINE_SOURCES})
+        STATIC ${ENGINE_HEADERS} ${ENGINE_SOURCES} ${ENGINE_VENDORS})
 
 target_link_libraries(Engine
         PUBLIC sfml-system sfml-network sfml-graphics sfml-window)

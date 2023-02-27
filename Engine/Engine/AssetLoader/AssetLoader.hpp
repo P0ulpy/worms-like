@@ -17,9 +17,10 @@ namespace Engine {
     {
     public:
         static TAsset* StaticGetAsset(const std::string& path);
-        static TAsset* StaticLoadAsset(const std::string& path);
 
     private:
+        static TAsset* StaticLoadAsset(const std::string& path);
+
         static std::unordered_map<std::string, TAsset> s_paths;
     };
 

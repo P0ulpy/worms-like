@@ -24,9 +24,14 @@ namespace Engine
         void OnUpdate(Timestep ts);
         void OnStop();
 
+        void Clear();
+
         void RenderScene(sf::RenderTarget& renderTarget);
 
         Entity CreateEntity();
+
+        template <class TPrefab>
+        Entity InstantiatePrefab();
 
         void DestroyEntity(const Entity& entity);
         void DestroyEntity(const EntityHandle& entity);
@@ -43,14 +48,18 @@ namespace Engine
         template<class T>
         void RemoveComponentOf(const EntityHandle& entityHandle);
 
-        //Entity GetEntityByHandle(const EntityHandle& handle);
-        //[[nodiscard]] EntitiesRegistry& GetEntitiesRegistry() { return m_registry; }
-
     private:
         EntitiesRegistry m_registry;
     };
 
     // Scene
+
+    template<class TPrefab>
+    Entity Scene::InstantiatePrefab()
+    {
+        TPrefab prefab;
+        return prefab.Instantiate(this);
+    }
 
     template<class T>
     T *Scene::GetComponentOf(const EntityHandle &entityHandle) {

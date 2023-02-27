@@ -39,31 +39,22 @@ int main(int argc, char* argv[])
     //MainMenuLayer;
     OptionMenuLayer optionMenuLayer;
 
+    SignalSystem::InputConfig::Get()->LoadConfig("Config/GameConfig.ini");
+
     app.GetWindow().create(sf::VideoMode(1920, 1080), "Worms-Like", sf::Style::Default);
 
 #if defined(SFML_SYSTEM_WINDOWS)
     ShowWindow(app.GetWindow().getSystemHandle(), SW_MAXIMIZE);
 #endif
 
-    SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
-
     app.GetWindow().setFramerateLimit(60);
     //app.PushLayer(&mainMenuLayer);
     app.PushLayer(&optionMenuLayer);
     app.Init();
 
-    /*SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
     SignalSystem::InputSignal::Get()->connect("close_window", [&app = app](){ std::cout << "Close" << std::endl; });
     SignalSystem::InputSignal::Get()->connect("pause", [&app = app](){ std::cout << "Pause" << std::endl; });
     SignalSystem::InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });*/
-
-    /*SignalSystem::Observable<int> t;
-    t.connect([](int value)
-              {
-                  std::cout << value << std::endl;
-              });
-    t = 2;
-    t = 4;*/
 
     app.Run();
 }
