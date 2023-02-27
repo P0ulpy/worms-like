@@ -14,7 +14,7 @@
 
 #include "Engine/Core/Application/EngineApplication.hpp"
 #include "Engine/Core/Inputs/Connection.hpp"
-#include "Engine/Core/Inputs/InputSignal.h"
+#include "Engine/Core/Inputs/InputSignal.hpp"
 #include "ButtonBase.hpp"
 
 class TextButton : public ButtonBase {

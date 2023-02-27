@@ -62,8 +62,8 @@ namespace Engine::UI
 
     void ButtonWidget::SetOnClick(const ButtonWidget::Callback &onClick) {
         m_onClick = onClick;
-        m_OnClickConnection.~ScopedConnection();
-        m_OnClickConnection = InputSignal::GetInstance()->connectScoped(EventType::Click, this, &ButtonWidget::OnClick);
+        m_OnClickConnection.~ScopedConnectionSignal();
+        m_OnClickConnection = SignalSystem::InputSignal::Get()->connectScoped("click", this, &ButtonWidget::OnClick);
     }
 
     void ButtonWidget::OnClick() {

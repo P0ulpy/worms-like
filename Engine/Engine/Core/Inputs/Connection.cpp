@@ -3,12 +3,14 @@
 //
 
 #include "Connection.hpp"
+
+#include <utility>
 #include "InputSignal.hpp"
 
 namespace SignalSystem
 {
     ConnectionSignal::ConnectionSignal(ConnectionSignal::Callback callback, ConnectionSignal::StateType state, InputSignal* signal)
-            : m_callback(callback), m_state(state), m_signal(signal)
+            : m_callback(std::move(callback)), m_state(state), m_signal(signal)
 
     {}
 

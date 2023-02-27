@@ -7,6 +7,7 @@
 
 #include "../../Core/UUID.hpp"
 #include "../../Core/RTTI/ClassType.hpp"
+#include "../Handles/Handles.hpp"
 #include "../Entity/Entity.hpp"
 
 namespace Engine
@@ -28,6 +29,8 @@ namespace Engine
         void OnDestroy();
         */
 
+        virtual void SetActive(bool active)     { m_active = active; }
+        [[nodiscard]] bool IsActive() const     { return m_active; }
         [[nodiscard]] Entity& GetEntity() /* const */ { m_entity = Entity(m_entityHandle, m_scene); return m_entity; }
         [[nodiscard]] Scene* GetScene() const { return m_scene; }
 
