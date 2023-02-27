@@ -39,6 +39,7 @@ set(ENGINE_HEADERS
         Engine/Core/Inputs/InputConfig.hpp
         Engine/Core/Inputs/Observable.hpp
         Engine/Core/Inputs/Observable.tpp
+        
         Engine/Core/Inputs/Binding.hpp
 
         Engine/UI/Widget/Widget.hpp
@@ -104,16 +105,13 @@ set(ENGINE_SOURCES
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.cpp
 
         Engine/Core/Components/Physics.cpp
-        Engine/Core/Components/Physics.hpp Engine/Maths/Vector.cpp
-        Engine/Maths/Vector.hpp Engine/Maths/Shape.cpp
-        Engine/Maths/Shape.hpp Engine/Maths/Graph.cpp
-        Engine/Maths/Graph.hpp Engine/Maths/Collisions.cpp
-        Engine/Maths/Collisions.hpp Engine/Maths/Angles.cpp
-        Engine/Maths/Angles.hpp
+        Engine/Maths/Vector.cpp
+        Engine/Maths/Shape.cpp
+        Engine/Maths/Graph.cpp
+        Engine/Maths/Collisions.cpp
+        Engine/Maths/Angles.cpp
         Engine/Core/Camera/Camera.cpp
-        Engine/Core/Camera/Camera.hpp
         Engine/Core/Physics/Physics.cpp
-        Engine/Core/Physics/Physics.hpp
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
