@@ -62,8 +62,6 @@ namespace Engine::Components::Physics
         // 0 - 1, friction on surface
         PhysicsT KineticFriction = 1.f;
 
-        PhysicsT AngularVelocityThreshold = 0.1f;
-
         virtual Maths::Point<GeometricT, Dimensions> GetCenterOfMass(
             const Maths::Vector2D<GeometricT>& Scale,
             const GeometricT& RotationDegrees,

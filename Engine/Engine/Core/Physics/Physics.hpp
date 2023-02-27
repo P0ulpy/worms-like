@@ -200,7 +200,6 @@ namespace Engine::Physics {
             const auto VecFromCenterOfMassA = CollisionManifold.FirstCenterOfMassAtCollision.GetVectorTo(ContactPointCentroid) / 100;
             const auto VecFromCenterOfMassB = CollisionManifold.SecondCenterOfMassAtCollision.GetVectorTo(ContactPointCentroid) / 100;
 
-// old:            auto RelativeVelocity = BodyB->LinearVelocity - BodyA->LinearVelocity;
             auto RelativeVelocity = (
                 (BodyB->LinearVelocity + VecFromCenterOfMassB * BodyB->AngularVelocity)
                 - (BodyA->LinearVelocity + VecFromCenterOfMassA * BodyA->AngularVelocity)
@@ -216,9 +215,9 @@ namespace Engine::Physics {
             const auto Restitution = std::min(BodyA->Restitution, BodyB->Restitution);
 
             // meters
-            const auto DistanceFromCenterOfMassAOnNormal = VecFromCenterOfMassA ^ Normal;
-            const auto DistanceFromCenterOfMassBOnNormal = VecFromCenterOfMassB ^ Normal;
-            // (-(1 + e)((Va - Vb) ⋅ n)) / ((1 / ma) + (1 / mb) + ((ra ^ n)² / Ia) + ((rb ^ n)² / Ib))
+            const auto DistanceFromCenterOfMassAOnNormal = VecFromCenterOfMassA.Scalar(Normal);
+            const auto DistanceFromCenterOfMassBOnNormal = VecFromCenterOfMassB.Scalar(Normal);
+            // (-(1 + e)((Va - Vb) ⋅ n)) / ((1 / ma) + (1 / mb) + ((ra ⋅ n)² / Ia) + ((rb ⋅ n)² / Ib))
             const auto jN = (-(typename RigidBodyComponentT::PhysicsT(1) + Restitution) * RelativeVelocityOnNormal)
                             / (
                                 BodyA->InvMass + BodyB->InvMass
@@ -234,8 +233,8 @@ namespace Engine::Physics {
             BodyB->LinearVelocity = BodyB->LinearVelocity + NormalImpulse * BodyB->InvMass;
 
             // (Wa2 = Wa1 + ra ⋅ jn / Ia)
-            BodyA->AngularVelocity -= jN * DistanceFromCenterOfMassAOnNormal * BodyA->InvMomentOfInertiaForZ;
-            BodyB->AngularVelocity += jN * DistanceFromCenterOfMassBOnNormal * BodyB->InvMomentOfInertiaForZ;
+            BodyA->AngularVelocity -= (VecFromCenterOfMassA ^NormalImpulse) * BodyA->InvMomentOfInertiaForZ;
+            BodyB->AngularVelocity += (VecFromCenterOfMassB ^NormalImpulse) * BodyB->InvMomentOfInertiaForZ;
 
             // @todo move this in function
             const auto StaticFrictionCoef = (BodyA->StaticFriction + BodyB->StaticFriction) / 2;
@@ -246,7 +245,6 @@ namespace Engine::Physics {
                 typename RigidBodyComponentT::PhysicsT(1)
             );
 
-// old:            RelativeVelocity = (BodyB->LinearVelocity - BodyA->LinearVelocity);
             RelativeVelocity = (
                 (BodyB->LinearVelocity + VecFromCenterOfMassB * BodyB->AngularVelocity)
                 - (BodyA->LinearVelocity + VecFromCenterOfMassA * BodyA->AngularVelocity)
@@ -257,10 +255,10 @@ namespace Engine::Physics {
                 RelativeVelocity,
                 TangentialVector
             );
-            const auto DistanceFromCenterOfMassAOnTangent = VecFromCenterOfMassA ^ TangentialVector;
-            const auto DistanceFromCenterOfMassBOnTangent = VecFromCenterOfMassB ^ TangentialVector;
+            const auto DistanceFromCenterOfMassAOnTangent = VecFromCenterOfMassA.Scalar(TangentialVector);
+            const auto DistanceFromCenterOfMassBOnTangent = VecFromCenterOfMassB.Scalar(TangentialVector);
 
-            // (-(1 + e)((Va - Vb) ⋅ -t)) / (1 / ma + 1 / mb + ((ra x n)² / Ia) + ((rb x n)² / Ib))
+            // (-(1 + e)((Va - Vb) ⋅ -t)) / (1 / ma + 1 / mb + ((ra ⋅ t)² / Ia) + ((rb ⋅ t)² / Ib))
             // where e is the friction coef
             auto jT = (RelativeVelocityOnTangent * -1)
                       / (
@@ -281,20 +279,9 @@ namespace Engine::Physics {
             BodyA->LinearVelocity = BodyA->LinearVelocity - FrictionImpulse * (BodyA->InvMass);
             BodyB->LinearVelocity = BodyB->LinearVelocity + FrictionImpulse * (BodyB->InvMass);
 
-            // fix better with threshold
-            {
-                auto Velocity = jT * DistanceFromCenterOfMassAOnTangent * BodyA->InvMomentOfInertiaForZ;
-//                if (std::abs(Velocity) > BodyA->AngularVelocityThreshold) {
-                    BodyA->AngularVelocity -= Velocity;
-//                }
-            }
-
-            {
-                auto Velocity = jT * DistanceFromCenterOfMassBOnTangent * BodyB->InvMomentOfInertiaForZ;
-//                if (std::abs(Velocity) > BodyB->AngularVelocityThreshold) {
-                    BodyB->AngularVelocity += Velocity;
-//                }
-            }
+            // @todo seems to have a little bug because event with friction = 1, the objects moves
+            BodyA->AngularVelocity -= (VecFromCenterOfMassA ^ FrictionImpulse) * BodyA->InvMomentOfInertiaForZ;
+            BodyB->AngularVelocity += (VecFromCenterOfMassB ^ FrictionImpulse) * BodyB->InvMomentOfInertiaForZ;
         }
 
         template <typename GeometricType, size_t Dimensions>
