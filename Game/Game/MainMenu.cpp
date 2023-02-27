@@ -41,8 +41,10 @@ void MainMenuLayer::OnAttach()
     auto buttonExitEntity = scene->CreateEntity();
     auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
     buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
-    buttonExitWidget->SetOnClick([]() {
-        Engine::EngineApplication::Get()->GetWindow().close();
+    buttonExitWidget->SetOnClick([this]() {
+        Engine::Logger::Log("Exit");
+        Engine::EngineApplication::Get()->RemoveLayer(this);
+        //Engine::EngineApplication::Get()->GetWindow().close();
     });
 
     verticalBoxWidget->AddChild(buttonPlayWidget);
@@ -50,8 +52,10 @@ void MainMenuLayer::OnAttach()
     verticalBoxWidget->AddChild(buttonExitWidget);
 }
 
-void MainMenuLayer::OnDetach() {
-
+void MainMenuLayer::OnDetach()
+{
+    auto* scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
+    scene->Clear();
 }
 
 void MainMenuLayer::OnUpdate(Engine::Timestep ts) {

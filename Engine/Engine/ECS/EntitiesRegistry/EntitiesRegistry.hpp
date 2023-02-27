@@ -53,7 +53,11 @@ namespace Engine
         template<class T>
         ComponentSystem<T>* GetSystem();
 
+        void DestroyAll();
+
     private:
+        bool m_markedForDestruction = false;
+
         std::unordered_map<ClassType*, std::unique_ptr<IComponentSystem>> m_componentSystems;
 
         std::unordered_map<ClassType*, IComponentSystem*> m_updatableSystems;

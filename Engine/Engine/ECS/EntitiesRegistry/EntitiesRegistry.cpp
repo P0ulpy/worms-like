@@ -54,5 +54,11 @@ namespace Engine
         }
     }
 
+    void EntitiesRegistry::DestroyAll()
+    {
+        m_updatableSystems.clear();
+        m_renderableSystems.clear();
+        m_componentSystems.clear();
+    }
 
 } // Engine

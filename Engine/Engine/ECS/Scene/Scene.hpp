@@ -24,6 +24,8 @@ namespace Engine
         void OnUpdate(Timestep ts);
         void OnStop();
 
+        void Clear();
+
         void RenderScene(sf::RenderTarget& renderTarget);
 
         Entity CreateEntity();
@@ -45,9 +47,6 @@ namespace Engine
 
         template<class T>
         void RemoveComponentOf(const EntityHandle& entityHandle);
-
-        //Entity GetEntityByHandle(const EntityHandle& handle);
-        //[[nodiscard]] EntitiesRegistry& GetEntitiesRegistry() { return m_registry; }
 
     private:
         EntitiesRegistry m_registry;

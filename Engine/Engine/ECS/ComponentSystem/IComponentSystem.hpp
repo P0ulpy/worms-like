@@ -2,8 +2,7 @@
 // Created by Flo on 15/12/2022.
 //
 
-#ifndef PATHFINDER_ICOMPONENTSYSTEM_HPP
-#define PATHFINDER_ICOMPONENTSYSTEM_HPP
+#pragma once
 
 #include <functional>
 
@@ -22,6 +21,7 @@ namespace Engine
         virtual void Remove(EntityHandle entityHandle) = 0;
         virtual bool Has(EntityHandle entityHandle) = 0;
         virtual Component* Get(EntityHandle entityHandle) = 0;
+        virtual void Clear() = 0;
 
         virtual void DispatchAwake() = 0;
         virtual void DispatchStart() = 0;
@@ -34,5 +34,3 @@ namespace Engine
         virtual void View(ViewCallback callback) = 0;
     };
 }
-
-#endif //PATHFINDER_ICOMPONENTSYSTEM_HPP
