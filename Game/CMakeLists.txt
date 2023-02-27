@@ -6,7 +6,7 @@ set(GAME_HEADERS
 set(GAME_SOURCES
         src/main.cpp
         Game/MainMenu.cpp
-        Game/UI/Classique/Text.cpp Game/UI/Classique/Text.hpp Game/UI/Classique/Sprite.cpp Game/UI/Classique/Sprite.hpp Game/UI/Button/ItemButton.hpp Game/OptionMenu.cpp Game/OptionMenu.hpp Game/ConfigGameMenu.cpp Game/ConfigGameMenu.hpp Game/Game.cpp Game/Game.hpp)
+        Game/OptionMenu.cpp Game/OptionMenu.hpp Game/ConfigGameMenu.cpp Game/ConfigGameMenu.hpp Game/Game.cpp Game/Game.hpp)
 
 
 # file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)

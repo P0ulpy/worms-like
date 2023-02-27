@@ -2,13 +2,23 @@
 // Created by Admin on 27/02/2023.
 //
 
-#ifndef WORMS_LIKE_GAME_HPP
-#define WORMS_LIKE_GAME_HPP
+#pragma once
 
 
-class Game {
+#include "Engine/Core/Application/ApplicationLayer.hpp"
 
+class GameLayer : public Engine::ApplicationLayer {
+
+public:
+    GameLayer()
+            : Engine::ApplicationLayer("Game")
+    {}
+
+    ~GameLayer() override = default;
+
+    void OnAttach() override;
+    void OnDetach() override;
+
+    void OnUpdate(Engine::Timestep ts) override;
+    void OnImGuiRender() override;
 };
-
-
-#endif //WORMS_LIKE_GAME_HPP

@@ -19,6 +19,6 @@ void TestPrefab::Init(Engine::Entity &entity)
 {
     entity.GetComponent<Engine::Transform>()->Pos = { 0, 0 };
 
-    auto* krabTexture = Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/krab.png");
+    auto* krabTexture = Engine::AssetLoader<sf::Texture>::StaticGetAsset("../../Assets/krab.png");
     entity.GetComponent<Engine::SpriteRenderer>()->Init(krabTexture);
 }

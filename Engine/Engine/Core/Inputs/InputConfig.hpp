@@ -9,6 +9,7 @@
 
 #include "Binding.hpp"
 #include "../../Vendor/mINI/ini.hpp"
+#include "../Logger/Logger.hpp"
 
 namespace SignalSystem
 {
@@ -50,6 +51,9 @@ namespace SignalSystem
                 m_bindingsevents.emplace(key.first, binding);
             }
 
+            if(m_bindingskeys.empty() || m_bindingsmouse.empty() || m_bindingsevents.empty())
+                Engine::Logger::Err("InputConfig path is incorrect");
+
             isLoad = true;
             m_path = path;
         }
@@ -59,7 +63,7 @@ namespace SignalSystem
         [[nodiscard]] std::vector<ConfigKey> GetKeyBindingName(const ConfigType& event, const ConfigType& binding) const
         {
             if(!IsLoad())
-                throw std::runtime_error("InputConfig is not load");
+                Engine::Logger::Err("InputConfig is not load");
 
             std::vector<ConfigKey> names;
 
@@ -81,7 +85,7 @@ namespace SignalSystem
         [[nodiscard]] std::vector<ConfigKey> GetMouseBindingName(const ConfigType& event, const ConfigType& binding) const
         {
             if(!IsLoad())
-                throw std::runtime_error("InputConfig is not load");
+                Engine::Logger::Err("InputConfig is not load");
 
             std::vector<ConfigKey> names;
 
@@ -105,7 +109,7 @@ namespace SignalSystem
         [[nodiscard]] ConfigKey GetEventBindingName(const ConfigType& event) const
         {
             if(!IsLoad())
-                throw std::runtime_error("InputConfig is not load");
+                Engine::Logger::Err("InputConfig is not load");
 
             if(m_bindingsevents.empty())
                 return "";
@@ -148,10 +152,10 @@ namespace SignalSystem
         void ChangeValueFile(const ConfigKey& key, const ConfigType& value)
         {
             if(!IsLoad())
-                throw std::runtime_error("InputConfig is not load");
+                Engine::Logger::Err("InputConfig is not load");
 
             if(m_path.empty())
-                throw std::runtime_error("Path is empty");
+                Engine::Logger::Err("InputConfig path is empty");
 
             mINI::INIFile file(m_path);
 
@@ -178,7 +182,7 @@ namespace SignalSystem
             }
             else
             {
-                throw std::runtime_error("Key not found");
+                Engine::Logger::Err("InputConfig Key is not found");
             }
 
             file.write(ini);

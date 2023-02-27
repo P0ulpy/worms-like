@@ -18,14 +18,15 @@ void MainMenuLayer::OnAttach()
     auto windowSize = Engine::EngineApplication::Get()->GetWindow().getSize();
     auto* scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
 
-    auto TestPrefabEntity = scene->InstantiatePrefab<TestPrefab>();
+    //auto TestPrefabEntity = scene->InstantiatePrefab<TestPrefab>();
 
     auto canvasEntity = scene->CreateEntity();
     auto canvasWidget = canvasEntity.AddComponent<Engine::UI::WidgetCanvas>();
     canvasWidget->Init({0, 0}, {static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
 
-    auto titre = canvasEntity.AddComponent<Engine::UI::TextWidget>();
-    titre->Init("Worms Like", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 100);
+    auto titreEntity = scene->CreateEntity();
+    auto titre = titreEntity.AddComponent<Engine::UI::TextWidget>();
+    titre->Init("Worms Like", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 100);
     auto x = (static_cast<float>(windowSize.x) / 2) - (titre->GetSize().x / 2);
     titre->SetPosition({ x, 100.0f });
 
@@ -39,39 +40,40 @@ void MainMenuLayer::OnAttach()
 
     auto buttonPlayEntity = scene->CreateEntity();
     auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 0.0f, 60);
+    buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
     buttonPlayWidget->SetOnClick([]() {
         //Play Game
     });
 
     auto buttonSettingsEntity = scene->CreateEntity();
     auto buttonSettingsWidget = buttonSettingsEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 0.0f, 60);
+    buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
     buttonSettingsWidget->SetOnClick([this]() {
-        OptionMenuLayer options;
-        Engine::EngineApplication* app = Engine::EngineApplication::Get();
-        app->RemoveLayer(this);
-        app->PushLayer(&options);
+        Engine::Logger::Log("Settings");
+        Engine::EngineApplication::Get()->RemoveLayer(this);
+        //app->PushLayer(&options);
+
+        //OptionMenuLayer options;
     });
 
     auto buttonExitEntity = scene->CreateEntity();
     auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 0.0f, 60);
+    buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
     buttonExitWidget->SetOnClick([this]() {
         Engine::Logger::Log("Exit");
-        Engine::EngineApplication::Get()->RemoveLayer(this);
-        //Engine::EngineApplication::Get()->GetWindow().close();
+        Engine::EngineApplication::Get()->Stop();
     });
 
     verticalBoxWidget->AddChild(buttonPlayWidget);
     verticalBoxWidget->AddChild(buttonSettingsWidget);
     verticalBoxWidget->AddChild(buttonExitWidget);
 
-    /*auto background = canvasEntity.AddComponent<Engine::UI::SpriteWidget>();
-    background->Init(*Engine::AssetLoader<sf::Texture>::StaticLoadAsset("../../Assets/Background.png"), {0, 0});
+    auto backgroundEntity = scene->CreateEntity();
+    auto background = backgroundEntity.AddComponent<Engine::UI::SpriteWidget>();
+    background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("../../Assets/Background/Background.png"), {0, 0});
     background->SetSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
 
-    canvasWidget->AddChild(background);*/
+    canvasWidget->AddChild(background);
 }
 
 void MainMenuLayer::OnDetach()

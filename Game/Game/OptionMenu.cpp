@@ -23,7 +23,7 @@ void OptionMenuLayer::OnAttach() {
     canvasWidget->Init({0, 0}, {static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
 
     auto titre = canvasEntity.AddComponent<Engine::UI::TextWidget>();
-    titre->Init("Option Menu", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 100);
+    titre->Init("Option Menu", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 100);
     auto xTitre = (static_cast<float>(windowSize.x) / 2) - (titre->GetSize().x / 2);
     titre->SetPosition({ xTitre, 100.0f });
 
@@ -38,7 +38,7 @@ void OptionMenuLayer::OnAttach() {
     for(auto [key, value] : keys) {
         auto keyEntity = scene->CreateEntity();
         auto keyText = keyEntity.AddComponent<Engine::UI::TextWidget>();
-        keyText->Init(key, Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 35);
+        keyText->Init(key, Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 35);
         gridKeys->AddChild(keyText);
 
         std::string valueString;
@@ -50,7 +50,7 @@ void OptionMenuLayer::OnAttach() {
 
         auto valueEntity = scene->CreateEntity();
         auto valueTextButton = valueEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        valueTextButton->Init(valueString, Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 0.0f, 35);
+        valueTextButton->Init(valueString, Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 35);
         valueTextButton->SetOnClick([valueTextButton, gridKeys, key]() {
             Engine::WindowEvents::lastEvent.connect([valueTextButton, gridKeys, key](const sf::Event &event) {
                 if(event.type == sf::Event::KeyPressed) {
@@ -77,7 +77,7 @@ void OptionMenuLayer::OnAttach() {
     for(auto [mouse, value] : mouses) {
         auto mouseEntity = scene->CreateEntity();
         auto mouseText = mouseEntity.AddComponent<Engine::UI::TextWidget>();
-        mouseText->Init(mouse, Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 35);
+        mouseText->Init(mouse, Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 35);
         gridMouses->AddChild(mouseText);
 
         std::string valueString;
@@ -89,7 +89,7 @@ void OptionMenuLayer::OnAttach() {
 
         auto valueEntity = scene->CreateEntity();
         auto valueTextButton = valueEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        valueTextButton->Init(valueString, Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 0.0f, 35);
+        valueTextButton->Init(valueString, Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 35);
         valueTextButton->SetOnClick([valueTextButton, gridMouses, mouse]() {
             Engine::WindowEvents::lastEvent.connect([valueTextButton, gridMouses, mouse](const sf::Event &event) {
                 if(event.type == sf::Event::MouseButtonPressed) {
@@ -109,7 +109,7 @@ void OptionMenuLayer::OnAttach() {
 
     auto backEntity = scene->CreateEntity();
     auto backTextButton = backEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    backTextButton->Init("Back", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0}, 0.0f, 80);
+    backTextButton->Init("Back", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 80);
     auto xBack = (static_cast<float>(windowSize.x) / 2) - (backTextButton->GetSize().x / 2);
     auto yBack = static_cast<float>(windowSize.y) - backTextButton->GetSize().y - 100.0f;
     backTextButton->SetPosition({ xBack, yBack });
