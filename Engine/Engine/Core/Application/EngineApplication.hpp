@@ -6,7 +6,7 @@
 #include "ApplicationLayer.hpp"
 #include "ScenesLayer.hpp"
 
-#include <SFML/Graphics/RenderWindow.hpp>
+#include "SFML/Graphics/RenderWindow.hpp"
 
 namespace Engine
 {
@@ -28,7 +28,7 @@ namespace Engine
         void RemoveLayer(ApplicationLayer* layer);
 
         inline sf::RenderWindow& GetWindow() { return m_window; }
-        inline ScenesLayer& GetScenesLayer() { return m_scenesLayer; }
+        inline ScenesLayer* GetScenesLayer() { return m_scenesLayer.get(); }
 
     private:
         sf::RenderWindow m_window;
@@ -38,7 +38,7 @@ namespace Engine
 
         // TODO : use a custom stack where we can iterate through
         std::vector<ApplicationLayer*> m_layers {};
-        ScenesLayer m_scenesLayer { "Scenes Layer" };
+        std::unique_ptr<ScenesLayer> m_scenesLayer { nullptr };
     };
 }
 

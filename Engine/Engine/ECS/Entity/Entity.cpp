@@ -3,11 +3,13 @@
 //
 
 #include "Entity.hpp"
+#include "../Scene/Scene.hpp"
 
 namespace Engine
 {
-    Entity::Entity(EntityHandle handle)
+    Entity::Entity(EntityHandle handle, Scene* scene)
             : m_handle(handle)
+            , m_scene(scene)
     {}
 
 } // Engine

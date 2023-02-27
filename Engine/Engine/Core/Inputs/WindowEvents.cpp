@@ -3,7 +3,9 @@
 //
 
 #include "WindowEvents.hpp"
-#include "InputSignal.h"
+#include "InputSignal.hpp"
+
+#include <iostream>
 
 namespace Engine
 {
@@ -22,10 +24,20 @@ namespace Engine
 #endif
             s_events[event.type] = event;
 
-            if((event.type == sf::Event::MouseButtonPressed || event.type == sf::Event::MouseButtonReleased || event.type == sf::Event::MouseLeft) && event.mouseButton.button == sf::Mouse::Button::Left)
-                InputSignal::GetInstance()->Emit({ event.type, { sf::Keyboard::Key::KeyCount, true, true, true, true }});
-            else
-                InputSignal::GetInstance()->Emit({ event.type, event.key});
+
+            auto mouse = SignalSystem::InputConfig::Get()->GetMouseBindingName(event.type, event.mouseButton.button);
+            if (!mouse.empty())
+                for(const auto& name : mouse)
+                    SignalSystem::InputSignal::Get()->Emit(name);
+
+            auto key = SignalSystem::InputConfig::Get()->GetKeyBindingName(event.type, event.key.code);
+            if (!key.empty())
+                for(const auto& name : key)
+                    SignalSystem::InputSignal::Get()->Emit(name);
+
+            auto eventName = SignalSystem::InputConfig::Get()->GetEventBindingName(event.type);
+            if (!eventName.empty())
+                SignalSystem::InputSignal::Get()->Emit(eventName);
         }
     }
 

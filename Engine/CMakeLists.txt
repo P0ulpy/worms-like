@@ -1,18 +1,19 @@
 set(ENGINE_HEADERS
         Engine/Engine.hpp
 
-        Engine/Core/Application/EngineApplication.hpp
         Engine/Core/UUID.hpp
         Engine/Core/Time.hpp
-        Engine/Core/Application/LayerStack.hpp
-        Engine/Core/Logger/Logger.hpp
-        Engine/Core/Application/ScenesLayer.hpp
-        Engine/Core/Logger/ConsoleColor.hpp
         Engine/Core/RTTI/ClassType.hpp
-        Engine/Core/Inputs/WindowEvents.hpp
+        Engine/Core/Logger/Logger.hpp
+        Engine/Core/Logger/Logger.tpp
+        Engine/Core/Logger/ConsoleColor.hpp
+        Engine/Core/Application/EngineApplication.hpp
+        Engine/Core/Application/LayerStack.hpp
+        Engine/Core/Application/ScenesLayer.hpp
+        Engine/Core/Application/ApplicationLayer.hpp
         Engine/Core/Components/Transform.hpp
         Engine/Core/Components/SpriteRenderer.hpp
-        Engine/Core/Application/ApplicationLayer.hpp
+        Engine/Core/Inputs/WindowEvents.hpp
 
         Engine/ECS/Handles/Handles.hpp
         Engine/ECS/Entity/Entity.hpp
@@ -28,10 +29,12 @@ set(ENGINE_HEADERS
         Engine/Renderer/AllRenderComponents.hpp
 
         Engine/AssetLoader/AssetLoader.hpp
-        Engine/Core/Inputs/InputSignal.h
-
+        Engine/Core/Inputs/InputSignal.hpp
+        Engine/Core/Inputs/InputSignal.tpp
         Engine/Core/Inputs/Connection.hpp
+        Engine/Core/Inputs/Connection.tpp
         Engine/Core/Inputs/InputConfig.hpp
+
         Engine/Core/Components/CompositeComponent.hpp
 
         Engine/UI/Widget/Widget.hpp
@@ -44,18 +47,24 @@ set(ENGINE_HEADERS
         Engine/UI/Layout/Grid/WidgetGrid.hpp
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp
-        )
+
+        Engine/Core/Inputs/Observable.hpp
+        Engine/Core/Inputs/Observable.tpp
+
+        Engine/Core/Inputs/Binding.hpp
+        Engine/Vendor/mINI/ini.hpp
+)
 
 set(ENGINE_SOURCES
-        Engine/Core/Application/EngineApplication.cpp
         Engine/Core/UUID.cpp
-        Engine/Core/Application/ApplicationLayer.cpp
-        Engine/Core/Logger/Logger.cpp
-        Engine/Core/Application/ScenesLayer.cpp
         Engine/Core/Time.cpp
-        Engine/Core/Inputs/WindowEvents.cpp
+        Engine/Core/Logger/Logger.cpp
+        Engine/Core/Application/EngineApplication.cpp
+        Engine/Core/Application/ApplicationLayer.cpp
+        Engine/Core/Application/ScenesLayer.cpp
         Engine/Core/Components/Transform.cpp
         Engine/Core/Components/SpriteRenderer.cpp
+        Engine/Core/Inputs/WindowEvents.cpp
 
         Engine/ECS/Entity/Entity.cpp
         Engine/ECS/Component/Component.cpp
@@ -68,6 +77,7 @@ set(ENGINE_SOURCES
         Engine/Core/Inputs/InputSignal.cpp
         Engine/Core/Inputs/Connection.cpp
         Engine/Core/Inputs/InputConfig.cpp
+
         Engine/Core/Components/CompositeComponent.cpp
 
         Engine/UI/Widget/Widget.cpp
@@ -80,7 +90,10 @@ set(ENGINE_SOURCES
         Engine/UI/Layout/Grid/WidgetGrid.cpp
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.cpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.cpp
-        )
+
+        Engine/Core/Inputs/Observable.cpp
+)
+
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 

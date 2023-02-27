@@ -3,6 +3,7 @@
 //
 
 #include "AssetLoader.hpp"
+#include "../Core/Logger/Logger.hpp"
 
 namespace Engine
 {
@@ -10,19 +11,28 @@ namespace Engine
     sf::Texture* AssetLoader<sf::Texture>::StaticLoadAsset(const std::string& path)
     {
         sf::Texture texture;
-        texture.loadFromFile(path);
+        
+        if(!texture.loadFromFile(path))
+        {
+            //Logger::Err("Failed to load texture from path: ", path);
+            return nullptr;
+        }
 
         s_paths[path] = texture;
 
         return &s_paths[path];
     }
 
-
     template<>
     sf::Font* AssetLoader<sf::Font>::StaticLoadAsset(const std::string& path)
     {
         sf::Font font;
-        font.loadFromFile(path);
+
+        if(!font.loadFromFile(path))
+        {
+            //Logger::Err("Failed to load font from path: ", path);
+            return nullptr;
+        }
 
         s_paths[path] = font;
 

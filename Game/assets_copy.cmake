@@ -1,0 +1,1 @@
+file(COPY ${CMAKE_SOURCE_DIR}/Game/Assets DESTINATION ./)

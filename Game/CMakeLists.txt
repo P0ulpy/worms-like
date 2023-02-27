@@ -17,13 +17,24 @@ set(GAME_SOURCES
         Game/MainMenu.cpp
         Game/UI/Classique/Text.cpp Game/UI/Classique/Text.hpp Game/UI/Classique/Sprite.cpp Game/UI/Classique/Sprite.hpp Game/UI/Button/ItemButton.hpp)
 
-# TODO : Temporary solution, copy is not done each time the project is compiled
-file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR})
 
-add_executable(Game ${GAME_HEADERS} ${GAME_SOURCES})
+# file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)
+
+set(GAME_TARGET_NAME Game)
+
+add_executable(${GAME_TARGET_NAME} ${GAME_HEADERS} ${GAME_SOURCES})
 
 include_directories(${CMAKE_SOURCE_DIR}/Engine)
 
-target_link_libraries(Game Engine)
+target_link_libraries(${GAME_TARGET_NAME} Engine)
 
-install(TARGETS Game RUNTIME DESTINATION bin)
+
+set(CMAKE_SOURCE_ASSETS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+set(CMAKE_RUNTIME_ASSETS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+
+add_custom_command(
+        TARGET Game POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_ASSETS_DIRECTORY}
+        ${CMAKE_RUNTIME_ASSETS_DIRECTORY}
+)

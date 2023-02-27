@@ -5,7 +5,7 @@
 #ifndef POPOSIBENGINE_WINDOWEVENTS_HPP
 #define POPOSIBENGINE_WINDOWEVENTS_HPP
 
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 #include <array>
 #include <functional>
 

@@ -5,7 +5,7 @@
 #ifndef POPOSIBENGINE_INPUTSIGNAL_H
 #define POPOSIBENGINE_INPUTSIGNAL_H
 
-#include <SFML/Window/Keyboard.hpp>
+#include "SFML/Window/Keyboard.hpp"
 
 #include <functional>
 #include <map>
