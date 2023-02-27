@@ -2,8 +2,8 @@
 
 #include <cstddef>
 #include <SFML/Graphics.hpp>
-#include "../ECS/ComponentSystem/IComponentSystem.hpp"
-#include "../Maths/Vector.hpp"
+#include "../../ECS/ComponentSystem/IComponentSystem.hpp"
+#include "../../Maths/Vector.hpp"
 
 namespace Engine::Camera {
     class ICamera {

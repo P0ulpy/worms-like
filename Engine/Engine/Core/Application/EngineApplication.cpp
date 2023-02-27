@@ -111,7 +111,7 @@ void Engine::EngineApplication::Run()
         {
             sf::sleep(sf::milliseconds((int) (FixedDeltaTime - Elapsed)));
         } else {
-            std::cout << "Exceeding fixed update time :" << Elapsed << std::endl;
+//            std::cout << "Exceeding fixed update time :" << Elapsed << std::endl;
         }
     }
 }

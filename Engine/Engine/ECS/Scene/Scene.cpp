@@ -3,6 +3,7 @@
 //
 
 #include "Scene.hpp"
+#include "../../Core/Physics/Physics.hpp"
 
 namespace Engine
 {
@@ -22,9 +23,18 @@ namespace Engine
 
     }
 
-    void Scene::OnUpdate(Timestep ts)
+    void Scene::OnUpdate(Timestep DeltaTime)
     {
-        m_registry.UpdateAllUpdatable(ts);
+        m_registry.UpdateAllUpdatable(DeltaTime);
+        const auto StepMs = 1.f;
+        Timestep Elapsed = 0;
+        while (Elapsed < DeltaTime) {
+            for (const auto& [Type, Simulator] : m_PhysicsSimulators) {
+                Simulator->Simulate(StepMs, &m_registry);
+            }
+            Elapsed += StepMs;
+            // @todo handle time left
+        }
     }
 
     void Scene::OnStop()
@@ -49,6 +59,33 @@ namespace Engine
     void Scene::Clear()
     {
         m_registry.DestroyAll();
+
+        delete m_ActiveCamera;
+        m_ActiveCamera = nullptr;
+        // @todo replace with unique ptrs?
+        for (auto [_, Simulator] : m_PhysicsSimulators) {
+            delete Simulator;
+        }
+        m_PhysicsSimulators.clear();
     }
 
+    Scene::~Scene() {
+        Clear();
+    }
+
+    void Scene::AddPhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator) {
+        auto SimulatorType = Simulator->GetBodyType();
+        if (m_PhysicsSimulators.contains(SimulatorType)) {
+            throw std::runtime_error("Target physics component types already has a simulator.");
+        }
+
+        m_PhysicsSimulators.insert({SimulatorType, Simulator});
+    }
+
+    void Scene::RemovePhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator) {
+        auto SimulatorType = Simulator->GetBodyType();
+        if (m_PhysicsSimulators.contains(SimulatorType)) {
+            m_PhysicsSimulators.erase(SimulatorType);
+        }
+    }
 } // Engine

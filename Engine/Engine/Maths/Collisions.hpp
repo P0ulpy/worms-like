@@ -52,13 +52,28 @@ namespace Maths::Collisions
 
     class SAP {
     public:
+        template <typename GeometricType>
+        static Maths::Point2D<GeometricType> GetSmallestOnAxis(
+            const Maths::Vector2D<GeometricType>& Axis,
+            const Maths::Vector2D<GeometricType>& Scale,
+            const GeometricType& RotationDegrees,
+            const Maths::Point2D<GeometricType>& OnPos,
+            const Maths::Rectangle2D<GeometricType>* Shape
+        )
+        {
+            const auto Points = Shape->GetVertices(RotationDegrees, Scale, OnPos);
+            GeometricType Min = 0, Max = 0;
+            Maths::Point2D<GeometricType> MinPoint, MaxPoint;
+            GetMinAndMaxProjectedValues(Axis, Points, Min, Max, MinPoint, MaxPoint);
+        }
+
         template <typename GeometricType, size_t Dimensions>
         static bool LikelyToCollide(
+            const Maths::Vector<GeometricType, Dimensions>& Axis,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsA,
             const std::vector<Maths::Point<GeometricType, Dimensions>>& PointsB
         )
         {
-            const auto Axis = Maths::Vector<GeometricType, Dimensions>::GetUnitVectorOnAxis(0);
             return IntersectOnAxis(
                 Axis,
                 PointsA,
@@ -69,6 +84,7 @@ namespace Maths::Collisions
         // RTTI casting
         template <typename GeometricType, size_t Dimensions>
         static bool LikelyToCollide(
+            const Maths::Vector<GeometricType, Dimensions>& Axis,
             const Maths::Vector<GeometricType, Dimensions>& ScaleA,
             const Maths::Vector<GeometricType, Dimensions>& ScaleB,
             const GeometricType& RotationDegreesA,
@@ -85,6 +101,7 @@ namespace Maths::Collisions
             )
             {
                 return LikelyToCollide<GeometricType, Dimensions>(
+                    Axis,
                     static_cast<const Maths::Rectangle2D<GeometricType>*>(ShapeA)->GetVertices(
                         RotationDegreesA,
                         ScaleA,
@@ -95,6 +112,31 @@ namespace Maths::Collisions
                         ScaleB,
                         OnPosB
                     )
+                );
+            }
+
+            throw std::runtime_error("No matching function found.");
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        static Maths::Point<GeometricType, Dimensions> GetSmallestOnAxis(
+            const Maths::Vector<GeometricType, Dimensions>& Axis,
+            const Maths::Vector<GeometricType, Dimensions>& Scale,
+            const GeometricType& RotationDegrees,
+            const Maths::Point<GeometricType, Dimensions>& OnPos,
+            const Maths::IShape* Shape
+        )
+        {
+            if (
+                Shape->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
+            )
+            {
+                return GetSmallestOnAxis<GeometricType>(
+                    Axis,
+                    Scale,
+                    RotationDegrees,
+                    OnPos,
+                    static_cast<const Maths::Rectangle2D<GeometricType>*>(Shape)
                 );
             }
 
@@ -283,6 +325,7 @@ namespace Maths::Collisions
             GeometricType CollisionNormalMinB;
             GeometricType CollisionNormalMaxB;
             Maths::Point<GeometricType, Dimensions> MinBPointOnCollisionNormal;
+
             auto FlippedCollisionNormal = CollisionNormal * -1;
             Maths::Point<GeometricType, Dimensions> MaxBPointOnCollisionNormal;
             GetMinAndMaxProjectedValues(
@@ -328,24 +371,13 @@ namespace Maths::Collisions
                 -Max2
             );
 
-            auto RefNormal = GetNormal(ReferenceEdge);
+//            auto RefNormal = GetNormal(ReferenceEdge);
+            auto RefNormal = FlippedCollisionNormal;
             if (Flipped)
-                RefNormal = NormalizedRef * -1;
+                RefNormal = CollisionNormal;
 
             // clip third part of the points but this time deleting them if they are in a discarded part
-            GeometricType RefMin;
-            GeometricType RefMax;
-            Maths::Point<GeometricType, Dimensions> MinPointOnRef;
-            Maths::Point<GeometricType, Dimensions> MaxPointOnRef;
-            GetMinAndMaxProjectedValues(
-                NormalizedRef,
-                {ReferenceMaxPoint, ReferenceFurtherVertice},
-                RefMin,
-                RefMax,
-                MinPointOnRef,
-                MaxPointOnRef
-            );
-            GeometricType Max3 = RefNormal.Scalar(Maths::Vector<GeometricType, Dimensions>{MaxPointOnRef.Values});
+            GeometricType Max3 = RefNormal.Scalar(Maths::Vector<GeometricType, Dimensions>{ReferenceMaxPoint.Values});
             ClippedPoints = ClipPoints<GeometricType, Dimensions, true>(
                 {ClippedPoints[0], ClippedPoints[1]},
                 RefNormal,
@@ -401,8 +433,8 @@ namespace Maths::Collisions
             GeometricType D1 = Axis.Scalar(Maths::Vector<GeometricType, Dimensions>{Points[0].Values}) - Max;
             GeometricType D2 = Axis.Scalar(Maths::Vector<GeometricType, Dimensions>{Points[1].Values}) - Max;
 
-            if (D1 >= GeometricType(0) >= GeometricType(0)) FinalPoints.push_back(Points[0]);
-            if (D2 >= GeometricType(0) >= GeometricType(0)) FinalPoints.push_back(Points[1]);
+            if (D1 >= GeometricType(0)) FinalPoints.push_back(Points[0]);
+            if (D2 >= GeometricType(0)) FinalPoints.push_back(Points[1]);
 
             if constexpr (!RemovePoints) {
                 if (D1 * D2 < GeometricType(0))

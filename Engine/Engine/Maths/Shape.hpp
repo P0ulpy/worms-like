@@ -206,4 +206,25 @@ namespace Maths {
 
     template <typename T>
     using RectangleBoundingBox2D = BoundingBox2D<T, Rectangle2D>;
+
+    template <typename T, size_t Dimensions>
+    Maths::Point<T, Dimensions> GetCentroid(std::vector<Maths::Point<T, Dimensions>> OfPoints) {
+        Maths::Point<T, Dimensions> Centroid;
+
+        for (const auto& Point : OfPoints)
+        {
+            for (size_t i = 0; i < Dimensions; i++)
+            {
+                Centroid[i] += Point[i];
+            }
+        }
+
+        int PointsCount = OfPoints.size();
+        for (size_t i = 0; i < Dimensions; i++)
+        {
+            Centroid[i] /= PointsCount;
+        }
+
+        return Centroid;
+    }
 };

@@ -62,10 +62,6 @@ namespace Engine
             ToBeOrdered,
             [this](EntityHandle handle)->Maths::Point2D<double> { return this->GetSystem<Engine::Components::Transform>()->GetOf(handle)->Pos; }
         );
-        PhysicsEntityKdTree.CreateKdTree<2, Maths::Point2D<double>, true>(
-            ToBeOrdered,
-            [this](EntityHandle handle)->Maths::Point2D<double> { return this->GetSystem<Engine::Components::Transform>()->GetOf(handle)->Pos; }
-        );
     }
 
     std::unordered_map<RTTI::ClassType*, IComponentSystem*> EntitiesRegistry::GetAllRenderableSystems()

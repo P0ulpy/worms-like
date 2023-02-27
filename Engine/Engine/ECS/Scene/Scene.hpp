@@ -11,21 +11,21 @@
 
 #include "../Entity/Entity.hpp"
 #include "../EntitiesRegistry/EntitiesRegistry.hpp"
-#include "../../Camera/Camera.hpp"
+#include "../../Core/Camera/Camera.hpp"
 
 namespace Engine
 {
+    namespace Physics {
+        class IPhysicsSimulator;
+    }
     class Scene
     {
     public:
         Scene() = default;
-        ~Scene()
-        {
-            delete m_ActiveCamera;
-        };
+        ~Scene();
 
         void OnStart();
-        void OnUpdate(Timestep ts);
+        void OnUpdate(Timestep DeltaTime);
         void OnStop();
 
         void Clear();
@@ -54,9 +54,12 @@ namespace Engine
 
         inline Engine::Camera::ICamera* GetActiveCamera() { return m_ActiveCamera; }
         inline void SetActiveCamera(Engine::Camera::ICamera* Camera) { m_ActiveCamera = Camera; }
+        void AddPhysicsSimulator(Engine::Physics::IPhysicsSimulator* Simulator);
+        void RemovePhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator);
     private:
         EntitiesRegistry m_registry;
-        Engine::Camera::ICamera* m_ActiveCamera;
+        Engine::Camera::ICamera* m_ActiveCamera = nullptr;
+        std::unordered_map<RTTI::ClassType*, Engine::Physics::IPhysicsSimulator*> m_PhysicsSimulators;
     };
 
     // Scene

@@ -302,6 +302,15 @@ namespace Maths {
             return Values[0] * Other[1] - Values[1] * Other[0];
         }
 
+        template <size_t S = Size, std::enable_if_t<(S == 2), bool> = false>
+        Vector operator^(const T& Other) const
+        {
+            return Vector(
+                Other * Values[1],
+                -Other * Values[0]
+            );
+        }
+
         template <size_t S = Size, std::enable_if_t<(S == 3), bool> = false>
         Vector operator^(const Vector& Other) const
         {
@@ -476,7 +485,7 @@ namespace Maths {
         Maths::Vector<T, Dimensions> Normal;
         if constexpr (Dimensions == 2)
         {
-            Normal = Vector<T, Dimensions>(-Edge.GetY(), Edge.GetX());
+            Normal = Edge ^ -1;
         } else {
             static const auto UnitAxisVector = Vector<T, Dimensions>::GetUnitVectorOnAxis(0);
             Normal = Normal ^ UnitAxisVector;
