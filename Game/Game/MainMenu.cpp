@@ -8,11 +8,15 @@
 #include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
 #include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
 #include "Engine/AssetLoader/AssetLoader.hpp"
+#include "Prefabs/TestPrefab.hpp"
 
-void MainMenuLayer::OnAttach() {
+void MainMenuLayer::OnAttach()
+{
     auto windowSize = Engine::EngineApplication::Get()->GetWindow().getSize();
+    auto* scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
 
-    auto scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
+    auto TestPrefabEntity = scene->InstantiatePrefab<TestPrefab>();
+
     auto canvasEntity = scene->CreateEntity();
     auto canvasWidget = canvasEntity.AddComponent<Engine::UI::WidgetCanvas>();
     canvasWidget->Init({0, 0}, {static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
@@ -25,18 +29,18 @@ void MainMenuLayer::OnAttach() {
 
     auto buttonPlayEntity = scene->CreateEntity();
     auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0});
+    buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
     buttonPlayWidget->SetOnClick([]() {
         //Play Game
     });
 
     auto buttonSettingsEntity = scene->CreateEntity();
     auto buttonSettingsWidget = buttonSettingsEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0});
+    buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
 
     auto buttonExitEntity = scene->CreateEntity();
     auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
-    buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticLoadAsset("../../Assets/Font.otf"), {0, 0});
+    buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
     buttonExitWidget->SetOnClick([]() {
         Engine::EngineApplication::Get()->GetWindow().close();
     });

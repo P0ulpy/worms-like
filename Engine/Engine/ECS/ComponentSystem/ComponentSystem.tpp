@@ -1,7 +1,7 @@
 //
 // Created by Flo on 18/01/2023.
 //
-//#include "Engine/Core/Logger/Logger.hpp"
+#include "../../Core/Logger/Logger.hpp"
 
 namespace Engine
 {
@@ -10,7 +10,7 @@ namespace Engine
     {
         if(components.contains(entityHandle))
         {
-            //Logger::Err("this entity already have a TComponent allocated for him");
+            Logger::Err("this entity already have a (", TComponent::getClassType()->getTypeName(), ") allocated for him");
             return nullptr;
         }
 
@@ -30,7 +30,8 @@ namespace Engine
         if constexpr (requires (TComponent& c) { c.OnDestroy(); })
             components[entityHandle].OnDestroy();
 
-        // Remove from his parent this component if TComponent extends from CompositeComponent (maybe use std::is_base_of_v instead of requires)
+        // Remove from his parent this component if TComponent extends from CompositeComponent
+        // NOTE : (maybe use std::is_base_of_v instead of requires)
         if constexpr (requires (TComponent& c) { c.GetParent(); })
         {
             auto* parent = components[entityHandle].GetParent();

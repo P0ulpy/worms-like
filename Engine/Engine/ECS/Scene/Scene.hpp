@@ -28,6 +28,9 @@ namespace Engine
 
         Entity CreateEntity();
 
+        template <class TPrefab>
+        Entity InstantiatePrefab();
+
         void DestroyEntity(const Entity& entity);
         void DestroyEntity(const EntityHandle& entity);
 
@@ -51,6 +54,13 @@ namespace Engine
     };
 
     // Scene
+
+    template<class TPrefab>
+    Entity Scene::InstantiatePrefab()
+    {
+        TPrefab prefab;
+        return prefab.Instantiate(this);
+    }
 
     template<class T>
     T *Scene::GetComponentOf(const EntityHandle &entityHandle) {

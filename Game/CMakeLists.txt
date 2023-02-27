@@ -1,21 +1,12 @@
 set(GAME_HEADERS
         src/main.hpp
         Game/MainMenu.hpp
-        Game/UI/IWidget.hpp
-        Game/UI/Button/TextButton.hpp
-        Game/UI/Button/SpriteButton.hpp
-        Game/UI/Button/ButtonBase.hpp
-        Game/UI/WidgetComposite.hpp
-        Game/UI/Layout/Canvas.hpp
-        Game/UI/Layout/HorizontalBox.hpp
-        Game/UI/Layout/VerticalBox.hpp
-        Game/UI/Layout/Grid.hpp
-        Game/UI/Other/ProgressBar.hpp)
+        Game/Prefabs/TestPrefab.hpp)
 
 set(GAME_SOURCES
         src/main.cpp
         Game/MainMenu.cpp
-        Game/UI/Classique/Text.cpp Game/UI/Classique/Text.hpp Game/UI/Classique/Sprite.cpp Game/UI/Classique/Sprite.hpp Game/UI/Button/ItemButton.hpp)
+)
 
 
 # file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)
