@@ -8,6 +8,7 @@
 #include "SFML/Graphics/Texture.hpp"
 #include "SFML/Graphics/Font.hpp"
 #include <unordered_map>
+#include "SFML/Graphics/Font.hpp"
 
 namespace Engine {
 

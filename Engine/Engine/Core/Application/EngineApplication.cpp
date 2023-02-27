@@ -1,5 +1,6 @@
 #include "EngineApplication.hpp"
 #include "../Inputs/WindowEvents.hpp"
+#include "../Logger/Logger.hpp"
 
 Engine::EngineApplication* Engine::EngineApplication::s_Instance = nullptr;
 

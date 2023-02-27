@@ -48,6 +48,7 @@ namespace Engine
         }
 
     private:
+        bool m_active = true;
         ComponentHandle m_handle = ComponentHandle::Null;
         EntityHandle m_entityHandle = EntityHandle::Null;
         Entity m_entity { EntityHandle::Null, nullptr };

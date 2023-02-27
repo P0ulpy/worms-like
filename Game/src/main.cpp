@@ -1,15 +1,23 @@
+
+#include <Engine/Engine.hpp>
+#include <SFML/Graphics.hpp>
+
+#include "Engine/Core/Inputs/InputSignal.h"
+#include "../Game/MainMenu.hpp"
+
 #include <Engine/AssetLoader/AssetLoader.hpp>
 #include <Engine/Core/Components/Transform.hpp>
 #include <Engine/Core/Components/SpriteRenderer.hpp>
 #include <Engine/Core/Application/EngineApplication.hpp>
 
-class App : public Engine::EngineApplication
-{
 
-};
+#if defined(SFML_SYSTEM_WINDOWS)
+#include <windows.h>
+#endif
 
-App app;
+using App = Engine::EngineApplication;
 
+/*
 class MyComponent : public Engine::Component
 {
 public:
@@ -21,47 +29,15 @@ public:
     void OnImGuiRender() {}
     void OnDestroy() {}
 };
-
-class GameLayer : public Engine::ApplicationLayer
-{
-public:
-    GameLayer()
-            : Engine::ApplicationLayer("GameLayer")
-    {}
-
-    void OnAttach() override
-    {
-        // Testing purposes
-
-        auto* sceneLayer = app.GetScenesLayer();
-        auto* scene = sceneLayer->GetActiveScene();
-
-        auto krab = scene->CreateEntity();
-
-        auto* transform = krab.AddComponent<Engine::Transform>();
-        auto* spriteRenderer = krab.AddComponent<Engine::SpriteRenderer>();
-
-        spriteRenderer->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("./Assets/krab.png"));
-
-        auto windowSize = app.GetWindow().getSize();
-
-        transform->Pos = { (float)windowSize.x / 2.f, (float)windowSize.y / 2.f };
-    }
-
-    void OnDetach() override
-    {
-
-    }
-
-    void OnUpdate(Engine::Timestep ts) override {  };
-    void OnImGuiRender() override { };
-};
-
-GameLayer gameLayer;
+*/
 
 int main(int argc, char* argv[])
 {
-    app.PushLayer(&gameLayer);
+    App app;
+    MainMenuLayer mainMenuLayer;
+
+    app.GetWindow().setFramerateLimit(60);
+    app.PushLayer(&mainMenuLayer);
     app.Init();
 
     /*SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");

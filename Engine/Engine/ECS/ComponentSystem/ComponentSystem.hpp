@@ -2,10 +2,10 @@
 // Created by Flo on 18/01/2023.
 //
 
-#ifndef POPOSIBENGINE_COMPONENTSYSTEM_HPP
-#define POPOSIBENGINE_COMPONENTSYSTEM_HPP
+#pragma once
 
 #include "IComponentSystem.hpp"
+
 #include "../../Core/Logger/Logger.hpp"
 #include <unordered_map>
 
@@ -14,14 +14,10 @@ namespace Engine
     // TODO : use a custom memory pool instead of std::unordered_map to store components contiguously
 
     template <class TComponent>
-    class ComponentEntry
-    {
-
-    };
-
-    template <class TComponent>
     class ComponentSystem : public IComponentSystem
     {
+        static_assert(std::is_base_of_v<Component, TComponent>, "Invalid TComponent type, a component must be derived from Engine::Component");
+
     public:
         std::unordered_map<EntityHandle, TComponent> components {};
 
@@ -140,9 +136,6 @@ namespace Engine
             }
         }
     }
-
 } // Engine
 
 #include "ComponentSystem.tpp"
-
-#endif //POPOSIBENGINE_COMPONENTSYSTEM_HPP

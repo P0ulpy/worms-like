@@ -11,6 +11,7 @@ namespace Engine
     sf::Texture* AssetLoader<sf::Texture>::StaticLoadAsset(const std::string& path)
     {
         sf::Texture texture;
+        
         if(!texture.loadFromFile(path))
         {
             //Logger::Err("Failed to load texture from path: ", path);
@@ -26,6 +27,7 @@ namespace Engine
     sf::Font* AssetLoader<sf::Font>::StaticLoadAsset(const std::string& path)
     {
         sf::Font font;
+
         if(!font.loadFromFile(path))
         {
             //Logger::Err("Failed to load font from path: ", path);
