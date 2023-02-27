@@ -5,6 +5,7 @@
 
 #include "Engine/Core/Inputs/InputSignal.hpp"
 #include "../Game/MainMenu.hpp"
+#include "../Game/OptionMenu.hpp"
 
 #include <Engine/AssetLoader/AssetLoader.hpp>
 #include <Engine/Core/Components/Transform.hpp>
@@ -13,7 +14,7 @@
 
 
 #if defined(SFML_SYSTEM_WINDOWS)
-#include <windows.h>
+#include <Windows.h>
 #endif
 
 using App = Engine::EngineApplication;
@@ -35,16 +36,26 @@ public:
 int main(int argc, char* argv[])
 {
     App app;
-    MainMenuLayer mainMenuLayer;
+    //MainMenuLayer;
+    OptionMenuLayer optionMenuLayer;
 
-    app.GetWindow().setFramerateLimit(60);
-    app.PushLayer(&mainMenuLayer);
-    app.Init();
+    app.GetWindow().create(sf::VideoMode(1920, 1080), "Worms-Like", sf::Style::Default);
+
+#if defined(SFML_SYSTEM_WINDOWS)
+    ShowWindow(app.GetWindow().getSystemHandle(), SW_MAXIMIZE);
+#endif
 
     SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
+
+    app.GetWindow().setFramerateLimit(60);
+    //app.PushLayer(&mainMenuLayer);
+    app.PushLayer(&optionMenuLayer);
+    app.Init();
+
+    /*SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
     SignalSystem::InputSignal::Get()->connect("close_window", [&app = app](){ std::cout << "Close" << std::endl; });
     SignalSystem::InputSignal::Get()->connect("pause", [&app = app](){ std::cout << "Pause" << std::endl; });
-    SignalSystem::InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });
+    SignalSystem::InputSignal::Get()->connect("resized", [&app = app](){ std::cout << "Resized" << std::endl; });*/
 
     /*SignalSystem::Observable<int> t;
     t.connect([](int value)

@@ -2,8 +2,7 @@
 // Created by Admin on 14/02/2023.
 //
 
-#ifndef POPOSIBENGINE_MAINMENU_HPP
-#define POPOSIBENGINE_MAINMENU_HPP
+#pragma once
 
 
 #include "Engine/Core/Application/ApplicationLayer.hpp"
@@ -27,6 +26,3 @@ public:
 private:
     //ScopedConnection connection;
 };
-
-
-#endif //POPOSIBENGINE_MAINMENU_HPP

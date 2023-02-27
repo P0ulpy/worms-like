@@ -20,6 +20,7 @@ namespace Engine::UI {
 
             void SetPosition(const sf::Vector2f& position) override;
             void SetScale(const sf::Vector2f& scale);
+            void SetSize(const sf::Vector2f& size) override;
 
         private:
             void UpdateSize() const override;

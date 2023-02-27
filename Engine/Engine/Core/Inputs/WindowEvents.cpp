@@ -7,9 +7,12 @@
 
 #include <iostream>
 
+#include "Observable.hpp"
+
 namespace Engine
 {
     std::array<sf::Event, sf::Event::Count> WindowEvents::s_events;
+    SignalSystem::Observable<sf::Event> WindowEvents::lastEvent;
 
     void WindowEvents::ProcessEvents(sf::RenderWindow &renderWindow)
     {
@@ -24,6 +27,7 @@ namespace Engine
 #endif
             s_events[event.type] = event;
 
+            lastEvent = event;
 
             auto mouse = SignalSystem::InputConfig::Get()->GetMouseBindingName(event.type, event.mouseButton.button);
             if (!mouse.empty())

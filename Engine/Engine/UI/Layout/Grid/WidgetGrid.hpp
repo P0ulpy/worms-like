@@ -23,7 +23,7 @@ namespace Engine::UI {
             [[nodiscard]] const sf::Vector2f& GetGridSpacing() const       { return m_gridSpacing; }
             [[nodiscard]] const sf::Vector2f& GetCellSize() const          { return m_cellSize; }
 
-        private:
+
             void UpdatePosition() const override;
             void UpdateSize() const override;
 

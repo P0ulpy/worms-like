@@ -6,6 +6,7 @@
 #define POPOSIBENGINE_WINDOWEVENTS_HPP
 
 #include "SFML/Graphics.hpp"
+#include "Observable.hpp"
 #include <array>
 #include <functional>
 
@@ -18,6 +19,8 @@ namespace Engine
 
         [[nodiscard]] static bool GetEvent(sf::Event::EventType eventType);
         [[nodiscard]] static bool GetEvent(sf::Event::EventType eventType, sf::Event& outEvent);
+
+        static SignalSystem::Observable<sf::Event> lastEvent;
 
     private:
         static void clearEvents();
