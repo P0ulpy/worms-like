@@ -10,7 +10,7 @@
 namespace Engine
 {
     std::mutex Logger::_mutex {};
-    std::unordered_map<std::thread::id, std::string> Logger::_threadsLabels {};
+    std::map<std::thread::id, std::string> Logger::_threadsLabels {};
 
     void Logger::SetThreadLabel(const std::string_view &label)
     {

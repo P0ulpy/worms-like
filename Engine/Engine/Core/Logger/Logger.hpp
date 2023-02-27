@@ -9,7 +9,7 @@
 #include <thread>
 #include <string>
 #include <mutex>
-#include <unordered_map>
+#include <map>
 #include <sstream>
 
 namespace Engine
@@ -66,7 +66,7 @@ namespace Engine
         static void BuildMessage(std::stringstream& out, const FirstMessage& first, Args... args);
 
         static std::mutex _mutex;
-        static std::unordered_map<std::thread::id, std::string> _threadsLabels;
+        static std::map<std::thread::id, std::string> _threadsLabels;
     };
 
     /*
