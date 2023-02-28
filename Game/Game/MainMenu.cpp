@@ -2,8 +2,6 @@
 // Created by Admin on 14/02/2023.
 //
 
-#include "MainMenu.hpp"
-#include "Engine/Core/Application/EngineApplication.hpp"
 #include "Engine/UI/Canvas/WidgetCanvas.hpp"
 #include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
 #include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
@@ -14,16 +12,19 @@
 #include "OptionMenu.hpp"
 #include "ConfigGameMenu.hpp"
 
-void MainMenuLayer::OnAttach()
+#include "MainMenu.hpp"
+#include "Scenes/MainMenuScene.hpp"
+#include "Scenes/GameScene.hpp"
+
+void GameLayer::OnAttach()
 {
-    auto windowSize = Engine::EngineApplication::Get()->GetWindow().getSize();
-    auto* scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
+    Engine::ScenesSystem::Get()->DeclareSceneInitializer<MainMenuSceneInitializer>("MainMenu");
+    Engine::ScenesSystem::Get()->DeclareSceneInitializer<GameSceneInitializer>("Game");
 
     //auto TestPrefabEntity = scene->InstantiatePrefab<TestPrefab>();
 
-    auto canvasEntity = scene->CreateEntity();
-    auto canvasWidget = canvasEntity.AddComponent<Engine::UI::WidgetCanvas>();
-    canvasWidget->Init({0, 0}, {static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
+void GameLayer::OnDetach()
+{
 
     auto titreEntity = scene->CreateEntity();
     auto titre = titreEntity.AddComponent<Engine::UI::TextWidget>();
@@ -37,7 +38,7 @@ void MainMenuLayer::OnAttach()
     auto verticalBoxWidget = verticalBoxEntity.AddComponent<Engine::UI::WidgetVerticalBox>();
     verticalBoxWidget->Init({150, 300}, 100.0f);
 
-    canvasWidget->AddChild(verticalBoxWidget);
+void GameLayer::OnUpdate(Engine::Timestep ts) {
 
     auto buttonPlayEntity = scene->CreateEntity();
     auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
@@ -79,16 +80,7 @@ void MainMenuLayer::OnAttach()
     canvasWidget->AddChild(background);
 }
 
-void MainMenuLayer::OnDetach()
+void GameLayer::OnImGuiRender()
 {
-    auto* scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
-    scene->Clear();
-}
 
-void MainMenuLayer::OnUpdate(Engine::Timestep ts) {
-
-}
-
-void MainMenuLayer::OnImGuiRender() {
-    ApplicationLayer::OnImGuiRender();
 }

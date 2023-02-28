@@ -4,8 +4,10 @@
 
 #pragma once
 
+#include <SFML/System/Vector2.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+
 #include "../../Core/Components/CompositeComponent.hpp"
-#include "SFML/System/Vector2.hpp"
 
 namespace Engine::UI
 {
@@ -13,6 +15,8 @@ namespace Engine::UI
     {
     public:
         DECLARE_CLASS_TYPE(Widget, CompositeComponent<Widget>)
+
+        virtual void OnRender(sf::RenderTarget& renderTarget) {}
 
         void AddChild(Widget* child) override;
         void RemoveChild(Widget* child) const override;

@@ -1,7 +1,9 @@
 set(GAME_HEADERS
         src/main.hpp
         Game/MainMenu.hpp
-        Game/Prefabs/TestPrefab.hpp)
+        Game/Prefabs/TestPrefab.hpp
+        Game/Scenes/MainMenuScene.hpp
+)
 
 set(GAME_SOURCES
         src/main.cpp

@@ -1,3 +1,7 @@
+set(ENGINE_VENDORS
+        Engine/Vendor/mINI/ini.hpp
+)
+
 set(ENGINE_HEADERS
         Engine/Engine.hpp
 
@@ -9,7 +13,7 @@ set(ENGINE_HEADERS
         Engine/Core/Logger/ConsoleColor.hpp
         Engine/Core/Application/EngineApplication.hpp
         Engine/Core/Application/LayerStack.hpp
-        Engine/Core/Application/ScenesLayer.hpp
+        Engine/Core/ScenesSystem/ScenesLayer/ScenesLayer.hpp
         Engine/Core/Application/ApplicationLayer.hpp
         Engine/Core/Components/Transform.hpp
         Engine/Core/Components/SpriteRenderer.hpp
@@ -49,6 +53,8 @@ set(ENGINE_HEADERS
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp
 
         Engine/Core/EntityPrefab/EntityPrefab.hpp
+        Engine/Core/ScenesSystem/ScenesSystem.hpp
+        Engine/Core/ScenesSystem/ScenesSystem.tpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp
 )
 
@@ -58,7 +64,7 @@ set(ENGINE_SOURCES
         Engine/Core/Logger/Logger.cpp
         Engine/Core/Application/EngineApplication.cpp
         Engine/Core/Application/ApplicationLayer.cpp
-        Engine/Core/Application/ScenesLayer.cpp
+        Engine/Core/ScenesSystem/ScenesLayer/ScenesLayer.cpp
         Engine/Core/Components/Transform.cpp
         Engine/Core/Components/SpriteRenderer.cpp
         Engine/Core/Components/CompositeComponent.cpp
@@ -87,11 +93,8 @@ set(ENGINE_SOURCES
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.cpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.cpp
 
+        Engine/Core/ScenesSystem/ScenesSystem.cpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.cpp
-)
-
-set(ENGINE_VENDORS
-        Engine/Vendor/mINI/ini.hpp
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)

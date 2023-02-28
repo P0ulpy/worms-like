@@ -138,7 +138,15 @@ namespace Engine
         {
             for(auto& [ handle, component ] : components)
             {
-                if(component.m_active)
+                if(!component.m_active)
+                    continue;
+
+                /*if constexpr (std::is_base_of_v<UI::Widget, TComponent>)
+                {
+                    if constexpr (std::is_base_of_v<UI::WidgetCanvas, TComponent>)
+                        component.OnRender(renderTarget);
+                }
+                else*/
                     component.OnRender(renderTarget);
             }
         }

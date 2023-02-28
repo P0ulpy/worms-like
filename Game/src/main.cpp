@@ -18,20 +18,6 @@
 
 using App = Engine::EngineApplication;
 
-/*
-class MyComponent : public Engine::Component
-{
-public:
-    DECLARE_CLASS_TYPE(MyComponent, Engine::Component)
-
-    void OnAwake() {}
-    void OnStart() {}
-    void OnUpdate(const float& deltaTime) {}
-    void OnImGuiRender() {}
-    void OnDestroy() {}
-};
-*/
-
 int main(int argc, char* argv[])
 {
     App app;

@@ -1,20 +1,22 @@
-#ifndef PATHFINDER_ENGINEAPPLICATION_HPP
-#define PATHFINDER_ENGINEAPPLICATION_HPP
+#pragma once
 
 #include <vector>
 #include <memory>
 #include "ApplicationLayer.hpp"
-#include "ScenesLayer.hpp"
 
 #include "SFML/Graphics/RenderWindow.hpp"
 
 namespace Engine
 {
+    class ScenesLayer;
+
     class EngineApplication
     {
     public:
+        [[nodiscard]] static EngineApplication* Get();
+
+    private:
         static EngineApplication* s_Instance;
-        static EngineApplication* Get();
 
     public:
         EngineApplication();
@@ -33,7 +35,8 @@ namespace Engine
     private:
         sf::RenderWindow m_window;
 
-        bool m_running = true;
+        bool m_initialized = false;
+        bool m_running = false;
         Timestep m_LastFrameTime = 0;
 
         // TODO : use a custom stack where we can iterate through
@@ -41,5 +44,3 @@ namespace Engine
         std::unique_ptr<ScenesLayer> m_scenesLayer { nullptr };
     };
 }
-
-#endif //PATHFINDER_ENGINEAPPLICATION_HPP

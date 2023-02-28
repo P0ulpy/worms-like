@@ -1,6 +1,6 @@
 #include "EngineApplication.hpp"
 #include "../Inputs/WindowEvents.hpp"
-#include "../Logger/Logger.hpp"
+#include "../ScenesSystem/ScenesLayer/ScenesLayer.hpp"
 
 Engine::EngineApplication* Engine::EngineApplication::s_Instance = nullptr;
 
@@ -10,15 +10,13 @@ Engine::EngineApplication* Engine::EngineApplication::Get()
 }
 
 Engine::EngineApplication::EngineApplication()
-    : m_window(sf::RenderWindow(
-    sf::VideoMode(500, 500),
-    "Engine Window",
-    sf::Style::Close | sf::Style::Resize))
 {
-    if(!s_Instance)
-        s_Instance = this;
-    else
+    if(s_Instance)
         throw std::runtime_error("An instance of EngineApplication already exists");
+    else
+        s_Instance = this;
+
+    m_window.create(sf::VideoMode(500, 500), "Engine Window", sf::Style::Close | sf::Style::Resize);
 
     m_scenesLayer = std::make_unique<ScenesLayer>(&m_window, "Scenes Layer");
     PushLayer(m_scenesLayer.get());
@@ -31,28 +29,44 @@ Engine::EngineApplication::~EngineApplication()
 
 void Engine::EngineApplication::PushLayer(Engine::ApplicationLayer *layer)
 {
+    if(m_running)
+    {
+        layer->OnAttach();
+        Logger::Log("Layer", layer->GetName(), "attached");
+    }
+
     m_layers.push_back(layer);
 }
 
 void Engine::EngineApplication::RemoveLayer(Engine::ApplicationLayer *layer)
 {
-    m_layers.erase(std::find(m_layers.begin(), m_layers.end(),layer));
     layer->OnDetach();
+    Logger::Log("Layer", layer->GetName(), "detached");
+    m_layers.erase(std::find(m_layers.begin(), m_layers.end(),layer));
 }
 
 void Engine::EngineApplication::Init()
 {
+    Logger::SetThreadLabel("main");
 
+    for(auto* layer : m_layers)
+    {
+        layer->OnAttach();
+        Logger::Log("Layer", layer->GetName(), "attached");
+    }
+
+    m_initialized = true;
 }
 
 void Engine::EngineApplication::Run()
 {
-    Logger::SetThreadLabel("main");
+    if(!m_initialized)
+    {
+        Logger::Err("EngineApplication::Run() : EngineApplication is not initialized ! Please call EngineApplication::Init() before");
+        return;
+    }
 
-    for(auto* layer : m_layers)
-        layer->OnAttach();
-
-    //Logger::Log("EngineApplication : Layers attached");
+    m_running = true;
 
     while (m_window.isOpen())
     {
@@ -70,8 +84,6 @@ void Engine::EngineApplication::Run()
             layer->OnUpdate(timeStep);
         }
 
-        m_window.display();
-
         // TODO : Support ImGui
 #ifdef IMGUI_SUPPORT
         m_imGuiLayer.Begin();
@@ -81,6 +93,11 @@ void Engine::EngineApplication::Run()
         }
         m_imGuiLayer.End();
 #endif
+        m_window.display();
+
+        if(ScenesSystem::Get()->IsWaitingForSceneLoad())
+            ScenesSystem::Get()->ApplyLoadScene();
+
         if(WindowEvents::GetEvent(sf::Event::Closed))
             Stop();
     }
