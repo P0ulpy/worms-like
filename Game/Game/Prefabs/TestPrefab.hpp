@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "../../../Engine/Engine/Core/EntityPrefab/EntityPrefab.hpp"
-#include "../../../Engine/Engine/Core/Components/Transform.hpp"
-#include "../../../Engine/Engine/Core/Components/SpriteRenderer.hpp"
-#include "../../../Engine/Engine/AssetLoader/AssetLoader.hpp"
+#include "Engine/Core/EntityPrefab/EntityPrefab.hpp"
+#include "Engine/Core/Components/Transform.hpp"
+#include "Engine/Core/Components/SpriteRenderer.hpp"
+#include "Engine/AssetLoader/AssetLoader.hpp"
 
 class TestPrefab : public Engine::EntityPrefab<Engine::Transform, Engine::SpriteRenderer>
 {

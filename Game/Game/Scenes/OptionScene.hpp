@@ -4,16 +4,16 @@
 
 #pragma once
 
-#include "../../../Engine/Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp"
-#include "../../../Engine/Engine/Core/Application/EngineApplication.hpp"
-#include "../../../Engine/Engine/UI/Canvas/WidgetCanvas.hpp"
-#include "../../../Engine/Engine/UI/Components/Text/TextWidget.hpp"
-#include "../../../Engine/Engine/AssetLoader/AssetLoader.hpp"
-#include "../../../Engine/Engine/Core/Inputs/InputConfig.hpp"
-#include "../../../Engine/Engine/UI/Layout/Grid/WidgetGrid.hpp"
-#include "../../../Engine/Engine/Core/Inputs/WindowEvents.hpp"
-#include "../../../Engine/Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
-#include "../../../Engine/Engine/ECS/Scene/Scene.hpp"
+#include "Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp"
+#include "Engine/Core/Application/EngineApplication.hpp"
+#include "Engine/UI/Canvas/WidgetCanvas.hpp"
+#include "Engine/UI/Components/Text/TextWidget.hpp"
+#include "Engine/AssetLoader/AssetLoader.hpp"
+#include "Engine/Core/Inputs/InputConfig.hpp"
+#include "Engine/UI/Layout/Grid/WidgetGrid.hpp"
+#include "Engine/Core/Inputs/WindowEvents.hpp"
+#include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
+#include "Engine/ECS/Scene/Scene.hpp"
 
 class OptionSceneInitializer : public Engine::SceneInitializer
 {
