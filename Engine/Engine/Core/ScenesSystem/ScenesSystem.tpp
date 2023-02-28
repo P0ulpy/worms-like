@@ -8,10 +8,13 @@ namespace Engine
         static_assert(std::is_base_of_v<SceneInitializer, TSceneInitializer>, "TSceneInitializer must inherit from SceneInitializer");
 
         if(m_scenesInitializers.contains(name))
-            Logger::Warn("ScenesSystemLayer::DeclareSceneInitializer() : SceneInitializer", name, "is already declared ! You are about to override it !");
+        {
+            Logger::Warn("ScenesSystemLayer::DeclareSceneInitializer() : SceneInitializer `", name, "` is already declared ! You are about to override it !");
+            delete m_scenesInitializers[name];
+        }
 
-        m_scenesInitializers.insert_or_assign(name, new TSceneInitializer());
+        m_scenesInitializers[name] = new TSceneInitializer();
 
-        Logger::Log("SceneInitializer", name, "is declared !");
+        Logger::Log("SceneInitializer `", name, "` is declared");
     }
 }

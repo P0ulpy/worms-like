@@ -18,11 +18,11 @@ public:
 
     void OnLoaded(Engine::Scene* scene) override
     {
-        Engine::Logger::Log("ça game ou quoi ?");
+
     }
 
     void OnUnloaded(Engine::Scene* scene) override
     {
-        Engine::Logger::Log("aba ça game plus padbol");
+
     }
 };

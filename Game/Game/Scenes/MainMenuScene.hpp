@@ -48,7 +48,7 @@ public:
         auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
         buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
         buttonExitWidget->SetOnClick([]() {
-            Engine::EngineApplication::Get()->GetWindow().close();
+            Engine::EngineApplication::Get()->Stop();
         });
 
         verticalBoxWidget->AddChild(buttonPlayWidget);
