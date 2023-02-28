@@ -1,17 +1,26 @@
 set(GAME_HEADERS
         src/main.hpp
         Game/MainMenu.hpp
-        Game/Prefabs/TestPrefab.hpp
         Game/Scenes/MainMenuScene.hpp
+
+        Game/GameSystems/GameStatesManager.hpp
+        Game/GameSystems/GameManagerPrefab.hpp
+
+        Game/Player/PlayerPrefab.hpp
+        Game/Player/PlayerController.hpp
+        Game/Player/Player.hpp
 )
 
 set(GAME_SOURCES
         src/main.cpp
         Game/MainMenu.cpp
+
+        Game/GameSystems/GameStatesManager.cpp
+
+        Game/Player/PlayerController.cpp
+        Game/Player/Player.cpp
 )
 
-
-# file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)
 
 set(GAME_TARGET_NAME Game)
 

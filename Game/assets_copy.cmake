@@ -1,1 +1,2 @@
 file(COPY ${CMAKE_SOURCE_DIR}/Game/Assets DESTINATION ./)
+file(COPY ${CMAKE_SOURCE_DIR}/Game/Config DESTINATION ./)

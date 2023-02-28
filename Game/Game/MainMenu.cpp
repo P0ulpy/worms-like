@@ -12,7 +12,7 @@
 void GameLayer::OnAttach()
 {
     Engine::ScenesSystem::Get()->DeclareSceneInitializer<MainMenuSceneInitializer>("MainMenu");
-    Engine::ScenesSystem::Get()->DeclareSceneInitializer<GameSceneInitializer>("Game");
+    Engine::ScenesSystem::Get()->DeclareSceneInitializer<GameSceneInitializer>("MainGame");
 
     Engine::ScenesSystem::Get()->LoadScene("MainMenu");
 }

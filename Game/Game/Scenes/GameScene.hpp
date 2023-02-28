@@ -10,8 +10,6 @@
 #include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
 #include "Engine/AssetLoader/AssetLoader.hpp"
 
-#include "../Prefabs/TestPrefab.hpp"
-
 class GameSceneInitializer : public Engine::SceneInitializer
 {
 public:

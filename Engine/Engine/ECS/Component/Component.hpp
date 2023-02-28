@@ -2,8 +2,7 @@
 // Created by Flo on 25/11/2022.
 //
 
-#ifndef PATHFINDER_COMPONENT_HPP
-#define PATHFINDER_COMPONENT_HPP
+#pragma once
 
 #include "../../Core/UUID.hpp"
 #include "../../Core/RTTI/ClassType.hpp"
@@ -64,5 +63,3 @@ namespace Engine
     };
 
 } // Engine
-
-#endif //PATHFINDER_COMPONENT_HPP

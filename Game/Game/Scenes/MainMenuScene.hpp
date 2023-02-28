@@ -4,13 +4,11 @@
 
 #pragma once
 
-#include "Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp"
-#include "Engine/Core/Application/EngineApplication.hpp"
-#include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
-#include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
-#include "Engine/AssetLoader/AssetLoader.hpp"
-
-#include "../Prefabs/TestPrefab.hpp"
+#include <Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp>
+#include <Engine/Core/Application/EngineApplication.hpp>
+#include <Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp>
+#include <Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp>
+#include <Engine/AssetLoader/AssetLoader.hpp>
 
 class MainMenuSceneInitializer : public Engine::SceneInitializer
 {
@@ -19,8 +17,6 @@ public:
     void OnLoaded(Engine::Scene* scene) override
     {
         auto windowSize = Engine::EngineApplication::Get()->GetWindow().getSize();
-
-        auto TestPrefabEntity = scene->InstantiatePrefab<TestPrefab>();
 
         auto canvasEntity = scene->CreateEntity();
         auto canvasWidget = canvasEntity.AddComponent<Engine::UI::WidgetCanvas>();
@@ -37,7 +33,7 @@ public:
         buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
         buttonPlayWidget->SetOnClick([]()
         {
-            Engine::ScenesSystem::Get()->LoadScene("Game");
+            Engine::ScenesSystem::Get()->LoadScene("MainGame");
         });
 
         auto buttonSettingsEntity = scene->CreateEntity();
