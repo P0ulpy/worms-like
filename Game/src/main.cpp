@@ -3,10 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "Engine/Core/Inputs/InputSignal.hpp"
-#include "../Game/MainMenu.hpp"
-#include "../Game/ConfigGameMenu.hpp"
-#include "../Game/Game.hpp"
-#include "../Game/OptionMenu.hpp"
+#include "../Game/GameLayer.hpp"
 
 #include <Engine/Core/Components/Transform.hpp>
 #include <Engine/Core/Application/EngineApplication.hpp>
@@ -21,9 +18,6 @@ using App = Engine::EngineApplication;
 int main(int argc, char* argv[])
 {
     App app;
-    /*MainMenuLayer mainMenuLayer;*/
-    /*OptionMenuLayer optionMenuLayer;*/
-    /*ConfigGameMenuLayer configGameMenuLayer;*/
     GameLayer gameLayer;
 
     SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");

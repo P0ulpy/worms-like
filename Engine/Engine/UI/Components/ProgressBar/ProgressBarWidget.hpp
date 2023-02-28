@@ -5,7 +5,8 @@
 #pragma once
 
 #include "../../Widget/Widget.hpp"
-#include "Engine/Core/Time.hpp"
+#include "../../../Core/Time.hpp"
+
 #include "SFML/Graphics/Sprite.hpp"
 #include "SFML/Graphics/RenderTarget.hpp"
 

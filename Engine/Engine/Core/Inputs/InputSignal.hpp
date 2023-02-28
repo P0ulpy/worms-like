@@ -23,7 +23,7 @@ namespace SignalSystem
         using ScopedConnectionType = ScopedConnectionSignal;
         using SlotConnectionType = SlotConnectionSignal;
 
-        using EventType = std::string_view;
+        using EventType = ScopedConnectionType::EventType;
         using Callback = typename ConnectionType::Callback;
         using Observers = std::vector<ConnectionType*>;
         using ObserversMap = std::map<EventType, Observers>;
@@ -55,7 +55,7 @@ namespace SignalSystem
             connect(eventType, callback);
         }
 
-        ScopedConnectionType connectScoped(EventType eventType, const Callback& callback) const
+        ScopedConnectionType connectScoped(const EventType& eventType, const Callback& callback) const
         {
             auto* connection = new ConnectionType (callback,
                                                    typename ConnectionType::StateType{ typename ConnectionType::Scoped {} },
@@ -64,13 +64,13 @@ namespace SignalSystem
             return ScopedConnectionType{ eventType, connection };
         }
         template<typename Type>
-        ScopedConnectionType connectScoped(EventType eventType, Type* instance, void (Type::* fn)()) const
+        ScopedConnectionType connectScoped(const EventType& eventType, Type* instance, void (Type::* fn)()) const
         {
             auto callback = [instance, fn]() { (instance->*fn)(); };
             return connectScoped(eventType, callback);
         }
         template<typename Type>
-        ScopedConnectionType connectScoped(EventType eventType, Type* instance, void (Type::* fn)() const) const
+        ScopedConnectionType connectScoped(const EventType& eventType, Type* instance, void (Type::* fn)() const) const
         {
             auto callback = [instance, fn]() { (instance->*fn)(); };
             return connectScoped(eventType, callback);
@@ -111,6 +111,24 @@ namespace SignalSystem
 
                 delete connection;
                 connection = nullptr;
+            }
+        }
+
+        void Disconnect(ConnectionType* connection) const {
+            for (auto& observer : m_observers) {
+                auto connectionIt = std::find_if(observer.second.begin(), observer.second.end(),
+                                                 [&](ConnectionType* c) { return c == connection; });
+
+                if (connectionIt != observer.second.end()) {
+                    match(connection->m_state,
+                          [&](typename ConnectionType::Managed) { throw std::runtime_error("Connection is managed typed"); },
+                          [&](typename ConnectionType::Scoped) { observer.second.erase(connectionIt); },
+                          [&](typename ConnectionType::Zombified) {});
+
+                    delete connection;
+                    connection = nullptr;
+                    break;
+                }
             }
         }
 

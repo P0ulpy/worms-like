@@ -3,7 +3,6 @@
 //
 
 #include "ProgressBarWidget.hpp"
-#include "Engine/Core/Logger/Logger.hpp"
 
 namespace Engine::UI {
 

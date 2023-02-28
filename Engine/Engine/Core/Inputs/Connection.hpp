@@ -5,6 +5,7 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 #include <variant>
 
 namespace SignalSystem
@@ -63,7 +64,7 @@ namespace SignalSystem
     {
         friend class InputSignal;
 
-        using EventType = std::string_view;
+        using EventType = std::string;
 
         ScopedConnectionSignal();
         ScopedConnectionSignal(const ScopedConnectionSignal& other) = default;
@@ -73,9 +74,7 @@ namespace SignalSystem
         ~ScopedConnectionSignal();
 
     private:
-        explicit ScopedConnectionSignal(const EventType& eventType, ConnectionSignal* connection)
-                : m_eventType(eventType), m_connection(connection)
-        {}
+        explicit ScopedConnectionSignal(EventType eventType, ConnectionSignal* connection);
 
         void disconnect() const;
         mutable ConnectionSignal* m_connection = nullptr;
@@ -86,7 +85,7 @@ namespace SignalSystem
     {
         friend class InputSignal;
 
-        using EventType = std::string_view;
+        using EventType = ScopedConnectionSignal::EventType;
 
         void block();
         void unblock();
