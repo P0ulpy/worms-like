@@ -37,4 +37,13 @@ namespace Engine
         m_registry.RenderAllRenderer(renderTarget);
     }
 
+    // NOTE : le problème principal de cette implémentation de destruction est global à toutes les méthodes de destruction des composants
+    // qui se trouve dans l'Engine : les pointeurs vers les composants récupérés via GetComponentOf deviennes invalides
+    // soucis qui pourrait être résolu en utilisant un smart pointer semblable à weak_ptr mais pour des std::unique_ptr
+    // il faut également revoir le système d'attribution de Handles afin de libérer les handles lors de la destruction d'une entité ou d'un composant
+    void Scene::Clear()
+    {
+        m_registry.DestroyAll();
+    }
+
 } // Engine

@@ -7,16 +7,15 @@
 
 
 #include "Engine/Core/Application/ApplicationLayer.hpp"
-//#include "Engine/Core/Inputs/Connection.hpp"
 
-class MainMenuLayer : public Engine::ApplicationLayer {
+class GameLayer : public Engine::ApplicationLayer {
 
 public:
-    MainMenuLayer()
-            : Engine::ApplicationLayer("MainMenu")
+    GameLayer()
+            : Engine::ApplicationLayer("Game")
     {}
 
-    ~MainMenuLayer() override = default;
+    ~GameLayer() override = default;
 
     void OnAttach() override;
     void OnDetach() override;

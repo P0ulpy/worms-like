@@ -10,7 +10,6 @@
 
 namespace Engine
 {
-    // TODO : wright Timestep class
     using Timestep = float;
 
     class Time
@@ -25,7 +24,7 @@ namespace Engine
         [[nodiscard]] Timestep GetDeltaTime() const { return s_deltaTime; }
     private:
         sf::Clock m_deltaTimeClock {};
-        Timestep s_deltaTime = 0;
+        Timestep s_deltaTime = .0f;
     };
 }
 
