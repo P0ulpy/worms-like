@@ -7,7 +7,7 @@ set(GAME_HEADERS
 
 set(GAME_SOURCES
         src/main.cpp
-        Game/GameLayer.cpp Game/GameLayer.hpp UI/Components/ProgressBar/HealthBar.cpp UI/Components/ProgressBar/HealthBar.hpp)
+        Game/GameLayer.cpp Game/GameLayer.hpp UI/Components/ProgressBar/HealthBar.cpp UI/Components/ProgressBar/HealthBar.hpp UI/Layout/Grid/InventoryPlayer.cpp UI/Layout/Grid/InventoryPlayer.hpp)
 
 
 # file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)

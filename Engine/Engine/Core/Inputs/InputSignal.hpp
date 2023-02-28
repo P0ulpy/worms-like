@@ -55,7 +55,7 @@ namespace SignalSystem
             connect(eventType, callback);
         }
 
-        ScopedConnectionType connectScoped(const EventType& eventType, const Callback& callback) const
+        ScopedConnectionType connectScoped(EventType eventType, const Callback& callback) const
         {
             auto* connection = new ConnectionType (callback,
                                                    typename ConnectionType::StateType{ typename ConnectionType::Scoped {} },
