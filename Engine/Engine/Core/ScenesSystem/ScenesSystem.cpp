@@ -31,13 +31,18 @@ namespace Engine
     ScenesSystem::~ScenesSystem()
     {
         UnloadActiveScene();
+        for(auto& [name, initializer] : m_scenesInitializers)
+            delete initializer;
+
+        m_scenesInitializers.clear();
+        s_Instance = nullptr;
     }
 
     void ScenesSystem::LoadScene(const std::string_view &name)
     {
         if(!m_scenesInitializers.contains(name))
         {
-            Logger::Err("ScenesSystemLayer::LoadScene() : SceneInitializer ", name, " is not declared !");
+            Logger::Err("ScenesSystemLayer::LoadScene() : SceneInitializer", name, "is not declared !");
             return;
         }
 
@@ -46,7 +51,7 @@ namespace Engine
             .name = name,
         };
 
-        Logger::Log("Scene ", m_waitingForSceneLoad.name, " is waiting end of frame for load !");
+        Logger::Log("Scene", m_waitingForSceneLoad.name, "is waiting end of frame for load !");
     }
 
     void ScenesSystem::ApplyLoadScene()
@@ -63,7 +68,7 @@ namespace Engine
             .name = {},
         };
 
-        Logger::Log("Scene ", m_activeSceneName, " loaded !");
+        Logger::Log("Scene", m_activeSceneName, "loaded !");
     }
 
     void ScenesSystem::UnloadActiveScene()
@@ -72,7 +77,7 @@ namespace Engine
         m_activeScene->Clear();
         m_activeScene = nullptr;
 
-        Logger::Log("Scene ", m_activeSceneName, " unloaded !");
+        Logger::Log("Scene", m_activeSceneName, "unloaded !");
 
         m_activeSceneName = {};
     }

@@ -50,9 +50,12 @@ namespace Engine
         void UnloadActiveScene();
 
     private:
-        WaitingForSceneLoad m_waitingForSceneLoad {};
+        WaitingForSceneLoad m_waitingForSceneLoad {
+            .waiting = false,
+            .name = {}
+        };
 
-        std::unordered_map<std::string_view, std::unique_ptr<SceneInitializer>> m_scenesInitializers {};
+        std::unordered_map<std::string_view, SceneInitializer*> m_scenesInitializers {};
         std::unique_ptr<Scene> m_activeScene { nullptr };
         std::string_view m_activeSceneName {};
 

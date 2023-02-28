@@ -32,7 +32,7 @@ void Engine::EngineApplication::PushLayer(Engine::ApplicationLayer *layer)
     if(m_running)
     {
         layer->OnAttach();
-        Logger::Log("Layer ", layer->GetName(), " attached");
+        Logger::Log("Layer", layer->GetName(), "attached");
     }
 
     m_layers.push_back(layer);
@@ -41,7 +41,7 @@ void Engine::EngineApplication::PushLayer(Engine::ApplicationLayer *layer)
 void Engine::EngineApplication::RemoveLayer(Engine::ApplicationLayer *layer)
 {
     layer->OnDetach();
-    Logger::Log("Layer ", layer->GetName(), " detached");
+    Logger::Log("Layer", layer->GetName(), "detached");
     m_layers.erase(std::find(m_layers.begin(), m_layers.end(),layer));
 }
 
@@ -52,7 +52,7 @@ void Engine::EngineApplication::Init()
     for(auto* layer : m_layers)
     {
         layer->OnAttach();
-        Logger::Log("Layer ", layer->GetName(), " attached");
+        Logger::Log("Layer", layer->GetName(), "attached");
     }
 
     m_initialized = true;

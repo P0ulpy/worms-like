@@ -13,6 +13,9 @@ namespace Engine
     class SceneInitializer
     {
     public:
+        SceneInitializer() = default;
+        virtual ~SceneInitializer() = default;
+
         virtual void OnLoaded(Scene* scene) = 0;
         virtual void OnUnloaded(Scene* scene) = 0;
     };

@@ -21,7 +21,7 @@ using App = Engine::EngineApplication;
 int main(int argc, char* argv[])
 {
     App app;
-    MainMenuLayer mainMenuLayer;
+    GameLayer mainMenuLayer;
 
     SignalSystem::InputConfig::Get()->LoadConfig("Config/GameConfig.ini");
 
