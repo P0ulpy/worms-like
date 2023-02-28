@@ -6,7 +6,7 @@ set(GAME_HEADERS
 set(GAME_SOURCES
         src/main.cpp
         Game/MainMenu.cpp
-        Game/OptionMenu.cpp Game/OptionMenu.hpp Game/ConfigGameMenu.cpp Game/ConfigGameMenu.hpp Game/Game.cpp Game/Game.hpp)
+        Game/OptionMenu.cpp Game/OptionMenu.hpp Game/ConfigGameMenu.cpp Game/ConfigGameMenu.hpp Game/Game.cpp Game/Game.hpp ../Engine/Engine/UI/Components/ProgressBar/ProgressBarWidget.cpp ../Engine/Engine/UI/Components/ProgressBar/ProgressBarWidget.hpp UI/Components/ProgressBar/HealthBar.cpp UI/Components/ProgressBar/HealthBar.hpp)
 
 
 # file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)

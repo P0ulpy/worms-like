@@ -12,6 +12,7 @@
 #include "Engine/UI/Components/Sprite/SpriteWidget.hpp"
 #include "Engine/UI/Components/Text/TextWidget.hpp"
 #include "OptionMenu.hpp"
+#include "ConfigGameMenu.hpp"
 
 void MainMenuLayer::OnAttach()
 {
@@ -41,26 +42,28 @@ void MainMenuLayer::OnAttach()
     auto buttonPlayEntity = scene->CreateEntity();
     auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
     buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
-    buttonPlayWidget->SetOnClick([]() {
-        //Play Game
+    buttonPlayWidget->SetOnClick([this]() {
+        Engine::Logger::Log("Load ConfigGame Scene");
+        //Engine::EngineApplication::Get()->RemoveLayer(this);
+        //ConfigGameMenuLayer configGameMenuLayer;
+        //Engine::EngineApplication::Get()->PushLayer(&configGameMenuLayer);
     });
 
     auto buttonSettingsEntity = scene->CreateEntity();
     auto buttonSettingsWidget = buttonSettingsEntity.AddComponent<Engine::UI::TextButtonWidget>();
     buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
     buttonSettingsWidget->SetOnClick([this]() {
-        Engine::Logger::Log("Settings");
-        Engine::EngineApplication::Get()->RemoveLayer(this);
-        //app->PushLayer(&options);
-
+        Engine::Logger::Log("Load Settings Scene");
+        //Engine::EngineApplication::Get()->RemoveLayer(this);
         //OptionMenuLayer options;
+        //Engine::EngineApplication::Get()->PushLayer(&options);
     });
 
     auto buttonExitEntity = scene->CreateEntity();
     auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
     buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
     buttonExitWidget->SetOnClick([this]() {
-        Engine::Logger::Log("Exit");
+        Engine::Logger::Log("Exit Game");
         Engine::EngineApplication::Get()->Stop();
     });
 

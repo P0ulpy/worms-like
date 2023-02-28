@@ -4,6 +4,9 @@
 
 #include "Engine/Core/Inputs/InputSignal.hpp"
 #include "../Game/MainMenu.hpp"
+#include "../Game/ConfigGameMenu.hpp"
+#include "../Game/Game.hpp"
+#include "../Game/OptionMenu.hpp"
 
 #include <Engine/Core/Components/Transform.hpp>
 #include <Engine/Core/Application/EngineApplication.hpp>
@@ -32,7 +35,10 @@ public:
 int main(int argc, char* argv[])
 {
     App app;
-    MainMenuLayer mainMenuLayer;
+    /*MainMenuLayer mainMenuLayer;*/
+    /*OptionMenuLayer optionMenuLayer;*/
+    /*ConfigGameMenuLayer configGameMenuLayer;*/
+    GameLayer gameLayer;
 
     SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
 
@@ -43,7 +49,7 @@ int main(int argc, char* argv[])
 #endif
 
     app.GetWindow().setFramerateLimit(60);
-    app.PushLayer(&mainMenuLayer);
+    app.PushLayer(&gameLayer);
     app.Init();
 
     SignalSystem::InputSignal::Get()->connect("close_window", [&app = app](){ app.Stop(); });

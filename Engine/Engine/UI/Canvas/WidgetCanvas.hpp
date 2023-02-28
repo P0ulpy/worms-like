@@ -29,5 +29,25 @@ namespace Engine::UI
                 Widget::AddChild(child);
                 child->SetPosition(GetPosition() + child->GetPosition());
             }
+
+            void SetPosition(const sf::Vector2f& position) override
+            {
+                m_previousPosition = position;
+                Widget::SetPosition(position);
+            }
+
+        private:
+            sf::Vector2f m_previousPosition {0, 0};
+
+            void UpdatePosition() const override
+            {
+                auto delta = GetPosition() - m_previousPosition;
+
+                auto children = GetChildren();
+                for (auto& child : children)
+                {
+                    child->SetPosition(child->GetPosition() + delta);
+                }
+            }
         };
 } // UI

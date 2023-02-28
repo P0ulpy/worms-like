@@ -11,6 +11,7 @@
 #include "Engine/UI/Layout/Grid/WidgetGrid.hpp"
 #include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
 #include "Engine/Core/Inputs/WindowEvents.hpp"
+#include "MainMenu.hpp"
 
 #include <iostream>
 
@@ -114,7 +115,10 @@ void OptionMenuLayer::OnAttach() {
     auto yBack = static_cast<float>(windowSize.y) - backTextButton->GetSize().y - 100.0f;
     backTextButton->SetPosition({ xBack, yBack });
     backTextButton->SetOnClick([this]() {
-        //Back to MainMenu
+        Engine::Logger::Log("Load Menu Scene");
+        //Engine::EngineApplication::Get()->RemoveLayer(this);
+        //MainMenuLayer mainMenuLayer;
+        //Engine::EngineApplication::Get()->PushLayer(&mainMenuLayer);
     });
 
     canvasWidget->AddChild(backTextButton);
