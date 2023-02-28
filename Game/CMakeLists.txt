@@ -3,11 +3,16 @@ set(GAME_HEADERS
         Game/MainMenu.hpp
         Game/Prefabs/TestPrefab.hpp
         Game/Scenes/MainMenuScene.hpp
+
+        src/Map/Map.hpp src/Modules/PerlinNoise.hpp
 )
 
 set(GAME_SOURCES
         src/main.cpp
+
         Game/MainMenu.cpp
+
+        src/Map/Map.cpp src/Modules/PerlinNoise.cpp
 )
 
 

@@ -34,21 +34,51 @@ namespace Engine::Physics {
             RigidBodyComponentT::GeometricPointT FirstCenterOfMassAtCollision;
             RigidBodyComponentT::GeometricPointT SecondCenterOfMassAtCollision;
         };
+
+        struct CachedEntity {
+            RigidBodyComponentT* Body = nullptr;
+            Engine::Components::Transform* Transform = nullptr;
+        };
     public:
         void Simulate(
             const float& DeltaTime,
             Engine::EntitiesRegistry* EntitiesRegistry
         ) override
         {
-            std::vector<RigidBodyComponentT*> Bodies;
+            std::vector<CachedEntity> Bodies;
             for (auto& [Handle, Component] : EntitiesRegistry->GetSystem<RigidBodyComponentT>()->components)
             {
-                Bodies.push_back(&Component);
+                auto Transform = Component.GetEntityTransform();
+
+                Component.HandleRecomputeCachedProperties();
+                Bodies.push_back({
+                    &Component,
+                    Transform
+                });
             }
 
-            SimulateRigidBodies(DeltaTime, Bodies);
+            // choose axis Y because with gravity it should be the most reliable for performance
+            const auto Axis = RigidBodyComponentT::GeometricVectorT::GetUnitVectorOnAxis(1);
 
-            HandleCollisionsOnBodies(Bodies);
+            const auto StepMs = 2.f;
+            Timestep Elapsed = 0;
+            while (Elapsed < DeltaTime) {
+                SimulateRigidBodies(StepMs, Bodies);
+                std::sort(Bodies.begin(), Bodies.end(), [&Axis](CachedEntity& A, CachedEntity& B)->bool {
+                    // @todo use min projected value
+                    return Maths::ProjectOnUnitVector(A.Transform->Pos, Axis) < Maths::ProjectOnUnitVector(A.Transform->Pos, Axis);
+                });
+
+                HandleCollisionsOnBodies(Axis, Bodies);
+                Elapsed += StepMs;
+            }
+            // handle left time
+            const auto Left = DeltaTime - Elapsed;
+            if (Left > 0) {
+                SimulateRigidBodies(Left, Bodies);
+
+                HandleCollisionsOnBodies(Axis, Bodies);
+            }
         }
 
         RTTI::ClassType* GetBodyType() override
@@ -58,32 +88,36 @@ namespace Engine::Physics {
     private:
         void SimulateRigidBodies(
             const float& DeltaTime,
-            std::vector<RigidBodyComponentT*>& Bodies
+            std::vector<CachedEntity>& SortedBodiesOnAxis
         ) const
         {
-            for (auto& BodyComponent : Bodies) {
-                BodyComponent->SimulateRigidBody(DeltaTime);
+            for (auto& CachedEntity : SortedBodiesOnAxis) {
+                CachedEntity.Body->SimulateRigidBody(DeltaTime, CachedEntity.Transform);
             }
         }
 
         void HandleCollisionsOnBodies(
-            std::vector<RigidBodyComponentT*> Bodies
+            const RigidBodyComponentT::GeometricVectorT& Axis,
+            std::vector<CachedEntity>& SortedBodiesOnAxis
         ) const
         {
-            // choose axis Y because with gravity it should be the most reliable for performance
-            const auto Axis = RigidBodyComponentT::GeometricVectorT::GetUnitVectorOnAxis(1);
-            std::sort(Bodies.begin(), Bodies.end(), [&Axis](RigidBodyComponentT* A, RigidBodyComponentT* B)->bool {
-                return Maths::ProjectOnUnitVector(A->GetEntityTransform()->Pos, Axis) < Maths::ProjectOnUnitVector(B->GetEntityTransform()->Pos, Axis);
-            });
-
-            std::vector<std::array<RigidBodyComponentT*, 2>> LikelyToCollide;
-            std::vector<RigidBodyComponentT*> ActiveIntervals;
-            for (auto& Body : Bodies)
+            std::vector<std::array<CachedEntity, 2>> LikelyToCollide;
+            LikelyToCollide.reserve(SortedBodiesOnAxis.size() / 2);
+            std::list<CachedEntity> ActiveIntervals;
+            for (auto& CachedEntity : SortedBodiesOnAxis)
             {
-                auto BodyTransform = Body->GetEntityTransform();
+                auto Body = CachedEntity.Body;
+                auto BodyTransform = CachedEntity.Transform;
 
-                for (auto BodyIt = ActiveIntervals.rbegin(); BodyIt < ActiveIntervals.rend(); BodyIt++) {
-                    auto WithTransform = (*BodyIt)->GetEntityTransform();
+                for (auto CachedEntityIt = ActiveIntervals.rbegin(); CachedEntityIt != ActiveIntervals.rend(); CachedEntityIt++) {
+                    auto WithCachedEntity = *CachedEntityIt;
+                    auto WithCachedEntityBody = WithCachedEntity.Body;
+                    if (Body->IsStatic && WithCachedEntityBody->IsStatic)
+                    {
+                        continue;
+                    }
+
+                    auto WithTransform = WithCachedEntity.Transform;
                     if (AreBoundingBoxLikelyToCollide<typename RigidBodyComponentT::GeometricT, RigidBodyComponentT::Dimensions>(
                         Axis,
                         BodyTransform->Scale,
@@ -93,18 +127,19 @@ namespace Engine::Physics {
                         BodyTransform->Pos,
                         WithTransform->Pos,
                         Body->GetRigidBody()->GetBoundingBox(),
-                        (*BodyIt)->GetRigidBody()->GetBoundingBox()
+                        WithCachedEntityBody->GetRigidBody()->GetBoundingBox()
                     )) {
-                        LikelyToCollide.push_back({Body, *BodyIt});
+                        LikelyToCollide.push_back({CachedEntity, WithCachedEntity});
                     } else {
                         // we do not need to keep it as we are only going further
-                        ActiveIntervals.erase(std::next(BodyIt).base());
+                        ActiveIntervals.erase(std::next(CachedEntityIt).base());
                     }
                 }
-                ActiveIntervals.push_back(Body);
+                ActiveIntervals.push_back(CachedEntity);
             }
 
             std::vector<CollisionManifoldWithBodies> ContactManifolds;
+            ContactManifolds.reserve(LikelyToCollide.size() / 2);
             for (auto& [CollidingBodyA, CollidingBodyB] : LikelyToCollide)
             {
                 CheckAndHandleCollision(
@@ -121,15 +156,17 @@ namespace Engine::Physics {
         }
 
         void CheckAndHandleCollision(
-            RigidBodyComponentT* BodyAComponent,
-            RigidBodyComponentT* BodyBComponent,
+            CachedEntity& CachedEntityA,
+            CachedEntity& CachedEntityB,
             std::vector<CollisionManifoldWithBodies>& CollisionManifolds
         ) const
         {
+            auto BodyAComponent = CachedEntityA.Body;
+            auto BodyBComponent = CachedEntityB.Body;
             auto BodyA = BodyAComponent->GetRigidBody();
             auto BodyB = BodyBComponent->GetRigidBody();
-            auto BodyATransform = BodyAComponent->GetEntity().template GetComponent<Engine::Components::Transform>();
-            auto BodyBTransform = BodyBComponent->GetEntity().template GetComponent<Engine::Components::Transform>();
+            auto BodyATransform = CachedEntityA.Transform;
+            auto BodyBTransform = CachedEntityB.Transform;
             if (BodyAComponent->IsStatic && BodyBComponent->IsStatic)
             {
                 return;
@@ -178,7 +215,7 @@ namespace Engine::Physics {
         }
 
         void ApplyForceFromCollision(
-            CollisionManifoldWithBodies CollisionManifold
+            const CollisionManifoldWithBodies& CollisionManifold
         ) const
         {
             auto BodyAComponent = CollisionManifold.FirstRigidBody;

@@ -78,7 +78,8 @@ void Engine::EngineApplication::Run()
         if(!m_running)
             continue;
 
-        Timestep timeStep = Time::Get()->RestartDeltaTimeClock();
+        // Avoid loop of death
+        Timestep timeStep = std::min(Time::Get()->RestartDeltaTimeClock(), FixedDeltaTime * 2);
 
         WindowEvents::ProcessEvents(m_window);
 
@@ -111,7 +112,7 @@ void Engine::EngineApplication::Run()
         {
             sf::sleep(sf::milliseconds((int) (FixedDeltaTime - Elapsed)));
         } else {
-//            std::cout << "Exceeding fixed update time :" << Elapsed << std::endl;
+            std::cout << "Exceeding fixed update time :" << Elapsed << std::endl;
         }
     }
 }

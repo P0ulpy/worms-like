@@ -39,7 +39,7 @@ set(ENGINE_HEADERS
         Engine/Core/Inputs/InputConfig.hpp
         Engine/Core/Inputs/Observable.hpp
         Engine/Core/Inputs/Observable.tpp
-        
+
         Engine/Core/Inputs/Binding.hpp
 
         Engine/UI/Widget/Widget.hpp

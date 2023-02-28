@@ -26,14 +26,8 @@ namespace Engine
     void Scene::OnUpdate(Timestep DeltaTime)
     {
         m_registry.UpdateAllUpdatable(DeltaTime);
-        const auto StepMs = 1.f;
-        Timestep Elapsed = 0;
-        while (Elapsed < DeltaTime) {
-            for (const auto& [Type, Simulator] : m_PhysicsSimulators) {
-                Simulator->Simulate(StepMs, &m_registry);
-            }
-            Elapsed += StepMs;
-            // @todo handle time left
+        for (const auto& [Type, Simulator] : m_PhysicsSimulators) {
+            Simulator->Simulate(DeltaTime, &m_registry);
         }
     }
 

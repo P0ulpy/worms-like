@@ -325,12 +325,16 @@ namespace Engine::Components::Physics
 
         std::vector<IRigidBodyT*>& GetRigidBodies()
         {
+            // @todo handle delete
             return m_RigidBody;
         }
 
-        void SimulateRigidBody(const float& StepMs)
+        // optimisation
+        void SimulateRigidBody(
+            const float& StepMs,
+            Engine::Components::Transform* Transform
+        )
         {
-            auto Transform = GetEntityTransform();
             ComputeRigidBodyPhysicsProperties(
                 Transform->Scale,
                 m_RigidBody
@@ -342,13 +346,34 @@ namespace Engine::Components::Physics
             );
         }
 
+        void SimulateRigidBody(const float& StepMs)
+        {
+            auto Transform = GetEntityTransform();
+            SimulateRigidBody(StepMs, Transform);
+        }
+
         [[nodiscard]] Engine::Components::Transform* GetEntityTransform() const
         {
             return this->GetEntity().template GetComponent<Engine::Components::Transform>();
         }
+
+        void HandleRecomputeCachedProperties(bool Force = false)
+        {
+            if (!ShouldRecomputeCached && !Force) return;
+
+            const auto Transform = GetEntityTransform();
+            CachedVertices = m_RigidBody->GetBoundingBox()->GetVertices(
+                Transform->Angle,
+                Transform->Scale,
+                Transform->Pos
+            );
+        }
     private:
         // @todo can be useful to have multiple rigidbodies with constraints
         IRigidBodyT* m_RigidBody;
+
+        bool ShouldRecomputeCached = true;
+        std::vector<Maths::Point2D<GeometricT>> CachedVertices;
 
         void ComputeRigidBodyPhysicsProperties(
             const Maths::Vector2D<GeometricT>& Scale,
@@ -406,5 +431,6 @@ namespace Engine::Components::Physics
     template <typename GT, typename PT, bool DebugShapes, bool DebugPoints>
     RigidBody2DComponent<GT, PT, DebugShapes, DebugPoints>::PhysicsVectorT RigidBody2DComponent<GT, PT, DebugShapes, DebugPoints>::GravityDirection = GetDownVector2D<PhysicsT>();
 
-    using RigidBody2DdComponent = RigidBody2DComponent<double, double, true, true>;
+    using RigidBody2DdComponent = RigidBody2DComponent<double, double, true, false>;
+    using RigidBody2DdComponentDebug = RigidBody2DComponent<double, double, true, true>;
 }
