@@ -24,10 +24,25 @@ namespace Engine::UI
                 SetSize(size);
             }
 
-            void AddChild(Widget *child) override
+            void OnRender(sf::RenderTarget& target) override
+            {
+                auto children = GetChildren();
+
+                std::sort(children.begin(), children.end(), [](const auto& lhs, const auto& rhs) {
+                    return lhs->GetLayoutIndex() < rhs->GetLayoutIndex();
+                });
+
+                for (auto& child : children)
+                {
+                    child->OnRender(target);
+                }
+            }
+
+            void AddChild(Widget *child, int layout = 0)
             {
                 Widget::AddChild(child);
                 child->SetPosition(GetPosition() + child->GetPosition());
+                child->SetLayoutIndex(layout);
             }
 
             void SetPosition(const sf::Vector2f& position) override

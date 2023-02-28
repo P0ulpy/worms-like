@@ -64,12 +64,12 @@ public:
         verticalBoxWidget->AddChild(buttonSettingsWidget);
         verticalBoxWidget->AddChild(buttonExitWidget);
 
-        /*auto backgroundEntity = scene->CreateEntity();
+        auto backgroundEntity = scene->CreateEntity();
         auto background = backgroundEntity.AddComponent<Engine::UI::SpriteWidget>();
         background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("../../Assets/Background/Background.png"), {0, 0});
         background->SetSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
 
-        canvasWidget->AddChild(background);*/
+        canvasWidget->AddChild(background, -1);
     }
 
     void OnUnloaded(Engine::Scene* scene) override
