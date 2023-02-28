@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <algorithm>
 #include "../../ECS/Component/Component.hpp"
 
 namespace Engine
@@ -49,6 +50,10 @@ namespace Engine
     {
         child->SetParent(static_cast<TCompositeBaseClass*>(this));
         m_children.push_back(child);
+
+        std::sort(m_children.begin(), m_children.end(), [](const auto& lhs, const auto& rhs) {
+            return lhs->GetLayoutIndex() < rhs->GetLayoutIndex();
+        });
     }
 
     template<class TCompositeBaseClass>
