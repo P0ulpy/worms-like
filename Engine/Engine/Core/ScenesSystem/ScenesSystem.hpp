@@ -60,9 +60,6 @@ namespace Engine
 
         friend class EngineApplication;
     };
-
-    ScenesSystem* ScenesSystem::s_Instance = nullptr;
-
 } // Engine
 
 #include "ScenesSystem.tpp"

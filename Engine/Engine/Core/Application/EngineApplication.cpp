@@ -2,6 +2,8 @@
 #include "../Inputs/WindowEvents.hpp"
 #include "../ScenesSystem/ScenesLayer/ScenesLayer.hpp"
 
+Engine::EngineApplication* Engine::EngineApplication::s_Instance = nullptr;
+
 Engine::EngineApplication* Engine::EngineApplication::Get()
 {
     return s_Instance;

@@ -6,6 +6,8 @@
 
 namespace Engine
 {
+    ScenesSystem* ScenesSystem::s_Instance = nullptr;
+
     ScenesSystem *ScenesSystem::Get()
     {
         if(!s_Instance)

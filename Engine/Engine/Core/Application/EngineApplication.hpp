@@ -43,6 +43,4 @@ namespace Engine
         std::vector<ApplicationLayer*> m_layers {};
         std::unique_ptr<ScenesLayer> m_scenesLayer { nullptr };
     };
-
-    Engine::EngineApplication* Engine::EngineApplication::s_Instance = nullptr;
 }
