@@ -4,10 +4,17 @@
 
 #pragma once
 
-namespace Engine {
+#include "../../RTTI/ClassType.hpp"
 
-    class SceneInitializer {
+namespace Engine
+{
+    class Scene;
 
+    class SceneInitializer
+    {
+    public:
+        virtual void OnLoaded(Scene* scene) = 0;
+        virtual void OnUnloaded(Scene* scene) = 0;
     };
 
 } // Engine

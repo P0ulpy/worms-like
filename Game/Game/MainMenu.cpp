@@ -2,18 +2,20 @@
 // Created by Admin on 14/02/2023.
 //
 
-#include "MainMenu.hpp"
 #include "Engine/Core/Application/EngineApplication.hpp"
 #include "Engine/UI/Canvas/WidgetCanvas.hpp"
 #include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
 #include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
 #include "Engine/AssetLoader/AssetLoader.hpp"
+#include "Engine/Core/ScenesSystem/ScenesSystem.hpp"
+
 #include "Prefabs/TestPrefab.hpp"
+#include "MainMenu.hpp"
 
 void MainMenuLayer::OnAttach()
 {
     auto windowSize = Engine::EngineApplication::Get()->GetWindow().getSize();
-    auto* scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
+    auto* scene = Engine::ScenesSystem::Get()->GetActiveScene();
 
     auto TestPrefabEntity = scene->InstantiatePrefab<TestPrefab>();
 
@@ -54,8 +56,7 @@ void MainMenuLayer::OnAttach()
 
 void MainMenuLayer::OnDetach()
 {
-    auto* scene = Engine::EngineApplication::Get()->GetScenesLayer()->GetActiveScene();
-    scene->Clear();
+    Engine::Logger::Log("MainMenuLayer detached");
 }
 
 void MainMenuLayer::OnUpdate(Engine::Timestep ts) {
