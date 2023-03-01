@@ -1,6 +1,8 @@
 #pragma once
 
+#include "corecrt_math_defines.h"
 #include <cmath>
+
 #include "Vector.hpp"
 
 namespace Maths::Angles

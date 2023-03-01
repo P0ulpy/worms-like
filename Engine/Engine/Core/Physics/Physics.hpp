@@ -119,7 +119,7 @@ namespace Engine::Physics {
         }
 
         void HandleCollisionsOnBodies(
-            const RigidBodyComponentT::GeometricVectorT& Axis,
+            const typename RigidBodyComponentT::GeometricVectorT& Axis,
             std::vector<CachedEntity>& SortedBodiesOnAxis
         ) const
         {
@@ -239,8 +239,8 @@ namespace Engine::Physics {
 
         template <bool Clamp = false>
         RigidBodyComponentT::PhysicsT CombinePhysicsProperties(
-            const RigidBodyComponentT::PhysicsT& A,
-            const RigidBodyComponentT::PhysicsT& B,
+            const typename RigidBodyComponentT::PhysicsT& A,
+            const typename RigidBodyComponentT::PhysicsT& B,
             const PhysicsPropertiesCombinationType& CombinationTypeA,
             const PhysicsPropertiesCombinationType& CombinationTypeB
         ) const
