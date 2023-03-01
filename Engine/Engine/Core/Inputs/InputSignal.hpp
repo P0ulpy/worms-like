@@ -133,6 +133,9 @@ namespace SignalSystem
         }
 
         void Emit(const EventType& eventType) const {
+            if(IsLock())
+                return;
+
             if(eventType.empty())
                 return;
 
@@ -148,6 +151,10 @@ namespace SignalSystem
         void operator()(const EventType& eventType) const {
             Emit(eventType);
         }
+
+        void Lock() { isLock = true; }
+        void Unlock() { isLock = false; }
+        bool IsLock() const { return isLock; }
 
     private:
         InputSignal() = default;
@@ -166,6 +173,7 @@ namespace SignalSystem
 
     private:
         mutable ObserversMap m_observers;
+        bool isLock = false;
 
     };
 

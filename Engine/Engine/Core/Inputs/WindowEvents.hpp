@@ -21,6 +21,7 @@ namespace Engine
         [[nodiscard]] static bool GetEvent(sf::Event::EventType eventType, sf::Event& outEvent);
 
         static SignalSystem::Observable<sf::Event> lastEvent;
+        static std::string UnlockAfterEvent;
 
     private:
         static void clearEvents();

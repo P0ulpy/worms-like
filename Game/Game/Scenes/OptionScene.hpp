@@ -62,10 +62,13 @@ public:
                             std::string valueString = SignalSystem::GetKeyByValue(event.key.code);
                             if(!valueString.empty())
                             {
+                                Engine::WindowEvents::UnlockAfterEvent = key;
                                 SignalSystem::InputConfig::Get()->SetKeyBinding(key, event.key.code);
                                 valueTextButton->SetText(valueString);
                                 gridKeys->UpdatePosition();
                                 Engine::WindowEvents::lastEvent.forceDisconnect();
+                                SignalSystem::InputSignal::Get()->Lock();
+
                             }
                         }
                     });
@@ -101,10 +104,12 @@ public:
                             std::string valueString = SignalSystem::GetMouseByValue(event.mouseButton.button);
                             if(!valueString.empty())
                             {
+                                Engine::WindowEvents::UnlockAfterEvent = mouse;
                                 SignalSystem::InputConfig::Get()->SetMouseBinding(mouse, event.mouseButton.button);
                                 valueTextButton->SetText(valueString);
                                 gridMouses->UpdatePosition();
                                 Engine::WindowEvents::lastEvent.forceDisconnect();
+                                SignalSystem::InputSignal::Get()->Lock();
                             }
                         }
                     });
