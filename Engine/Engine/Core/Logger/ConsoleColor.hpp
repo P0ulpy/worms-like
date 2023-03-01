@@ -82,30 +82,30 @@ namespace ConsoleColor
 {
     inline std::ostream& blue(std::ostream &s)
     {
-        return s << "\\e[34m";
+        return s << "\033[1;34m";
     }
 
     inline std::ostream& red(std::ostream &s)
     {
-        return s << "\\e[31m";
+        return s << "\033[1;31m";
     }
 
     inline std::ostream& green(std::ostream &s)
     {
-        return s << "\\e[32m";
+        return s << "\033[1;32m";
     }
 
     inline std::ostream& yellow(std::ostream &s)
     {
-        return s << "\\e[33m";
+        return s << "\033[1;33m";
     }
 
     inline std::ostream& white(std::ostream &s)
     {
-        return s << "\\e[97m";
+        return s << "\033[1;97m";
     }
 
-    inline std::ostream& reset(std::ostream &s) { return s << "\\e[0m"; }
+    inline std::ostream& reset(std::ostream &s) { return s << "\033[0m"; }
 
     struct color
     {

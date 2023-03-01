@@ -12,10 +12,28 @@
 
 namespace Engine
 {
+    template <typename ...ComponentsT>
+    struct ComponentRequirements {};
+
+    template<typename RequirementsList>
+    struct ComponentRequirementsTraversor;
+
+    template<template <class ...> typename TList, class ...T>
+    struct ComponentRequirementsTraversor<TList<T...>>
+    {
+        template <typename Fn>
+        void operator()(Fn Traversor)
+        {
+            Traversor.template operator()<T...>();
+        }
+    };
+
     class Component : public RTTI::IClassType
     {
     public:
         DECLARE_CLASS_TYPE(Component, RTTI::NoClassTypeAncestor)
+
+        using RequiredComponents = ComponentRequirements<>;
 
     public:
         Component() = default;

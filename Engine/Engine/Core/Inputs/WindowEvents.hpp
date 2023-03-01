@@ -18,12 +18,16 @@ namespace Engine
 
         [[nodiscard]] static bool GetEvent(sf::Event::EventType eventType);
         [[nodiscard]] static bool GetEvent(sf::Event::EventType eventType, sf::Event& outEvent);
+        [[nodiscard]] static sf::Vector2i GetMousePixelPosition();
+        [[nodiscard]] static sf::Vector2f GetMouseWorldPosition();
 
     private:
         static void clearEvents();
 
     private:
         static std::array<sf::Event, sf::Event::Count> s_events;
+        static sf::Vector2i s_mousePixelPosition;
+        static sf::Vector2f s_mouseWorldPosition;
     };
 
 } // Engine

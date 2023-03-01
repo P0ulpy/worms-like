@@ -57,7 +57,7 @@ namespace Engine
         void AddPhysicsSimulator(Engine::Physics::IPhysicsSimulator* Simulator);
         void RemovePhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator);
     private:
-        EntitiesRegistry m_registry;
+        EntitiesRegistry m_registry = EntitiesRegistry(this);
         Engine::Camera::ICamera* m_ActiveCamera = nullptr;
         std::unordered_map<RTTI::ClassType*, Engine::Physics::IPhysicsSimulator*> m_PhysicsSimulators;
     };

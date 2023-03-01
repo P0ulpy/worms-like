@@ -71,7 +71,6 @@ namespace Engine::UI
             SetButtonColor(m_clickedColor);
             m_onClick();
         }
-
     }
 }
 

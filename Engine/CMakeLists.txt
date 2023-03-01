@@ -122,5 +122,13 @@ add_library(Engine
 target_link_libraries(Engine
         PUBLIC sfml-system sfml-network sfml-graphics sfml-window)
 
-# TODO : Temporary solution, copy is not done each time the project is compiled
-file(COPY Assets DESTINATION ${CMAKE_BINARY_DIR}/Engine)
+
+set(CMAKE_SOURCE_ASSETS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+set(CMAKE_RUNTIME_ASSETS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+
+add_custom_command(
+        TARGET Engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_ASSETS_DIRECTORY}
+        ${CMAKE_RUNTIME_ASSETS_DIRECTORY}
+)

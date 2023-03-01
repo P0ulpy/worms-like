@@ -17,14 +17,16 @@
 
 namespace Engine
 {
+    class Scene;
+
     /* Entities registry is the core interface for our ESC system
      * it manages Components association with Entities
      * */
     class EntitiesRegistry
     {
     public:
-        using EntityKdTreeNode = Maths::Graph::BinaryTreeNode<EntityHandle>;
-        using EntityKdTree = Maths::Graph::KdTree<EntityKdTreeNode>;
+        EntitiesRegistry() = delete;
+        EntitiesRegistry(Scene* Scene) : m_Scene(Scene) {}
 
         EntityHandle CreateEntity();
 
@@ -32,6 +34,15 @@ namespace Engine
 
         template<class T>
         T* AddComponentTo(EntityHandle entityHandle);
+
+        template<class T>
+        T* AddComponentIfNotPresentTo(EntityHandle entityHandle);
+
+        template<class ...T>
+        void AddComponentsTo(EntityHandle entityHandle);
+
+        template<class ...T>
+        void AddComponentsIfNotPresentTo(EntityHandle entityHandle);
 
         template<class T>
         T* GetComponentOf(EntityHandle entityHandle);
@@ -68,6 +79,8 @@ namespace Engine
         std::unordered_map<RTTI::ClassType*, IComponentSystem*> m_renderableSystems;
 
         void View(IComponentSystem::ViewCallback callback);
+
+        Scene* m_Scene = nullptr;
     };
 
 } // Engine

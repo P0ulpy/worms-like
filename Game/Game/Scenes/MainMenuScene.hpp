@@ -34,7 +34,7 @@ public:
 
         auto buttonPlayEntity = scene->CreateEntity();
         auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
+        buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font.otf"), {0, 0});
         buttonPlayWidget->SetOnClick([]()
         {
             Engine::ScenesSystem::Get()->LoadScene("Game");
@@ -42,11 +42,11 @@ public:
 
         auto buttonSettingsEntity = scene->CreateEntity();
         auto buttonSettingsWidget = buttonSettingsEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
+        buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font.otf"), {0, 0});
 
         auto buttonExitEntity = scene->CreateEntity();
         auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font.otf"), {0, 0});
+        buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font.otf"), {0, 0});
         buttonExitWidget->SetOnClick([]() {
             Engine::EngineApplication::Get()->GetWindow().close();
         });

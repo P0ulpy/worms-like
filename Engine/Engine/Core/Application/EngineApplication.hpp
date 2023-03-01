@@ -20,7 +20,7 @@ namespace Engine
         static constexpr float FixedDeltaTime = 16.6666f;
 
     public:
-        explicit EngineApplication(sf::VideoMode VideoMode = sf::VideoMode(500, 500));
+        EngineApplication();
         ~EngineApplication();
 
         void Init();

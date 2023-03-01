@@ -9,19 +9,13 @@ Engine::EngineApplication* Engine::EngineApplication::Get()
     return s_Instance;
 }
 
-Engine::EngineApplication::EngineApplication(sf::VideoMode VideoMode)
-    : m_window(sf::RenderWindow(
-    VideoMode,
-    "Engine Window",
-    sf::Style::Close | sf::Style::Resize)
-)
-{
+Engine::EngineApplication::EngineApplication() {
     if(s_Instance)
         throw std::runtime_error("An instance of EngineApplication already exists");
     else
         s_Instance = this;
 
-    m_window.create(sf::VideoMode(500, 500), "Engine Window", sf::Style::Close | sf::Style::Resize);
+    m_window.create(sf::VideoMode(800, 800), "Engine Window", sf::Style::Close | sf::Style::Resize);
 
     m_scenesLayer = std::make_unique<ScenesLayer>(&m_window, "Scenes Layer");
     PushLayer(m_scenesLayer.get());
@@ -112,7 +106,7 @@ void Engine::EngineApplication::Run()
         {
             sf::sleep(sf::milliseconds((int) (FixedDeltaTime - Elapsed)));
         } else {
-            std::cout << "Exceeding fixed update time :" << Elapsed << std::endl;
+            Engine::Logger::Warn("Exceeding fixed update time :", Elapsed);
         }
     }
 }

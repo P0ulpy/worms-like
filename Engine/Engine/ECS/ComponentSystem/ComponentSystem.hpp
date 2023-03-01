@@ -23,7 +23,7 @@ namespace Engine
 
         std::unordered_map<EntityHandle, TComponent> components {};
 
-        Component* Add(EntityHandle entityHandle) override;
+        Component* Add(EntityHandle entityHandle, Scene* scene) override;
         void Remove(EntityHandle entityHandle) override;
         void Remove(EntityHandle entityHandle, typename std::unordered_map<EntityHandle, TComponent>::iterator& removedComponentIt);
         bool Has(EntityHandle entityHandle) override;

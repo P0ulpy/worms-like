@@ -10,12 +10,17 @@
 namespace Engine
 {
     std::array<sf::Event, sf::Event::Count> WindowEvents::s_events;
+    sf::Vector2i WindowEvents::s_mousePixelPosition;
+    sf::Vector2f WindowEvents::s_mouseWorldPosition;
 
     void WindowEvents::ProcessEvents(sf::RenderWindow &renderWindow)
     {
         clearEvents();
 
         sf::Event event {};
+        s_mousePixelPosition = sf::Mouse::getPosition(renderWindow);
+        s_mouseWorldPosition = renderWindow.mapPixelToCoords(s_mousePixelPosition);
+
         while(renderWindow.pollEvent(event))
         {
 #ifdef IMGUI_SUPPORT
@@ -23,7 +28,6 @@ namespace Engine
             //ImGui::SFML::ProcessEvent(event);
 #endif
             s_events[event.type] = event;
-
 
             auto mouse = SignalSystem::InputConfig::Get()->GetMouseBindingName(event.type, event.mouseButton.button);
             if (!mouse.empty())
@@ -63,5 +67,13 @@ namespace Engine
         {
             event.type = sf::Event::Count;
         }
+    }
+
+    sf::Vector2i WindowEvents::GetMousePixelPosition() {
+        return s_mousePixelPosition;
+    }
+
+    sf::Vector2f WindowEvents::GetMouseWorldPosition() {
+        return s_mouseWorldPosition;
     }
 } // Engine

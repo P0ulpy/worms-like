@@ -55,20 +55,15 @@ namespace Engine::Components::Physics
         // 0 - 1, restitution
         PhysicsT m_Restitution = 0.f;
         // 0 - 1, friction on surface when objects are at "rest"
-        PhysicsT m_StaticFriction = 1.f;
+        PhysicsT m_StaticFriction = 0.5f;
         // 0 - 1, friction on surface when objects are moving
-        PhysicsT m_DynamicFriction = 1.f;
+        PhysicsT m_DynamicFriction = 0.5f;
 
     public:
         PhysicsPropertiesCombinationType RestitutionCombinationType = PhysicsPropertiesCombinationType::AVERAGE;
         PhysicsPropertiesCombinationType FrictionCombinationType = PhysicsPropertiesCombinationType::AVERAGE;
 
         PhysicsMaterial() = default;
-        PhysicsMaterial(
-            PhysicsT Restitution,
-            PhysicsT StaticFriction,
-            PhysicsT DynamicFriction
-        ) : m_Restitution(Restitution), m_StaticFriction(StaticFriction), m_DynamicFriction(DynamicFriction)  {}
 
         inline const PhysicsT& GetRestitution() const { return m_Restitution; }
         inline const PhysicsT& GetStaticFriction() const { return m_StaticFriction; }
@@ -252,6 +247,8 @@ namespace Engine::Components::Physics
         DECLARE_CLASS_TYPE(RigidBody2DComponent, Engine::Component)
 
         static constexpr size_t Dimensions = 2;
+        using RequiredComponents = ComponentRequirements<Engine::Components::Transform>;
+        using MaterialT = PhysicsMaterial<Dimensions, GT, PT>;
         using GeometricT = GT;
         using PhysicsT = PT;
         using PhysicsPointT = Maths::Point<PhysicsT, Dimensions>;
@@ -265,17 +262,11 @@ namespace Engine::Components::Physics
         static constexpr PT LinearDrag = PT(0.5f);
         static constexpr PT AngularDrag = PT(0.5f);
 
-        PhysicsMaterial<Dimensions, GT, PT> Material;
+        MaterialT Material;
         float GravityScale = 1.f;
         bool HasCollisions = true;
         bool IsStatic = false;
-
-        RigidBody2DComponent()
-        {
-            if (!GetEntityTransform()) {
-                this->GetEntity().template AddComponent<Engine::Components::Transform>();
-            }
-        }
+        bool CanRotate = true;
 
         IRigidBodyT* GetRigidBody()
         {
@@ -290,7 +281,7 @@ namespace Engine::Components::Physics
         template <bool DShapes = DebugShapes, bool DPoints = DebugPoints, std::enable_if_t<(DShapes || DPoints), bool> = false>
         void OnRender(sf::RenderTarget& RenderTarget) const
         {
-            auto ActiveCamera = Engine::ScenesSystem::Get()->GetActiveScene()->GetActiveCamera();
+            auto ActiveCamera = GetScene()->GetActiveCamera();
             auto PixelSize = 1.f;
             if (dynamic_cast<Engine::Camera::Camera2D<GeometricT>*>(ActiveCamera))
             {
@@ -358,7 +349,7 @@ namespace Engine::Components::Physics
                         PosString << std::round(Vertex.GetX()) << " , " << std::round(Vertex.GetY());
                         PositionText.setString(PosString.str());
                         sf::Font Lato;
-                        Lato.loadFromFile("../../Assets/Lato/Lato-Regular.ttf");
+                        Lato.loadFromFile("Assets/Lato/Lato-Regular.ttf");
                         PositionText.setFont(Lato);
                         PositionText.setCharacterSize(12);
                         PositionText.setPosition({
@@ -498,6 +489,10 @@ namespace Engine::Components::Physics
                 Force
             );
         }
+
+        ~RigidBody2DComponent() override {
+            delete m_RigidBody;
+        }
     private:
         // @todo can be useful to have multiple rigidbodies with constraints
         IRigidBodyT* m_RigidBody;
@@ -535,10 +530,12 @@ namespace Engine::Components::Physics
             RigidBody->LinearVelocity.GetX() += (linearAcceleration.GetX() + GravityVec.GetX()) * StepMsMultiplier;
             RigidBody->LinearVelocity.GetY() += (linearAcceleration.GetY() + GravityVec.GetY()) * StepMsMultiplier;
             const auto angularAcceleration = RigidBody->Torque * RigidBody->InvMomentOfInertiaForZ;
-            EntityTransform->Angle += Maths::Angles::RadToDeg(RigidBody->AngularVelocity * StepMsMultiplier);
-            if (EntityTransform->Angle >= 360.f)
-            {
-                EntityTransform->Angle -= 360.f;
+
+            if (CanRotate) {
+                EntityTransform->Angle += Maths::Angles::RadToDeg(RigidBody->AngularVelocity * StepMsMultiplier);
+                if (EntityTransform->Angle >= 360.f) {
+                    EntityTransform->Angle -= 360.f;
+                }
             }
             RigidBody->AngularVelocity += angularAcceleration * StepMsMultiplier;
 
@@ -546,13 +543,13 @@ namespace Engine::Components::Physics
             EntityTransform->Pos.GetX() += (RigidBody->LinearVelocity.GetX() * 100.f) * StepMsMultiplier;
             EntityTransform->Pos.GetY() += (RigidBody->LinearVelocity.GetY() * 100.f) * StepMsMultiplier;
 
-            // reset applied force each time it is applied
-            RigidBody->Force = PhysicsVectorT{};
-            RigidBody->Torque = 0;
-
             // apply drag to simulate air friction
             RigidBody->LinearVelocity = RigidBody->LinearVelocity * std::clamp(PhysicsT(1.f) - LinearDrag * StepMsMultiplier, PhysicsT(0.f), PhysicsT(1.f));
             RigidBody->AngularVelocity *= std::clamp(PhysicsT(1.f) - AngularDrag * StepMsMultiplier, PhysicsT(0.f), PhysicsT(1.f));
+
+            // reset applied force each time it is applied
+            RigidBody->Force = PhysicsVectorT{};
+            RigidBody->Torque = 0;
         }
     };
 
