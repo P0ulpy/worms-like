@@ -149,10 +149,24 @@ namespace Maths {
         virtual bool IsPointInside(const Point2D<T>& Point) const
         {
             return Point.GetX() >= 0
-                && Point.GetX() <= Width
-                && Point.GetY() >= 0
-                && Point.GetY() <= Height
-            ;
+                   && Point.GetX() <= Width
+                   && Point.GetY() >= 0
+                   && Point.GetY() <= Height
+                ;
+        }
+    };
+
+    template <typename T>
+    struct Circle2D : public NSphere<T, 2>
+    {
+        using NSphereType = NSphere<T, 2>;
+        DECLARE_CLASS_TYPE(Rectangle2D, NSphereType);
+
+        T Radius;
+
+        T ComputeMaxDistanceFromPosition()
+        {
+            return Radius;
         }
     };
 
@@ -163,40 +177,15 @@ namespace Maths {
         T Angle = 0;
 
         virtual T ComputeMaxDistanceFromPosition() = 0;
-        virtual std::vector<Point2D<T>> GetVertices(
-            const T& RotationDegrees,
-            const Vector2D<T>& Scale,
-            const Point2D<T>& OnPos
-        ) const = 0;
         virtual ~IBoundingBox2D() = default;
     };
 
     template <typename T, template <typename ShapeT> typename Shape>
     struct BoundingBox2D : public Shape<T>, public IBoundingBox2D<T>
     {
+        using ShapeT = Shape<T>;
+
         DECLARE_CLASS_TYPE(BoundingBox2D, Shape<T>);
-
-        bool IsPointInside(const Point2D<T>& Point) const override
-        {
-            return Shape<T>::IsPointInside(Point + Vector2D<T>(
-                this->Position.GetX(),
-                this->Position.GetY()
-            ));
-        }
-
-        std::vector<Point2D<T>> GetVertices(
-            const T& RotationDegrees,
-            const Vector2D<T>& Scale,
-            const Point2D<T>& OnPos
-        ) const override
-        {
-            const auto VecFromPos = Vector2D<T>{this->Position.Values};
-            return Shape<T>::GetVertices(
-                this->Angle + RotationDegrees,
-                Scale,
-                OnPos + VecFromPos
-            );
-        }
 
         T ComputeMaxDistanceFromPosition() override
         {
@@ -205,7 +194,25 @@ namespace Maths {
     };
 
     template <typename T>
-    using RectangleBoundingBox2D = BoundingBox2D<T, Rectangle2D>;
+    struct RectangleBoundingBox2D : public BoundingBox2D<T, Rectangle2D>
+    {
+        std::vector<Point2D<T>> GetVertices(
+            const T& RotationDegrees,
+            const Vector2D<T>& Scale,
+            const Point2D<T>& OnPos
+        ) const
+        {
+            const auto VecFromPos = Vector2D<T>{this->Position.Values};
+            return Rectangle2D<T>::GetVertices(
+                this->Angle + RotationDegrees,
+                Scale,
+                OnPos + VecFromPos
+            );
+        }
+    };
+
+    template <typename T>
+    using CircleBoundingBox2D = BoundingBox2D<T, Circle2D>;
 
     template <typename T, size_t Dimensions>
     Maths::Point<T, Dimensions> GetCentroid(std::vector<Maths::Point<T, Dimensions>> OfPoints) {

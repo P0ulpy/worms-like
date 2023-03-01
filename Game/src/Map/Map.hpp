@@ -90,24 +90,9 @@ namespace Map
                     Rectangle.Height = MinSquareSize;
                     Rectangle.Width = MinSquareSize;
                     auto Pos = Maths::Point2D<double>(MinSquareSize * (double) X, (double) Y * MinSquareSize);
-                    MapPartsToHandle.emplace_back(Rectangle, Pos);
+                    MapPartsToHandle.push_back(MapPart{Rectangle, Pos});
                 }
             }
-
-//            MapParts = MapPartsToHandle;
-
-//            MapPartsToHandle.clear();
-//            for (int i = 0; i < MinSquareSize; i++)
-//            {
-//                for (int j = 0; j < MinSquareSize; j++)
-//                {
-//                    Maths::RectangleBoundingBox2D<double> Rectangle;
-//                    Rectangle.Height = MinSquareSize;
-//                    Rectangle.Width = MinSquareSize;
-//                    auto Pos = Maths::Point2D<double>(MinSquareSize * (double) i, (double) j * MinSquareSize);
-//                    MapPartsToHandle.emplace_back(Rectangle, Pos);
-//                }
-//            }
 
             // @todo maybe extract this
             while (!MapPartsToHandle.empty())

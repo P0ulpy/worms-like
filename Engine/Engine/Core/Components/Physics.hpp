@@ -62,12 +62,23 @@ namespace Engine::Components::Physics
         // 0 - 1, friction on surface
         PhysicsT KineticFriction = 1.f;
 
+        virtual void ComputePhysicsProperties(const Maths::Vector2D<GeometricT>& Scale) = 0;
         virtual Maths::Point<GeometricT, Dimensions> GetCenterOfMass(
             const Maths::Vector2D<GeometricT>& Scale,
             const GeometricT& RotationDegrees,
             const Maths::Point2D<GeometricT>& OnPos
         ) = 0;
+        virtual void HandleComputeCache(
+            const GeometricT& RotationDegrees,
+            const Maths::Vector2D<GeometricT>& Scale,
+            const Maths::Point2D<GeometricT>& OnPos,
+            bool Force
+        ) = 0;
+
+        virtual GeometricT GetMinProjectedOnAxis(const Maths::Vector2D<GeometricT>& Axis) const = 0;
         virtual ~IRigidBody() = default;
+
+        bool IsCacheComputed = false;
     };
 
     template <typename GeometricT, typename PhysicsT>
@@ -75,7 +86,6 @@ namespace Engine::Components::Physics
     {
         using IBoundingBox2D = Maths::IBoundingBox2D<GeometricT>;
         virtual IBoundingBox2D* GetBoundingBox() = 0;
-        virtual void ComputePhysicsProperties(const Maths::Vector2D<GeometricT>& Scale) = 0;
         virtual void AddForce(
             const Maths::Vector2D<PhysicsT>& Force,
             const Maths::Point2D<GeometricT>& AtPoint,
@@ -85,10 +95,22 @@ namespace Engine::Components::Physics
         ) = 0;
     };
 
-    template <typename GeometricT, typename PhysicsT, template <typename ShapeT> typename Shape>
-    struct RigidBody2D : IRigidBody2D<GeometricT, PhysicsT>
+    // enable using RigidBody cached geometric values
+    template <typename GeometricT>
+    struct IRectangleGeometricRigidBody2D
     {
-        Maths::BoundingBox2D<GeometricT, Shape> BoundingBox;
+        virtual std::vector<Maths::Point2D<GeometricT>> GetVertices() const = 0;
+        virtual std::vector<Maths::Vector2D<GeometricT>> GetEdges() const = 0;
+        virtual std::vector<Maths::Vector2D<GeometricT>> GetNormals() const = 0;
+        virtual ~IRectangleGeometricRigidBody2D() = default;
+    };
+
+    template <typename GeometricT, typename PhysicsT, template <typename GT> typename BoundingBoxT>
+    struct RigidBody2D : public IRigidBody2D<GeometricT, PhysicsT>
+    {
+        static_assert(std::is_convertible<BoundingBoxT<GeometricT>*, typename IRigidBody2D<GeometricT, PhysicsT>::IBoundingBox2D*>::value, "BoundingBox must inherit IBoundingBox2D");
+
+        BoundingBoxT<GeometricT> BoundingBox;
 
         IRigidBody2D<GeometricT, PhysicsT>::IBoundingBox2D* GetBoundingBox() override
         {
@@ -97,7 +119,7 @@ namespace Engine::Components::Physics
     };
 
     template <typename GeometricT, typename PhysicsT>
-    struct RectangleRigidBody2D : RigidBody2D<GeometricT, PhysicsT, Maths::Rectangle2D>
+    struct RectangleRigidBody2D : public RigidBody2D<GeometricT, PhysicsT, Maths::RectangleBoundingBox2D>, public IRectangleGeometricRigidBody2D<GeometricT>
     {
         Maths::Point2D<GeometricT> GetCenterOfMass(
             const Maths::Vector2D<GeometricT>& Scale,
@@ -140,6 +162,54 @@ namespace Engine::Components::Physics
             auto r = AtPoint.GetVectorTo(CenterOfMass) / 100;
             this->Torque += r ^ this->Force;
         }
+
+        void HandleComputeCache(
+            const GeometricT& RotationDegrees,
+            const Maths::Vector2D<GeometricT>& Scale,
+            const Maths::Point2D<GeometricT>& OnPos,
+            bool Force
+        ) override
+        {
+            if (!Force && this->IsCacheComputed) return;
+
+            this->IsCacheComputed = true;
+            CachedVertices = this->BoundingBox.GetVertices(RotationDegrees, Scale, OnPos);
+            CachedEdges = this->BoundingBox.GetEdges(CachedVertices);
+            CachedNormals = this->BoundingBox.GetNormals(CachedEdges);
+        }
+
+        std::vector<Maths::Point2D<GeometricT>> GetVertices() const override
+        {
+            return CachedVertices;
+        }
+
+        std::vector<Maths::Vector2D<GeometricT>> GetEdges() const override
+        {
+            return CachedEdges;
+        }
+
+        std::vector<Maths::Vector2D<GeometricT>> GetNormals() const override
+        {
+            return CachedNormals;
+        }
+
+        GeometricT GetMinProjectedOnAxis(const Maths::Vector2D<GeometricT>& Axis) const override
+        {
+            GeometricT Min;
+            Maths::Point2D<GeometricT> PointMin;
+            Maths::Collisions::GetMinProjectedValues(
+                Axis,
+                CachedVertices,
+                Min,
+                PointMin
+            );
+
+            return Min;
+        }
+    private:
+        std::vector<Maths::Point2D<GeometricT>> CachedVertices;
+        std::vector<Maths::Vector2D<GeometricT>> CachedEdges;
+        std::vector<Maths::Vector2D<GeometricT>> CachedNormals;
     };
 
     using RectangleRigidBody2Dd = RectangleRigidBody2D<double, double>;
@@ -201,6 +271,7 @@ namespace Engine::Components::Physics
             auto EntityTransform = GetEntityTransform();
 
             auto BoundingBox = m_RigidBody->GetBoundingBox();
+
             const auto RectangleBoundingBox = dynamic_cast<Maths::RectangleBoundingBox2D<GeometricT>*>(BoundingBox);
             if (RectangleBoundingBox) {
                 if constexpr (DShapes)
@@ -233,7 +304,7 @@ namespace Engine::Components::Physics
 
                 if constexpr (DPoints)
                 {
-                    const auto Vertices = BoundingBox->GetVertices(
+                    const auto Vertices = RectangleBoundingBox->GetVertices(
                         EntityTransform->Angle,
                         EntityTransform->Scale,
                         EntityTransform->Pos
@@ -277,6 +348,64 @@ namespace Engine::Components::Physics
                     }
                 }
             }
+
+            const auto CircleBoundingBox = dynamic_cast<Maths::CircleBoundingBox2D<GeometricT>*>(BoundingBox);
+            if (CircleBoundingBox) {
+                if constexpr (DShapes)
+                {
+                    sf::CircleShape Circle;
+                    Circle.setRadius(CircleBoundingBox->Radius);
+                    const auto FinalPos = EntityTransform->Pos + (GeometricVectorT(
+                        RectangleBoundingBox->Position.GetX(),
+                        RectangleBoundingBox->Position.GetY()
+                    ) * EntityTransform->Scale);
+                    Circle.setPosition({
+                                         (float) (FinalPos.GetX()),
+                                         (float) (FinalPos.GetY()),
+                                     });
+                    Circle.setRotation(RectangleBoundingBox->Angle + EntityTransform->Angle);
+                    Circle.setFillColor(sf::Color::Transparent);
+                    Circle.setOutlineColor(sf::Color::White);
+                    Circle.setOutlineThickness(PixelSize);
+                    RenderTarget.draw(Circle);
+                }
+
+                if constexpr (DPoints)
+                {
+                    const auto& Vertex = CircleBoundingBox->Position + Maths::Vector2D<GeometricT>{EntityTransform->Pos.Values};
+                    sf::CircleShape Point;
+                    // 2 mm
+                    Point.setRadius(PixelSize * 2);
+                    Point.setOrigin(PixelSize * 2, PixelSize * 2);
+                    Point.setFillColor(sf::Color::Red);
+                    Point.setPosition({
+                                          (float) Vertex.GetX(),
+                                          (float) Vertex.GetY()
+                                      });
+                    RenderTarget.draw(Point);
+                    sf::Text PositionText;
+                    PositionText.setFillColor(sf::Color::Red);
+                    std::ostringstream PosString;
+                    PosString << std::round(Vertex.GetX()) << " , " << std::round(Vertex.GetY());
+                    PositionText.setString(PosString.str());
+                    sf::Font Lato;
+                    Lato.loadFromFile("/home/north/Documents/ynov/m2/worms-like/cmake-out/build-debug/Engine/Assets/Lato/Lato-Regular.ttf");
+                    PositionText.setFont(Lato);
+                    PositionText.setCharacterSize(12);
+                    PositionText.setPosition({
+                         (float) Vertex.GetX(),
+                         (float) Vertex.GetY() - (PixelSize * 10.f)
+                     });
+
+                    PositionText.setOrigin(
+                        // small trick to get pos for text
+                        PositionText.getGlobalBounds().width / 2,
+                        PositionText.getGlobalBounds().height / 2
+                    );
+                    PositionText.setScale({PixelSize, PixelSize});
+                    RenderTarget.draw(PositionText);
+                }
+            }
         }
 
         GeometricT ComputeMaxDistanceFromTransform() const
@@ -295,38 +424,6 @@ namespace Engine::Components::Physics
                 }
             }
             return MaxDistance;
-        }
-
-        // @deprecated
-        bool IsPointInside(const Maths::Point2D<GeometricT>& Point) const
-        {
-            IRigidBodyT*& IgnoredInRigidBody = nullptr;
-            return IsPointInside(Point, IgnoredInRigidBody);
-        }
-
-        // @deprecated
-        bool IsPointInside(const Maths::Point2D<GeometricT>& Point, IRigidBodyT*& InRigidBody) const
-        {
-            for (const auto& Body : this->m_RigidBody)
-            {
-                const auto& BoundingBox = Body->GetBoundingBox();
-                auto EntityTransform = GetEntityTransform();
-                const auto FinalPoint = BoundingBox->Position
-                                        - GeometricVectorT(EntityTransform->Pos.x, EntityTransform->Pos.y)
-                ;
-                if (BoundingBox->IsPointInside(FinalPoint))
-                {
-                    InRigidBody = Body;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        std::vector<IRigidBodyT*>& GetRigidBodies()
-        {
-            // @todo handle delete
-            return m_RigidBody;
         }
 
         // optimisation
@@ -359,21 +456,17 @@ namespace Engine::Components::Physics
 
         void HandleRecomputeCachedProperties(bool Force = false)
         {
-            if (!ShouldRecomputeCached && !Force) return;
-
             const auto Transform = GetEntityTransform();
-            CachedVertices = m_RigidBody->GetBoundingBox()->GetVertices(
+            m_RigidBody->HandleComputeCache(
                 Transform->Angle,
                 Transform->Scale,
-                Transform->Pos
+                Transform->Pos,
+                Force
             );
         }
     private:
         // @todo can be useful to have multiple rigidbodies with constraints
         IRigidBodyT* m_RigidBody;
-
-        bool ShouldRecomputeCached = true;
-        std::vector<Maths::Point2D<GeometricT>> CachedVertices;
 
         void ComputeRigidBodyPhysicsProperties(
             const Maths::Vector2D<GeometricT>& Scale,
@@ -397,6 +490,7 @@ namespace Engine::Components::Physics
             if (this->IsStatic) {
                 return;
             }
+            RigidBody->IsCacheComputed = false;
             const auto GravityVec = GravityDirection * GravityScale * Gravity;
             const PhysicsVectorT linearAcceleration = PhysicsVectorT(
                 RigidBody->Force.GetX() * RigidBody->InvMass,

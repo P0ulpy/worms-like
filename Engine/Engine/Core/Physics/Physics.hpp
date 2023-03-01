@@ -50,7 +50,6 @@ namespace Engine::Physics {
             {
                 auto Transform = Component.GetEntityTransform();
 
-                Component.HandleRecomputeCachedProperties();
                 Bodies.push_back({
                     &Component,
                     Transform
@@ -64,10 +63,14 @@ namespace Engine::Physics {
             Timestep Elapsed = 0;
             while (Elapsed < DeltaTime) {
                 SimulateRigidBodies(StepMs, Bodies);
-                std::sort(Bodies.begin(), Bodies.end(), [&Axis](CachedEntity& A, CachedEntity& B)->bool {
-                    // @todo use min projected value
-                    return Maths::ProjectOnUnitVector(A.Transform->Pos, Axis) < Maths::ProjectOnUnitVector(A.Transform->Pos, Axis);
-                });
+                auto SortComp = [&Axis](const CachedEntity& A, const CachedEntity& B)->bool {
+                    auto MinA = A.Body->GetRigidBody()->GetMinProjectedOnAxis(Axis);
+                    auto MinB = B.Body->GetRigidBody()->GetMinProjectedOnAxis(Axis);
+                    return MinA < MinB;
+                };
+                if (!std::is_sorted(Bodies.begin(), Bodies.end(), SortComp)) {
+                    std::sort(Bodies.begin(), Bodies.end(), SortComp);
+                }
 
                 HandleCollisionsOnBodies(Axis, Bodies);
                 Elapsed += StepMs;
@@ -93,6 +96,7 @@ namespace Engine::Physics {
         {
             for (auto& CachedEntity : SortedBodiesOnAxis) {
                 CachedEntity.Body->SimulateRigidBody(DeltaTime, CachedEntity.Transform);
+                CachedEntity.Body->HandleRecomputeCachedProperties();
             }
         }
 
@@ -117,17 +121,10 @@ namespace Engine::Physics {
                         continue;
                     }
 
-                    auto WithTransform = WithCachedEntity.Transform;
-                    if (AreBoundingBoxLikelyToCollide<typename RigidBodyComponentT::GeometricT, RigidBodyComponentT::Dimensions>(
+                    if (AreCachedEntitiesLikelyToCollide<typename RigidBodyComponentT::GeometricT, RigidBodyComponentT::Dimensions>(
                         Axis,
-                        BodyTransform->Scale,
-                        WithTransform->Scale,
-                        BodyTransform->Angle,
-                        WithTransform->Angle,
-                        BodyTransform->Pos,
-                        WithTransform->Pos,
-                        Body->GetRigidBody()->GetBoundingBox(),
-                        WithCachedEntityBody->GetRigidBody()->GetBoundingBox()
+                        CachedEntity,
+                        WithCachedEntity
                     )) {
                         LikelyToCollide.push_back({CachedEntity, WithCachedEntity});
                     } else {
@@ -163,6 +160,8 @@ namespace Engine::Physics {
         {
             auto BodyAComponent = CachedEntityA.Body;
             auto BodyBComponent = CachedEntityB.Body;
+            BodyAComponent->HandleRecomputeCachedProperties();
+            BodyBComponent->HandleRecomputeCachedProperties();
             auto BodyA = BodyAComponent->GetRigidBody();
             auto BodyB = BodyBComponent->GetRigidBody();
             auto BodyATransform = CachedEntityA.Transform;
@@ -172,15 +171,9 @@ namespace Engine::Physics {
                 return;
             }
 
-            auto CollisionManifold = CollideBoundingBoxes<typename RigidBodyComponentT::GeometricT, RigidBodyComponentT::Dimensions>(
-                BodyATransform->Scale,
-                BodyBTransform->Scale,
-                BodyATransform->Angle,
-                BodyBTransform->Angle,
-                BodyATransform->Pos,
-                BodyBTransform->Pos,
-                BodyA->GetBoundingBox(),
-                BodyB->GetBoundingBox()
+            auto CollisionManifold = CollideCachedEntities<typename RigidBodyComponentT::GeometricT, RigidBodyComponentT::Dimensions>(
+                CachedEntityA,
+                CachedEntityB
             );
             if (CollisionManifold.HasCollided()) {
                 CollisionManifoldWithBodies Manifold;
@@ -204,12 +197,16 @@ namespace Engine::Physics {
                 const auto OverlapResolvingVector = CollisionManifold.Normal * std::max(CollisionManifold.Depth, DistanceStep);
                 if (BodyAComponent->IsStatic) {
                     BodyBTransform->Pos = BodyBTransform->Pos + (OverlapResolvingVector * -1);
+                    BodyBComponent->GetRigidBody()->IsCacheComputed = false;
                 } else if (BodyBComponent->IsStatic) {
                     BodyATransform->Pos = BodyATransform->Pos + OverlapResolvingVector;
+                    BodyAComponent->GetRigidBody()->IsCacheComputed = false;
                 } else {
                     const auto HalfResolve = OverlapResolvingVector * (1 / 2);
                     BodyATransform->Pos = BodyATransform->Pos + HalfResolve;
                     BodyBTransform->Pos = BodyBTransform->Pos + (HalfResolve * -1);
+                    BodyAComponent->GetRigidBody()->IsCacheComputed = false;
+                    BodyBComponent->GetRigidBody()->IsCacheComputed = false;
                 }
             }
         }
@@ -251,7 +248,6 @@ namespace Engine::Physics {
             // @todo move this in function
             const auto Restitution = std::min(BodyA->Restitution, BodyB->Restitution);
 
-            // meters
             const auto DistanceFromCenterOfMassAOnNormal = VecFromCenterOfMassA.Scalar(Normal);
             const auto DistanceFromCenterOfMassBOnNormal = VecFromCenterOfMassB.Scalar(Normal);
             // (-(1 + e)((Va - Vb) ⋅ n)) / ((1 / ma) + (1 / mb) + ((ra ⋅ n)² / Ia) + ((rb ⋅ n)² / Ib))
@@ -270,8 +266,8 @@ namespace Engine::Physics {
             BodyB->LinearVelocity = BodyB->LinearVelocity + NormalImpulse * BodyB->InvMass;
 
             // (Wa2 = Wa1 + ra ⋅ jn / Ia)
-            BodyA->AngularVelocity -= (VecFromCenterOfMassA ^NormalImpulse) * BodyA->InvMomentOfInertiaForZ;
-            BodyB->AngularVelocity += (VecFromCenterOfMassB ^NormalImpulse) * BodyB->InvMomentOfInertiaForZ;
+            BodyA->AngularVelocity -= (VecFromCenterOfMassA ^ NormalImpulse) * BodyA->InvMomentOfInertiaForZ;
+            BodyB->AngularVelocity += (VecFromCenterOfMassB ^ NormalImpulse) * BodyB->InvMomentOfInertiaForZ;
 
             // @todo move this in function
             const auto StaticFrictionCoef = (BodyA->StaticFriction + BodyB->StaticFriction) / 2;
@@ -311,14 +307,67 @@ namespace Engine::Physics {
                 FrictionImpulse = TangentialVector * jT;
             } else {
                 // dynamic friction
+                // @todo seems to have a little bug because event with friction = 1, the objects moves, angular drag high for now
                 FrictionImpulse = TangentialVector * -jN * KineticFrictionCoef;
             }
             BodyA->LinearVelocity = BodyA->LinearVelocity - FrictionImpulse * (BodyA->InvMass);
             BodyB->LinearVelocity = BodyB->LinearVelocity + FrictionImpulse * (BodyB->InvMass);
 
-            // @todo seems to have a little bug because event with friction = 1, the objects moves
             BodyA->AngularVelocity -= (VecFromCenterOfMassA ^ FrictionImpulse) * BodyA->InvMomentOfInertiaForZ;
             BodyB->AngularVelocity += (VecFromCenterOfMassB ^ FrictionImpulse) * BodyB->InvMomentOfInertiaForZ;
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        Maths::Collisions::CollisionManifold<GeometricType, Dimensions> CollideCachedEntities(
+            const CachedEntity& CachedEntityA,
+            const CachedEntity& CachedEntityB
+        ) const
+        {
+            auto RigidBodyA = CachedEntityA.Body->GetRigidBody();
+            auto RigidBodyB = CachedEntityB.Body->GetRigidBody();
+
+            auto CastedRigidBodyA = dynamic_cast<const Engine::Components::Physics::IRectangleGeometricRigidBody2D<GeometricType>*>(RigidBodyA);
+            auto CastedRigidBodyB = dynamic_cast<const Engine::Components::Physics::IRectangleGeometricRigidBody2D<GeometricType>*>(RigidBodyB);
+            auto ShapeA = dynamic_cast<const Maths::IShape*>(RigidBodyA->GetBoundingBox());
+            auto ShapeB = dynamic_cast<const Maths::IShape*>(RigidBodyB->GetBoundingBox());
+            if (CastedRigidBodyA && CastedRigidBodyB && ShapeA && ShapeB) {
+                if (
+                    ShapeA->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
+                    && ShapeB->getType()->isInstanceOrChildOf(Maths::Rectangle2D<GeometricType>::getClassType())
+                ) {
+                    return Maths::Collisions::SAT::CollideRectangles<GeometricType, Dimensions>(
+                        CastedRigidBodyA->GetNormals(),
+                        CastedRigidBodyB->GetNormals(),
+                        CastedRigidBodyA->GetVertices(),
+                        CastedRigidBodyB->GetVertices()
+                    );
+                }
+            }
+
+            throw std::runtime_error("No matching function found");
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        bool AreCachedEntitiesLikelyToCollide(
+            const Maths::Vector<GeometricType, Dimensions>& Axis,
+            const CachedEntity& EntityA,
+            const CachedEntity& EntityB
+        ) const
+        {
+            auto RigidBodyA = EntityA.Body->GetRigidBody();
+            auto RigidBodyB = EntityB.Body->GetRigidBody();
+
+            auto CastedRigidBodyA = dynamic_cast<const Engine::Components::Physics::IRectangleGeometricRigidBody2D<GeometricType>*>(RigidBodyA);
+            auto CastedRigidBodyB = dynamic_cast<const Engine::Components::Physics::IRectangleGeometricRigidBody2D<GeometricType>*>(RigidBodyB);
+            if (CastedRigidBodyA && CastedRigidBodyB) {
+                return Maths::Collisions::SAP::LikelyToCollide<GeometricType, Dimensions>(
+                    Axis,
+                    CastedRigidBodyA->GetVertices(),
+                    CastedRigidBodyB->GetVertices()
+                );
+            }
+
+            return false;
         }
 
         template <typename GeometricType, size_t Dimensions>

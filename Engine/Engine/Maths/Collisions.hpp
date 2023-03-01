@@ -50,6 +50,28 @@ namespace Maths::Collisions
         }
     }
 
+    template <typename GeometricType, size_t Dimensions>
+    void GetMinProjectedValues(
+        const Maths::Vector<GeometricType, Dimensions>& Axis,
+        const std::vector<Maths::Point<GeometricType, Dimensions>>& Points,
+        GeometricType& Min,
+        Maths::Point<GeometricType, Dimensions>& PointMin
+    )
+    {
+        Min = Maths::ProjectOnUnitVector(Points[0], Axis);
+        PointMin = Points[0];
+        for (int i = 1; i < Points.size(); i++)
+        {
+            GeometricType Projection = Maths::ProjectOnUnitVector(Points[i], Axis);
+            if (Projection < Min)
+            {
+                Min = Projection;
+                PointMin = Points[i];
+                continue;
+            }
+        }
+    }
+
     class SAP {
     public:
         template <typename GeometricType>
@@ -162,6 +184,56 @@ namespace Maths::Collisions
     public:
         template <typename GeometricType, size_t Dimensions>
         static CollisionManifold<GeometricType, Dimensions> CollideRectangles(
+            const std::vector<Maths::Vector2D<GeometricType>>& Axes,
+            const std::vector<Maths::Point2D<GeometricType>>& PointsA,
+            const std::vector<Maths::Point2D<GeometricType>>& PointsB
+        )
+        {
+            return CheckCollisions(
+                Axes,
+                PointsA,
+                PointsB
+            );
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        static CollisionManifold<GeometricType, Dimensions> CollideRectangles(
+            const std::vector<Maths::Vector2D<GeometricType>>& NormalsA,
+            const std::vector<Maths::Vector2D<GeometricType>>& NormalsB,
+            const std::vector<Maths::Point2D<GeometricType>>& PointsA,
+            const std::vector<Maths::Point2D<GeometricType>>& PointsB
+        )
+        {
+            std::vector<Maths::Vector2D<GeometricType>> Axes;
+            ComputeAxesToCheck(NormalsA, NormalsB, Axes);
+
+            return CollideRectangles<GeometricType, Dimensions>(
+                Axes,
+                PointsA,
+                PointsB
+            );
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        static CollisionManifold<GeometricType, Dimensions> CollideRectangles(
+            const std::vector<Maths::Point2D<GeometricType>>& PointsA,
+            const std::vector<Maths::Point2D<GeometricType>>& PointsB,
+            const Maths::Rectangle2D<GeometricType>* RectangleA,
+            const Maths::Rectangle2D<GeometricType>* RectangleB
+        )
+        {
+            std::vector<Maths::Vector2D<GeometricType>> Axes;
+            ComputeAxesToCheck(PointsA, PointsB, RectangleA, RectangleB, Axes);
+
+            return CollideRectangles<GeometricType, Dimensions>(
+                Axes,
+                PointsA,
+                PointsB
+            );
+        }
+
+        template <typename GeometricType, size_t Dimensions>
+        static CollisionManifold<GeometricType, Dimensions> CollideRectangles(
             const Maths::Vector2D<GeometricType>& ScaleA,
             const Maths::Vector2D<GeometricType>& ScaleB,
             const GeometricType& RotationDegreesA,
@@ -189,7 +261,7 @@ namespace Maths::Collisions
                 PointsB
             );
 
-            return CheckCollisions(
+            return CollideRectangles<GeometricType, Dimensions>(
                 Axes,
                 PointsA,
                 PointsB
@@ -228,8 +300,58 @@ namespace Maths::Collisions
 
             throw std::runtime_error("No matching function found.");
         }
+
     private:
         SAT() = default;
+
+        template <typename GeometricType>
+        static void ComputeAxesToCheck(
+            const std::vector<Maths::Vector2D<GeometricType>>& NormalsA,
+            const std::vector<Maths::Vector2D<GeometricType>>& NormalsB,
+            std::vector<Maths::Vector2D<GeometricType>>& Axes
+        )
+        {
+            Axes.clear();
+
+            bool Parallel = false;
+            for (size_t i = 0; i < NormalsA.size(); i++)
+            {
+                if (NormalsB[0] == NormalsA[i])
+                {
+                    Parallel = true;
+                    break;
+                }
+            }
+
+            if (Parallel) {
+                const size_t ToReserve = std::floor(NormalsA.size() / 2);
+                Axes.reserve(ToReserve);
+                Axes.push_back(NormalsA[0]);
+                Axes.push_back(NormalsA[1]);
+            } else {
+                Axes.reserve(NormalsA.size() + NormalsB.size());
+                Axes.insert(Axes.begin(), NormalsA.begin(), NormalsA.end());
+                Axes.insert(Axes.begin(), NormalsB.begin(), NormalsB.end());
+            }
+        }
+
+        template <typename GeometricType>
+        static void ComputeAxesToCheck(
+            const std::vector<Maths::Point2D<GeometricType>>& PointsA,
+            const std::vector<Maths::Point2D<GeometricType>>& PointsB,
+            const Maths::Rectangle2D<GeometricType>* RectangleA,
+            const Maths::Rectangle2D<GeometricType>* RectangleB,
+            std::vector<Maths::Vector2D<GeometricType>>& Axes
+        )
+        {
+            Axes.clear();
+            auto EdgesA = RectangleA->GetEdges(PointsA);
+            auto EdgesB = RectangleB->GetEdges(PointsB);
+            auto NormalsA = RectangleA->GetNormals(EdgesA);
+            auto NormalsB = RectangleB->GetNormals(EdgesB);
+
+            ComputeAxesToCheck(NormalsA, NormalsB);
+        }
 
         template <typename GeometricType>
         static void ComputeAxesAndPointsToCheck(
