@@ -4,5 +4,5 @@
 
 #include "SpriteRenderer.hpp"
 
-namespace Engine {
+namespace Engine::Components {
 } // Engine

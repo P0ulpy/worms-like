@@ -4,10 +4,7 @@
 
 #include "Engine/Core/Inputs/InputSignal.hpp"
 #include "../Game/GameLayer.hpp"
-
-#include <Engine/Core/Components/Transform.hpp>
 #include <Engine/Core/Application/EngineApplication.hpp>
-
 
 #if defined(SFML_SYSTEM_WINDOWS)
 #include <Windows.h>
@@ -20,7 +17,7 @@ int main(int argc, char* argv[])
     App app;
     GameLayer gameLayer;
 
-    SignalSystem::InputConfig::Get()->LoadConfig("../../Config/GameConfig.ini");
+    SignalSystem::InputConfig::Get()->LoadConfig("Config/GameConfig.ini");
 
     app.GetWindow().create(sf::VideoMode(1920, 1080), "Worms-Like", sf::Style::Default);
 

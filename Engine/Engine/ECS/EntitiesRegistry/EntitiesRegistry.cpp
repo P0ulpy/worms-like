@@ -3,6 +3,8 @@
 //
 
 #include "EntitiesRegistry.hpp"
+#include "../../Core/Components/Physics.hpp"
+#include "../../Maths/Collisions.hpp"
 
 namespace Engine
 {
@@ -46,12 +48,9 @@ namespace Engine
         }
     }
 
-    void EntitiesRegistry::RenderAllRenderer(sf::RenderTarget& renderTarget)
+    std::unordered_map<RTTI::ClassType*, IComponentSystem*> EntitiesRegistry::GetAllRenderableSystems()
     {
-        for(auto& [classType, system] : m_renderableSystems)
-        {
-            system->DispatchRender(renderTarget);
-        }
+        return m_renderableSystems;
     }
 
     void EntitiesRegistry::DestroyAll()

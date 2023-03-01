@@ -7,18 +7,66 @@
 
 namespace Engine
 {
+    template <typename Fn>
+    struct ExecuteOnHandle
+    {
+        Fn Executor;
+        mutable EntityHandle Handle;
+
+        template <class ...T>
+        void operator()() const
+        {
+            Executor.template operator()<T...>(Handle);
+        }
+    };
+
+    struct ExecuteAddComponentOnHandle
+    {
+        mutable EntitiesRegistry* Registry;
+
+        template <class ...T>
+        void operator()(EntityHandle& Handle) const
+        {
+            Registry->AddComponentsIfNotPresentTo<T...>(Handle);
+        }
+    };
+
     template<class T>
     T *EntitiesRegistry::AddComponentTo(EntityHandle entityHandle)
     {
-        return static_cast<T*>(GetSystem<T>()
-                ->Add(entityHandle));
+        const auto AddRequirements = ExecuteOnHandle<ExecuteAddComponentOnHandle>{ExecuteAddComponentOnHandle{this}, entityHandle};
+        ComponentRequirementsTraversor<typename T::RequiredComponents>()(AddRequirements);
+
+        auto Added = static_cast<T*>(GetSystem<T>()
+            ->Add(entityHandle, m_Scene));
+        return Added;
+    }
+
+    template<class T>
+    T *EntitiesRegistry::AddComponentIfNotPresentTo(EntityHandle entityHandle)
+    {
+        if (HasComponent<T>(entityHandle)) return nullptr;
+
+        return AddComponentTo<T>(entityHandle);
+    }
+
+    template<class ...T>
+    void EntitiesRegistry::AddComponentsTo(EntityHandle entityHandle)
+    {
+        (AddComponentTo<T>(entityHandle),...);
+    }
+
+    template<class ...T>
+    void EntitiesRegistry::AddComponentsIfNotPresentTo(EntityHandle entityHandle)
+    {
+        (AddComponentIfNotPresentTo<T>(entityHandle),...);
     }
 
     template<class T>
     T *EntitiesRegistry::GetComponentOf(EntityHandle entityHandle)
     {
         return static_cast<T*>(GetSystem<T>()
-                ->Get(entityHandle));
+            ->Get(entityHandle));
     }
 
     template<class T>

@@ -43,7 +43,7 @@ namespace SignalSystem
     {}
 
     SlotConnectionSignal::SlotConnectionSignal(InputSignal& signal, const EventType& eventType, const ConnectionSignal::Callback& callback) :
-            m_scopedConnection(signal.connectScoped(eventType, [=]() {
+            m_scopedConnection(signal.connectScoped(eventType, [this, &callback]() {
                 if (!m_semaphore.isDisabled())
                     return;
 

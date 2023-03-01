@@ -27,7 +27,7 @@ public:
 
         auto titreEntity = scene->CreateEntity();
         auto titre = titreEntity.AddComponent<Engine::UI::TextWidget>();
-        titre->Init("Worms Like", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 100);
+        titre->Init("Worms Like", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 100);
         auto x = (static_cast<float>(windowSize.x) / 2) - (titre->GetSize().x / 2);
         titre->SetPosition({ x, 100.0f });
 
@@ -41,21 +41,21 @@ public:
 
         auto buttonPlayEntity = scene->CreateEntity();
         auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
+        buttonPlayWidget->Init("Play", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
         buttonPlayWidget->SetOnClick([this]() {
             Engine::ScenesSystem::Get()->LoadScene("Game");
         });
 
         auto buttonSettingsEntity = scene->CreateEntity();
         auto buttonSettingsWidget = buttonSettingsEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
+        buttonSettingsWidget->Init("Settings", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
         buttonSettingsWidget->SetOnClick([this]() {
             Engine::ScenesSystem::Get()->LoadScene("Options");
         });
 
         auto buttonExitEntity = scene->CreateEntity();
         auto buttonExitWidget = buttonExitEntity.AddComponent<Engine::UI::TextButtonWidget>();
-        buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
+        buttonExitWidget->Init("Exit", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 0.0f, 60);
         buttonExitWidget->SetOnClick([this]() {
             Engine::EngineApplication::Get()->Stop();
         });
@@ -66,7 +66,7 @@ public:
 
         auto backgroundEntity = scene->CreateEntity();
         auto background = backgroundEntity.AddComponent<Engine::UI::SpriteWidget>();
-        background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("../../Assets/Background/Background.png"), {0, 0});
+        background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Background/Background.png"), {0, 0});
         background->SetSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
 
         canvasWidget->AddChild(background, -1);

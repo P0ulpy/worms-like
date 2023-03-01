@@ -24,6 +24,9 @@ namespace Engine
         T* GetComponent();
 
         template<typename T>
+        const T* GetComponent() const;
+
+        template<typename T>
         bool HasComponent();
 
         template<typename T>
