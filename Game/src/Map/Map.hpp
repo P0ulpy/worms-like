@@ -83,7 +83,6 @@ namespace Map
             std::vector<MapPart> MapPartsToHandle;
             for (size_t X = 0; X < MapSize; X++) {
                 const auto& NoiseValue = Noise[X];
-                std::cout << NoiseValue << std::endl;
                 for (size_t Y = 0; Y < NoiseValue; Y++)
                 {
                     Maths::RectangleBoundingBox2D<double> Rectangle;
@@ -94,7 +93,6 @@ namespace Map
                 }
             }
 
-            // @todo maybe extract this
             while (!MapPartsToHandle.empty())
             {
                 auto CurrentMapPart = MapPartsToHandle[0];
@@ -109,7 +107,7 @@ namespace Map
             std::vector<MapPart>& Parts
         )
         {
-            // @todo temp
+            // @todo only fixed shape?
             const auto& BoundingBox = Part.BoundingBox;
             size_t CurrentCountWidth = BoundingBox.Width / MinSquareSize;
             size_t CurrentCountHeight = BoundingBox.Height / MinSquareSize;
@@ -172,7 +170,6 @@ namespace Map
                     std::round(LastPartPos.GetY()) == CurrentMaxY
                     && std::round(LastPartPos.GetX()) == (CurrentMaxX - MinSquareSize)
                 ) {
-                    std::cout << "ici: " << std::endl;
                     Parts.erase(Parts.begin() + StartIdx, Parts.begin() + StartIdx + CurrentCountWidth);
                     Part.Position.GetY() += HalfSquareSize;
                     Part.BoundingBox.Height += MinSquareSize;
@@ -181,7 +178,6 @@ namespace Map
                     return true;
                 }
 
-                std::cout << "là: " << LastPartPos.GetY() << " . " << LastPartPos.GetX() << " | " << CurrentMaxY << " . " << CurrentMaxX - MinSquareSize << std::endl;
                 return false;
             };
 
@@ -230,15 +226,12 @@ namespace Map
                         std::round(LastPartPos.GetY()) == CurrentMaxY - MinSquareSize
                         && std::round(LastPartPos.GetX()) == CurrentMaxX
                         ) {
-                        std::cout << "ici 2: " << std::endl;
                         Parts.erase(Parts.begin() + StartIdx, Parts.begin() + StartIdx + CurrentCountHeight);
                         Part.Position.GetX() += HalfSquareSize;
                         Part.BoundingBox.Width += MinSquareSize;
 
                         CombineMapParts(Part, Parts);
                         return true;
-                    } else {
-                        std::cout << "là 2: " << LastPartPos.GetY() << " . " << LastPartPos.GetX() << " | " << CurrentMaxY - MinSquareSize << " . " << CurrentMaxX << std::endl;
                     }
                 }
 

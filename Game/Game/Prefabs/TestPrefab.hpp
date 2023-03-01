@@ -9,7 +9,7 @@
 #include "../../../Engine/Engine/Core/Components/SpriteRenderer.hpp"
 #include "../../../Engine/Engine/AssetLoader/AssetLoader.hpp"
 
-class TestPrefab : public Engine::EntityPrefab<Engine::Transform, Engine::SpriteRenderer>
+class TestPrefab : public Engine::EntityPrefab<Engine::Components::Transform, Engine::Components::SpriteRenderer>
 {
 public:
     void Init(Engine::Entity& entity) override;
@@ -17,8 +17,8 @@ public:
 
 void TestPrefab::Init(Engine::Entity &entity)
 {
-    entity.GetComponent<Engine::Transform>()->Pos = { 0, 0 };
+    entity.GetComponent<Engine::Components::Transform>()->Pos = Engine::Components::Transform::PointT(0.f, 0.f);
 
     auto* krabTexture = Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/krab.png");
-    entity.GetComponent<Engine::SpriteRenderer>()->Init(krabTexture);
+    entity.GetComponent<Engine::Components::SpriteRenderer>()->Init(krabTexture);
 }

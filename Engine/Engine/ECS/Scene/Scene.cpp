@@ -41,7 +41,13 @@ namespace Engine
         auto RenderableSystems = m_registry.GetAllRenderableSystems();
         if (nullptr == m_ActiveCamera)
         {
-            throw std::runtime_error("Camera is invalid.");
+            for (auto& [Class, RenderableSystem] : RenderableSystems)
+            {
+                RenderableSystem->DispatchRender(
+                    renderTarget
+                );
+            }
+            return;
         }
         m_ActiveCamera->Render(renderTarget, RenderableSystems);
     }

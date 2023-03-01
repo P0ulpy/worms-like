@@ -1,10 +1,28 @@
 #pragma once
 
-#include <cstddef>
+#include <list>
 
 #include "../Components/Physics.hpp"
 
 namespace Engine::Physics {
+    using PhysicsPropertiesCombinationType = Engine::Components::Physics::PhysicsPropertiesCombinationType;
+
+//    void CreateCollisionsKdTree()
+//    {
+//        std::vector<EntityHandle> ToBeOrdered = {};
+//        for (auto& [handle, component] : GetSystem<Engine::Components::Physics::RigidBody2DdComponent>()->components) {
+//            if (!component.HasCollisions)
+//            {
+//                continue;
+//            }
+//            ToBeOrdered.push_back(handle);
+//        }
+//        PhysicsEntityKdTree.CreateKdTree<2, Maths::Point2D<double>, true>(
+//            ToBeOrdered,
+//            [this](EntityHandle handle)->Maths::Point2D<double> { return this->GetSystem<Engine::Components::Transform>()->GetOf(handle)->Pos; }
+//        );
+//    }
+
     class IPhysicsSimulator
     {
     public:
@@ -211,6 +229,42 @@ namespace Engine::Physics {
             }
         }
 
+        [[nodiscard]] PhysicsPropertiesCombinationType GetCombinationType(
+            const PhysicsPropertiesCombinationType& CombinationTypeA,
+            const PhysicsPropertiesCombinationType& CombinationTypeB
+        ) const
+        {
+            return CombinationTypeA <= CombinationTypeB ? CombinationTypeA : CombinationTypeB;
+        }
+
+        template <bool Clamp = false>
+        RigidBodyComponentT::PhysicsT CombinePhysicsProperties(
+            const RigidBodyComponentT::PhysicsT& A,
+            const RigidBodyComponentT::PhysicsT& B,
+            const PhysicsPropertiesCombinationType& CombinationTypeA,
+            const PhysicsPropertiesCombinationType& CombinationTypeB
+        ) const
+        {
+            const auto CombinationType = GetCombinationType(CombinationTypeA, CombinationTypeB);
+            auto Value = A;
+            switch (CombinationType) {
+                case PhysicsPropertiesCombinationType::MINIMUM:
+                    Value = std::min(A, B);
+                case PhysicsPropertiesCombinationType::MAXIMUM:
+                    Value = std::max(A, B);
+                case PhysicsPropertiesCombinationType::MULTIPLY:
+                    Value = A * B;
+                case PhysicsPropertiesCombinationType::SQUARED:
+                    Value = std::sqrt(A * A + B * B);
+                default:
+                case PhysicsPropertiesCombinationType::AVERAGE:
+                    Value = (A + B) / 2;
+            }
+            if constexpr (!Clamp) return Value;
+
+            return std::clamp(Value, typename RigidBodyComponentT::PhysicsT(0), typename RigidBodyComponentT::PhysicsT(1));
+        }
+
         void ApplyForceFromCollision(
             const CollisionManifoldWithBodies& CollisionManifold
         ) const
@@ -245,8 +299,12 @@ namespace Engine::Physics {
                 RelativeVelocityOnNormal = 0;
             }
 
-            // @todo move this in function
-            const auto Restitution = std::min(BodyA->Restitution, BodyB->Restitution);
+            const auto Restitution = CombinePhysicsProperties(
+                BodyAComponent->Material.GetRestitution(),
+                BodyBComponent->Material.GetRestitution(),
+                BodyAComponent->Material.RestitutionCombinationType,
+                BodyBComponent->Material.RestitutionCombinationType
+            );
 
             const auto DistanceFromCenterOfMassAOnNormal = VecFromCenterOfMassA.Scalar(Normal);
             const auto DistanceFromCenterOfMassBOnNormal = VecFromCenterOfMassB.Scalar(Normal);
@@ -269,13 +327,17 @@ namespace Engine::Physics {
             BodyA->AngularVelocity -= (VecFromCenterOfMassA ^ NormalImpulse) * BodyA->InvMomentOfInertiaForZ;
             BodyB->AngularVelocity += (VecFromCenterOfMassB ^ NormalImpulse) * BodyB->InvMomentOfInertiaForZ;
 
-            // @todo move this in function
-            const auto StaticFrictionCoef = (BodyA->StaticFriction + BodyB->StaticFriction) / 2;
-            // @todo move this in function
-            const auto KineticFrictionCoef = std::clamp(
-                (BodyA->KineticFriction + BodyB->KineticFriction) / 2,
-                typename RigidBodyComponentT::PhysicsT(0),
-                typename RigidBodyComponentT::PhysicsT(1)
+            const auto StaticFrictionCoef = CombinePhysicsProperties(
+                BodyAComponent->Material.GetStaticFriction(),
+                BodyBComponent->Material.GetStaticFriction(),
+                BodyAComponent->Material.FrictionCombinationType,
+                BodyBComponent->Material.FrictionCombinationType
+            );
+            const auto DynamicFrictionCoef = CombinePhysicsProperties(
+                BodyAComponent->Material.GetDynamicFriction(),
+                BodyBComponent->Material.GetDynamicFriction(),
+                BodyAComponent->Material.FrictionCombinationType,
+                BodyBComponent->Material.FrictionCombinationType
             );
 
             RelativeVelocity = (
@@ -288,16 +350,14 @@ namespace Engine::Physics {
                 RelativeVelocity,
                 TangentialVector
             );
-            const auto DistanceFromCenterOfMassAOnTangent = VecFromCenterOfMassA.Scalar(TangentialVector);
-            const auto DistanceFromCenterOfMassBOnTangent = VecFromCenterOfMassB.Scalar(TangentialVector);
 
-            // (-(1 + e)((Va - Vb) ⋅ -t)) / (1 / ma + 1 / mb + ((ra ⋅ t)² / Ia) + ((rb ⋅ t)² / Ib))
+            // (-(1 + e)((Va - Vb) ⋅ -t)) / (1 / ma + 1 / mb + ((ra ⋅ n)² / Ia) + ((rb ⋅ n)² / Ib))
             // where e is the friction coef
             auto jT = (RelativeVelocityOnTangent * -1)
                       / (
                           BodyA->InvMass + BodyB->InvMass
-                         + (DistanceFromCenterOfMassAOnTangent * DistanceFromCenterOfMassAOnTangent * BodyA->InvMomentOfInertiaForZ)
-                         + (DistanceFromCenterOfMassBOnTangent * DistanceFromCenterOfMassBOnTangent * BodyB->InvMomentOfInertiaForZ)
+                         + (DistanceFromCenterOfMassAOnNormal * DistanceFromCenterOfMassAOnNormal * BodyA->InvMomentOfInertiaForZ)
+                         + (DistanceFromCenterOfMassBOnNormal * DistanceFromCenterOfMassBOnNormal * BodyB->InvMomentOfInertiaForZ)
                       );
 
             // Coulomb's Law
@@ -307,8 +367,7 @@ namespace Engine::Physics {
                 FrictionImpulse = TangentialVector * jT;
             } else {
                 // dynamic friction
-                // @todo seems to have a little bug because event with friction = 1, the objects moves, angular drag high for now
-                FrictionImpulse = TangentialVector * -jN * KineticFrictionCoef;
+                FrictionImpulse = TangentialVector * -jN * DynamicFrictionCoef;
             }
             BodyA->LinearVelocity = BodyA->LinearVelocity - FrictionImpulse * (BodyA->InvMass);
             BodyB->LinearVelocity = BodyB->LinearVelocity + FrictionImpulse * (BodyB->InvMass);

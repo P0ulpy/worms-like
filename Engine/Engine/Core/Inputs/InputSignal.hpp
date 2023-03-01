@@ -40,6 +40,10 @@ namespace SignalSystem
             auto* connection = new ConnectionType(callback,
                                                   typename ConnectionType::StateType{ typename ConnectionType::Managed {} },
                                                   const_cast<InputSignal*>(this));
+            if (m_observers.find(eventType) == m_observers.end())
+            {
+                m_observers.insert({eventType, {}});
+            }
             m_observers[eventType].push_back(connection);
         }
         template<typename Type>

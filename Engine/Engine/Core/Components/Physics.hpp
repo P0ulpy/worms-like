@@ -6,11 +6,10 @@
 #include "../../Maths/Graph.hpp"
 #include "../../Maths/Collisions.hpp"
 #include "../Application/EngineApplication.hpp"
+#include "../Camera/Camera.hpp"
+#include "../ScenesSystem/ScenesSystem.hpp"
 #include <vector>
-#include <chrono>
-#include <thread>
 #include <SFML/Graphics.hpp>
-#include <iostream>
 
 namespace Engine::Components::Physics
 {
@@ -41,6 +40,45 @@ namespace Engine::Components::Physics
         return Maths::Vector2D<T>::GetUnitVectorOnAxis(0);
     }
 
+    // If 2 different combination types, then priority to the lowest vaue
+    enum struct PhysicsPropertiesCombinationType {
+            AVERAGE = 0,
+            MINIMUM,
+            MAXIMUM,
+            MULTIPLY,
+            SQUARED
+    };
+
+    template <size_t Dimensions, typename GeometricT, typename PhysicsT>
+    class PhysicsMaterial
+    {
+        // 0 - 1, restitution
+        PhysicsT m_Restitution = 0.f;
+        // 0 - 1, friction on surface when objects are at "rest"
+        PhysicsT m_StaticFriction = 1.f;
+        // 0 - 1, friction on surface when objects are moving
+        PhysicsT m_DynamicFriction = 1.f;
+
+    public:
+        PhysicsPropertiesCombinationType RestitutionCombinationType = PhysicsPropertiesCombinationType::AVERAGE;
+        PhysicsPropertiesCombinationType FrictionCombinationType = PhysicsPropertiesCombinationType::AVERAGE;
+
+        PhysicsMaterial() = default;
+        PhysicsMaterial(
+            PhysicsT Restitution,
+            PhysicsT StaticFriction,
+            PhysicsT DynamicFriction
+        ) : m_Restitution(Restitution), m_StaticFriction(StaticFriction), m_DynamicFriction(DynamicFriction)  {}
+
+        inline const PhysicsT& GetRestitution() const { return m_Restitution; }
+        inline const PhysicsT& GetStaticFriction() const { return m_StaticFriction; }
+        inline const PhysicsT& GetDynamicFriction() const { return m_DynamicFriction; }
+
+        inline void SetRestitution(PhysicsT Restitution) const { m_Restitution = std::clamp(Restitution, PhysicsT(0), PhysicsT(1)); }
+        inline void SetStaticFriction(PhysicsT StaticFriction) const { m_StaticFriction = std::clamp(StaticFriction, PhysicsT(0), PhysicsT(1)); }
+        inline void SetDynamicFriction(PhysicsT DynamicFriction) const { m_DynamicFriction = std::clamp(DynamicFriction, PhysicsT(0), PhysicsT(1)); }
+    };
+
     template <size_t Dimensions, typename GeometricT, typename PhysicsT>
     struct IRigidBody
     {
@@ -54,13 +92,6 @@ namespace Engine::Components::Physics
         PhysicsT InvMass = 1.f;
         // m4
         PhysicsT InvMomentOfInertiaForZ;
-
-        // @todo maybe move this to PhysicsMaterial
-        // 0 - 1, restitution
-        PhysicsT Restitution = 0.f;
-        PhysicsT StaticFriction = 1.f;
-        // 0 - 1, friction on surface
-        PhysicsT KineticFriction = 1.f;
 
         virtual void ComputePhysicsProperties(const Maths::Vector2D<GeometricT>& Scale) = 0;
         virtual Maths::Point<GeometricT, Dimensions> GetCenterOfMass(
@@ -223,17 +254,18 @@ namespace Engine::Components::Physics
         static constexpr size_t Dimensions = 2;
         using GeometricT = GT;
         using PhysicsT = PT;
-        using PhysicsPointT = Maths::Point2D<PhysicsT>;
-        using GeometricPointT = Maths::Point2D<GeometricT>;
-        using PhysicsVectorT = Maths::Vector2D<PhysicsT>;
-        using GeometricVectorT = Maths::Vector2D<GeometricT>;
+        using PhysicsPointT = Maths::Point<PhysicsT, Dimensions>;
+        using GeometricPointT = Maths::Point<GeometricT, Dimensions>;
+        using PhysicsVectorT = Maths::Vector<PhysicsT, Dimensions>;
+        using GeometricVectorT = Maths::Vector<GeometricT, Dimensions>;
         using IRigidBodyT = IRigidBody2D<GeometricT, PhysicsT>;
 
         static constexpr PT Gravity = PT(9.80665f);
         static PhysicsVectorT GravityDirection;
         static constexpr PT LinearDrag = PT(0.5f);
-        static constexpr PT AngularDrag = PT(5.f);
+        static constexpr PT AngularDrag = PT(0.5f);
 
+        PhysicsMaterial<Dimensions, GT, PT> Material;
         float GravityScale = 1.f;
         bool HasCollisions = true;
         bool IsStatic = false;
@@ -258,10 +290,7 @@ namespace Engine::Components::Physics
         template <bool DShapes = DebugShapes, bool DPoints = DebugPoints, std::enable_if_t<(DShapes || DPoints), bool> = false>
         void OnRender(sf::RenderTarget& RenderTarget) const
         {
-            auto ActiveCamera = EngineApplication::Get()
-                ->GetScenesLayer()
-                .GetActiveScene()
-                ->GetActiveCamera();
+            auto ActiveCamera = Engine::ScenesSystem::Get()->GetActiveScene()->GetActiveCamera();
             auto PixelSize = 1.f;
             if (dynamic_cast<Engine::Camera::Camera2D<GeometricT>*>(ActiveCamera))
             {
@@ -372,7 +401,7 @@ namespace Engine::Components::Physics
 
                 if constexpr (DPoints)
                 {
-                    const auto& Vertex = CircleBoundingBox->Position + Maths::Vector2D<GeometricT>{EntityTransform->Pos.Values};
+                    const auto& Vertex = CircleBoundingBox->Position + GeometricVectorT{EntityTransform->Pos.Values};
                     sf::CircleShape Point;
                     // 2 mm
                     Point.setRadius(PixelSize * 2);
@@ -449,7 +478,12 @@ namespace Engine::Components::Physics
             SimulateRigidBody(StepMs, Transform);
         }
 
-        [[nodiscard]] Engine::Components::Transform* GetEntityTransform() const
+        [[nodiscard]] Engine::Components::Transform* GetEntityTransform()
+        {
+            return this->GetEntity().template GetComponent<Engine::Components::Transform>();
+        }
+
+        [[nodiscard]] const Engine::Components::Transform* GetEntityTransform() const
         {
             return this->GetEntity().template GetComponent<Engine::Components::Transform>();
         }

@@ -6,13 +6,13 @@
 #define PATHFINDER_COMPONENT_HPP
 
 #include "../../Core/UUID.hpp"
-#include "../../RTTI/ClassType.hpp"
 #include "../Handles/Handles.hpp"
 #include "../Entity/Entity.hpp"
+#include "../../RTTI/ClassType.hpp"
 
 namespace Engine
 {
-    class Component : public IClassType
+    class Component : public RTTI::IClassType
     {
     public:
         DECLARE_CLASS_TYPE(Component, RTTI::NoClassTypeAncestor)
@@ -31,7 +31,8 @@ namespace Engine
 
         virtual void SetActive(bool active)     { m_active = active; }
         [[nodiscard]] bool IsActive() const     { return m_active; }
-        [[nodiscard]] Entity& GetEntity() /* const */ { m_entity = Entity(m_entityHandle, m_scene); return m_entity; }
+        [[nodiscard]] Entity& GetEntity() { m_entity = Entity(m_entityHandle, m_scene); return m_entity; }
+        [[nodiscard]] const Entity& GetEntity() const { m_entity = Entity(m_entityHandle, m_scene); return m_entity; }
         [[nodiscard]] Scene* GetScene() const { return m_scene; }
 
         [[nodiscard]] inline EntityHandle GetHandle() const { return m_handle; }
@@ -54,7 +55,7 @@ namespace Engine
         bool m_active = true;
         ComponentHandle m_handle = ComponentHandle::Null;
         EntityHandle m_entityHandle = EntityHandle::Null;
-        Entity m_entity { EntityHandle::Null, nullptr };
+        mutable Entity m_entity { EntityHandle::Null, nullptr };
 
         // Component can not exist if his scene is destroyed so a raw pointer is fine here
         Scene* m_scene = nullptr;

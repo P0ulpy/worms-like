@@ -109,6 +109,12 @@ namespace Engine
     }
 
     template<class T>
+    const T* Entity::GetComponent() const
+    {
+        return m_scene->GetComponentOf<T>(m_handle);
+    }
+
+    template<class T>
     bool Entity::HasComponent()
     {
         return m_scene->HasComponentIn<T>(m_handle);

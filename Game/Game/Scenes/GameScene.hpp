@@ -11,20 +11,37 @@
 #include "Engine/AssetLoader/AssetLoader.hpp"
 
 #include "../Prefabs/TestPrefab.hpp"
+#include "Engine/Core/Physics/Physics.hpp"
+#include "../../src/Map/Map.hpp"
 
 class GameSceneInitializer : public Engine::SceneInitializer
 {
 public:
+    static double constexpr CameraXSpeed = 5.f;
+    static double constexpr CameraYSpeed = 5.f;
+
+    // @todo move this to controller ?
+    static void OnCameraMove(Engine::Scene* Scene, float X, float Y) {
+        auto *Camera = Scene->GetActiveCamera();
+        auto *CastedCamera = dynamic_cast<Engine::Camera::Camera2D<double> *>(Camera);
+        if (nullptr == CastedCamera) return;
+
+        CastedCamera->Position =
+            CastedCamera->Position + Maths::Vector2D<double>((double) X * CameraXSpeed, double(Y) * CameraYSpeed);
+    }
 
     void OnLoaded(Engine::Scene* scene) override
     {
         Engine::Logger::Log("ça game ou quoi ?");
 
         // Testing purposes
-        auto& sceneLayer = App::Get()->GetScenesLayer();
-        auto* scene = sceneLayer.GetActiveScene();
-        scene->SetActiveCamera(new Engine::Camera::Camera2D<double>());
+        auto Camera = new Engine::Camera::Camera2D<double>();
+        Camera->Position = Maths::Point2D<double>(20.f, -200.f);
+        scene->SetActiveCamera(Camera);
         scene->AddPhysicsSimulator(new Engine::Physics::Physics2DSimulator<Engine::Components::Physics::RigidBody2DdComponent>());
+
+        // @todo this does not work SIGSEGV
+//        SignalSystem::InputSignal::Get()->connect("Z", []() { GameLayer::OnCameraMove(0.f, 1.f); });
 
         Map::Map<200> Map;
         Map::NoiseGenerator MapNoiseGenerator;
@@ -32,6 +49,7 @@ public:
         Map.MinSquareSize = 30.f;
         Map.MinRectangleRatio = 0.15f;
         const auto GenerateMapInThread = [&Map, &MapNoiseGenerator, &scene]() {
+            std::cout << "Generating map..." << std::endl;
             Map.GenerateMapParts(MapNoiseGenerator);
             for (auto& MapPart : Map.MapParts)
             {
@@ -52,8 +70,8 @@ public:
                 physics->SetRigidBody(RigidBody);
                 physics->GravityScale = 0.f;
                 physics->IsStatic = true;
-                RigidBody->Restitution = 0.f;
             }
+            std::cout << "Map generated" << std::endl;
         };
         // @todo make this work while keeping ref of map
 //        std::thread MapGenerationThread(GenerateMapInThread);
@@ -63,21 +81,18 @@ public:
 //        {
 //            auto* transform = TestBaseSquare.AddComponent<Engine::Components::Transform>();
 //            transform->Pos = Engine::Components::Transform::PointT(0.f, 400.f);
-////        auto* spriteRenderer = TestBaseSquare.AddComponent<Engine::SpriteRenderer>();
-////        spriteRenderer->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("../Assets/krab.png"));
 //            auto* physics = TestBaseSquare.AddComponent<Engine::Components::Physics::RigidBody2DdComponent>();
 //
 //            Maths::RectangleBoundingBox2D<double> BoundingBox;
 //            BoundingBox.Width = 700.f;
 //            BoundingBox.Height = 100.f;
-//            BoundingBox.Angle = 30;
+//            BoundingBox.Angle = 10;
 //            auto RigidBody = new Engine::Components::Physics::RectangleRigidBody2Dd();
 //            RigidBody->BoundingBox = BoundingBox;
 //            physics->SetRigidBody(RigidBody);
 //            physics->GravityScale = 0.f;
 //            // @todo this should not be like this but instead at start of physic compute
 //            physics->IsStatic = true;
-//            RigidBody->Restitution = 0.f;
 //        }
 
         auto TestGravitySquare = scene->CreateEntity();
@@ -94,7 +109,6 @@ public:
             auto RigidBody = new Engine::Components::Physics::RectangleRigidBody2Dd();
             RigidBody->BoundingBox = BoundingBox;
             RigidBody->Mass = 0.5f;
-            RigidBody->Restitution = 0.f;
             physics->SetRigidBody(RigidBody);
         }
 //
