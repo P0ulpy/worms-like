@@ -37,4 +37,15 @@ namespace Engine::UI {
         void TextButtonWidget::SetButtonColor(const sf::Color &color) {
             m_text.setFillColor(color);
         }
+
+    void TextButtonWidget::SetText(const std::string &text) {
+        m_text.setString(text);
+
+        sf::Vector2f textButtonSize = sf::Vector2f {
+                m_text.getGlobalBounds().width + m_border * 2,
+                m_text.getGlobalBounds().height + m_border * 2
+        };
+
+        SetSize(textButtonSize);
+    }
 } // UI

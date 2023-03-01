@@ -24,10 +24,30 @@ namespace Engine::UI
                 SetSize(size);
             }
 
-            void AddChild(Widget *child) override
+            void AddChild(Widget *child, int index) override
             {
-                Widget::AddChild(child);
+                Widget::AddChild(child, index);
                 child->SetPosition(GetPosition() + child->GetPosition());
+            }
+
+            void SetPosition(const sf::Vector2f& position) override
+            {
+                m_previousPosition = position;
+                Widget::SetPosition(position);
+            }
+
+        private:
+            sf::Vector2f m_previousPosition {0, 0};
+
+            void UpdatePosition() const override
+            {
+                auto delta = GetPosition() - m_previousPosition;
+
+                auto children = GetChildren();
+                for (auto& child : children)
+                {
+                    child->SetPosition(child->GetPosition() + delta);
+                }
             }
         };
 } // UI

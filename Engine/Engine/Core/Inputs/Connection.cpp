@@ -33,9 +33,14 @@ namespace SignalSystem
 
     void ScopedConnectionSignal::disconnect() const {
         if (nullptr != m_connection)
-            m_connection->m_signal->Disconnect(m_eventType, m_connection);
+            m_connection->m_signal->Disconnect(m_connection);
 
     }
+
+    ScopedConnectionSignal::ScopedConnectionSignal(ScopedConnectionSignal::EventType  eventType, ConnectionSignal *connection)
+        : m_eventType(std::move(eventType))
+        , m_connection(connection)
+    {}
 
     SlotConnectionSignal::SlotConnectionSignal(InputSignal& signal, const EventType& eventType, const ConnectionSignal::Callback& callback) :
             m_scopedConnection(signal.connectScoped(eventType, [=]() {

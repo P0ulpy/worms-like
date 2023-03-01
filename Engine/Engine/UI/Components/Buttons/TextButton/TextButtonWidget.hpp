@@ -19,7 +19,7 @@ namespace Engine::UI
         void Init(const std::string& text, sf::Font* font, const sf::Vector2f& position, const float& border = 0.0f, unsigned int characterSize = 30);
 
         void SetButtonColor(const sf::Color& color) override;
-        void SetText(const std::string& text)               { m_text.setString(text); }
+        void SetText(const std::string& text);
 
         void SetPosition(const sf::Vector2f& position) override;
 

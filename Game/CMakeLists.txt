@@ -1,14 +1,13 @@
 set(GAME_HEADERS
         src/main.hpp
-        Game/MainMenu.hpp
         Game/Prefabs/TestPrefab.hpp
         Game/Scenes/MainMenuScene.hpp
+        Game/Scenes/OptionScene.hpp
 )
 
 set(GAME_SOURCES
         src/main.cpp
-        Game/MainMenu.cpp
-)
+        Game/GameLayer.cpp Game/GameLayer.hpp UI/Components/ProgressBar/HealthBar.cpp UI/Components/ProgressBar/HealthBar.hpp UI/Layout/Grid/InventoryPlayer.cpp UI/Layout/Grid/InventoryPlayer.hpp)
 
 
 # file(COPY Assets DESTINATION CMAKE_RUNTIME_ASSETS_DIRECTORY)

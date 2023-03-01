@@ -20,6 +20,23 @@ namespace Engine::UI {
             child->SetPosition({x, position.y});
             x += child->GetSize().x + m_spacing;
         }
+
+        UpdateSize();
+    }
+
+    void WidgetHorizontalBox::UpdateSize() const {
+        auto children = GetChildren();
+        float width = 0.0f;
+        float height = 0.0f;
+
+        for (auto& child : children) {
+            width += child->GetSize().x + m_spacing;
+            height = std::max(height, child->GetSize().y);
+        }
+
+        width -= m_spacing;
+
+        m_size = {width, height};
     }
 
 

@@ -51,6 +51,7 @@ set(ENGINE_HEADERS
         Engine/UI/Layout/Grid/WidgetGrid.hpp
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp
+        Engine/UI/Components/ProgressBar/ProgressBarWidget.hpp
 
         Engine/Core/EntityPrefab/EntityPrefab.hpp
         Engine/Core/ScenesSystem/ScenesSystem.hpp
@@ -92,10 +93,11 @@ set(ENGINE_SOURCES
         Engine/UI/Layout/Grid/WidgetGrid.cpp
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.cpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.cpp
+        Engine/UI/Components/ProgressBar/ProgressBarWidget.cpp
 
         Engine/Core/ScenesSystem/ScenesSystem.cpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.cpp
-)
+        Engine/UI/Layout/Plan/WidgetPlan.cpp Engine/UI/Layout/Plan/WidgetPlan.hpp)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 

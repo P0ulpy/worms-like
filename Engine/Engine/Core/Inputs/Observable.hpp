@@ -21,6 +21,7 @@ namespace SignalSystem
         Observable& operator=(const Type& value);
 
         void connect(std::function<void(const Type&)> callback);
+        void forceDisconnect();
 
     private:
         void notify();

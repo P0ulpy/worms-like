@@ -2,6 +2,7 @@
 // Created by Flo on 18/01/2023.
 //
 #include "../../Core/Logger/Logger.hpp"
+#include "../../UI/Canvas/WidgetCanvas.hpp"
 
 namespace Engine
 {
@@ -141,12 +142,12 @@ namespace Engine
                 if(!component.m_active)
                     continue;
 
-                /*if constexpr (std::is_base_of_v<UI::Widget, TComponent>)
+                if constexpr (std::is_base_of_v<UI::Widget, TComponent>)
                 {
                     if constexpr (std::is_base_of_v<UI::WidgetCanvas, TComponent>)
                         component.OnRender(renderTarget);
                 }
-                else*/
+                else
                     component.OnRender(renderTarget);
             }
         }

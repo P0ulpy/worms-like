@@ -12,7 +12,10 @@ namespace SignalSystem
     using MouseWheelEnum = sf::Mouse::Wheel;
     using SensorEnum = sf::Sensor::Type;
 
-    static const std::unordered_map<std::string_view, int64_t> BindingsMap
+    using Key = std::string;
+    using Type = int64_t;
+
+    static const std::unordered_map<Key, Type> BindingsMapKey
             {
                     { "Unknown", -1 },
                     { "A", KeyEnum::A },
@@ -116,18 +119,27 @@ namespace SignalSystem
                     { "F14", KeyEnum::F14 },
                     { "F15", KeyEnum::F15 },
                     { "Pause", KeyEnum::Pause },
+            };
 
+    static const std::unordered_map<Key, Type> BindingsMapMouse
+            {
                     //Mouse
                     { "MouseLeft", MouseButtonEnum::Left },
                     { "MouseRight", MouseButtonEnum::Right },
                     { "MouseMiddle", MouseButtonEnum::Middle },
                     { "MouseXButton1", MouseButtonEnum::XButton1 },
                     { "MouseXButton2", MouseButtonEnum::XButton2 },
+            };
 
+    static const std::unordered_map<Key, Type> BindingsMapWheel
+            {
                     //Wheel
                     { "WheelVerticalWheel", MouseWheelEnum::VerticalWheel },
                     { "WheelHorizontalWheel", MouseWheelEnum::HorizontalWheel },
+            };
 
+    static const std::unordered_map<Key, Type> BindingsMapSensor
+            {
                     //Sensor
                     { "SensorAccelerometer", SensorEnum::Accelerometer },
                     { "SensorGyroscope", SensorEnum::Gyroscope },
@@ -136,7 +148,10 @@ namespace SignalSystem
                     { "SensorUserAcceleration", SensorEnum::UserAcceleration },
                     { "SensorOrientation", SensorEnum::Orientation },
                     { "SensorCount", SensorEnum::Count },
+            };
 
+    static const std::unordered_map<Key, Type> BindingsMapEvent
+            {
                     //Event
                     { "EventClosed", sf::Event::Closed },
                     { "EventResized", sf::Event::Resized },
@@ -161,6 +176,57 @@ namespace SignalSystem
                     { "EventTouchMoved", sf::Event::TouchMoved },
                     { "EventTouchEnded", sf::Event::TouchEnded },
                     { "EventSensorChanged", sf::Event::SensorChanged }
-
             };
+
+    static Key GetKeyByValue(const Type& value)
+    {
+        for( auto [k, t] : SignalSystem::BindingsMapKey)
+        {
+            if(t == value) {
+                return k;
+            }
+        }
+        return "";
+    }
+    static Key GetMouseByValue(const Type& value)
+    {
+        for( auto [k, t] : SignalSystem::BindingsMapMouse)
+        {
+            if(t == value) {
+                return k;
+            }
+        }
+        return "";
+    }
+    static Key GetEventByValue(const Type& value)
+    {
+        for( auto [k, t] : SignalSystem::BindingsMapEvent)
+        {
+            if(t == value) {
+                return k;
+            }
+        }
+        return "";
+    }
+    static Key GetSensorByValue(const Type& value)
+    {
+        for( auto [k, t] : SignalSystem::BindingsMapSensor)
+        {
+            if(t == value) {
+                return k;
+            }
+        }
+        return "";
+    }
+    static Key GetWheelByValue(const Type& value)
+    {
+        for( auto [k, t] : SignalSystem::BindingsMapWheel)
+        {
+            if(t == value) {
+                return k;
+            }
+        }
+        return "";
+    }
+
 }
