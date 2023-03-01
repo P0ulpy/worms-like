@@ -24,10 +24,9 @@ namespace Engine::UI
                 SetSize(size);
             }
 
-            void AddChild(Widget *child, int layout = 0)
+            void AddChild(Widget *child, int index) override
             {
-                child->SetLayoutIndex(layout);
-                Widget::AddChild(child);
+                Widget::AddChild(child, index);
                 child->SetPosition(GetPosition() + child->GetPosition());
             }
 

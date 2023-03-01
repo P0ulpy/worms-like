@@ -17,11 +17,14 @@ namespace Engine::UI
         DECLARE_CLASS_TYPE(Widget, CompositeComponent<Widget>)
 
         virtual void OnRender(sf::RenderTarget& renderTarget) {
+            if(!IsActive())
+                return;
+
             for (auto& child : GetChildren())
                 child->OnRender(renderTarget);
         }
 
-        void AddChild(Widget* child) override;
+        virtual void AddChild(Widget* child, int index);
         void RemoveChild(Widget* child) const override;
 
         virtual void SetPosition(const sf::Vector2f& position);

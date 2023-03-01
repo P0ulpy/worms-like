@@ -20,7 +20,7 @@ namespace Game::UI
 
         void SetPosition(const sf::Vector2f& position) override;
 
-        void AddChild(Engine::UI::Widget* child) override;
+        void AddChild(Engine::UI::Widget* child, int index) override;
 
     private:
         sf::Vector2u m_sizeBackground;

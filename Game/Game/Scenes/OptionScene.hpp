@@ -32,19 +32,19 @@ public:
             auto xTitre = (static_cast<float>(windowSize.x) / 2) - (titre->GetSize().x / 2);
             titre->SetPosition({ xTitre, 100.0f });
 
-            canvasWidget->AddChild(titre);
+            canvasWidget->AddChild(titre, 0);
 
             auto keys = SignalSystem::InputConfig::Get()->GetBindingsKeys();
             auto gridKeysEntity = scene->CreateEntity();
             auto gridKeys = gridKeysEntity.AddComponent<Engine::UI::WidgetGrid>();
             gridKeys->Init({2, static_cast<unsigned int>(keys.size())}, {10, 10}, {150, 350}, {300, 50});
-            canvasWidget->AddChild(gridKeys);
+            canvasWidget->AddChild(gridKeys, 0);
 
             for(auto [key, value] : keys) {
                 auto keyEntity = scene->CreateEntity();
                 auto keyText = keyEntity.AddComponent<Engine::UI::TextWidget>();
                 keyText->Init(key, Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 35);
-                gridKeys->AddChild(keyText);
+                gridKeys->AddChild(keyText, 0);
 
                 std::string valueString;
                 for( auto [k, t] : SignalSystem::BindingsMapKey)
@@ -70,20 +70,20 @@ public:
                         }
                     });
                 });
-                gridKeys->AddChild(valueTextButton);
+                gridKeys->AddChild(valueTextButton, 0);
             }
 
             auto mouses = SignalSystem::InputConfig::Get()->GetBindingsMouse();
             auto gridMousesEntity = scene->CreateEntity();
             auto gridMouses = gridMousesEntity.AddComponent<Engine::UI::WidgetGrid>();
             gridMouses->Init({2, static_cast<unsigned int>(mouses.size())}, {10, 10}, {static_cast<float>(windowSize.x - 850), 350}, {300, 50});
-            canvasWidget->AddChild(gridMouses);
+            canvasWidget->AddChild(gridMouses, 0);
 
             for(auto [mouse, value] : mouses) {
                 auto mouseEntity = scene->CreateEntity();
                 auto mouseText = mouseEntity.AddComponent<Engine::UI::TextWidget>();
                 mouseText->Init(mouse, Engine::AssetLoader<sf::Font>::StaticGetAsset("../../Assets/Font/Font.otf"), {0, 0}, 35);
-                gridMouses->AddChild(mouseText);
+                gridMouses->AddChild(mouseText, 0);
 
                 std::string valueString;
                 for( auto [k, t] : SignalSystem::BindingsMapMouse)
@@ -109,7 +109,7 @@ public:
                         }
                     });
                 });
-                gridMouses->AddChild(valueTextButton);
+                gridMouses->AddChild(valueTextButton, 0);
             }
 
             auto backEntity = scene->CreateEntity();
@@ -128,7 +128,7 @@ public:
             background->SetSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
 
             canvasWidget->AddChild(background, -1);
-            canvasWidget->AddChild(backTextButton);
+            canvasWidget->AddChild(backTextButton, 0);
         }
 
         void OnUnloaded(Engine::Scene* scene) override

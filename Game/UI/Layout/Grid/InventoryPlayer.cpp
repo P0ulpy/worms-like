@@ -43,8 +43,8 @@ namespace Game::UI
         m_background.setPosition(position);
     }
 
-    void InventoryPlayer::AddChild(Engine::UI::Widget *child) {
-        WidgetGrid::AddChild(child);
+    void InventoryPlayer::AddChild(Engine::UI::Widget *child, int index) {
+        WidgetGrid::AddChild(child, index);
         m_background.setScale(GetSize().x / static_cast<float>(m_sizeBackground.x), GetSize().y / static_cast<float>(m_sizeBackground.y));
     }
 }

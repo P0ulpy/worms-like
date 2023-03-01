@@ -97,7 +97,7 @@ set(ENGINE_SOURCES
 
         Engine/Core/ScenesSystem/ScenesSystem.cpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.cpp
-)
+        Engine/UI/Layout/Plan/WidgetPlan.cpp Engine/UI/Layout/Plan/WidgetPlan.hpp)
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 

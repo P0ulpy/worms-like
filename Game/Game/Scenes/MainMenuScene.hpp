@@ -31,13 +31,13 @@ public:
         auto x = (static_cast<float>(windowSize.x) / 2) - (titre->GetSize().x / 2);
         titre->SetPosition({ x, 100.0f });
 
-        canvasWidget->AddChild(titre);
+        canvasWidget->AddChild(titre, 0);
 
         auto verticalBoxEntity = scene->CreateEntity();
         auto verticalBoxWidget = verticalBoxEntity.AddComponent<Engine::UI::WidgetVerticalBox>();
         verticalBoxWidget->Init({150, 300}, 100.0f);
 
-        canvasWidget->AddChild(verticalBoxWidget);
+        canvasWidget->AddChild(verticalBoxWidget, 0);
 
         auto buttonPlayEntity = scene->CreateEntity();
         auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
@@ -60,9 +60,9 @@ public:
             Engine::EngineApplication::Get()->Stop();
         });
 
-        verticalBoxWidget->AddChild(buttonPlayWidget);
-        verticalBoxWidget->AddChild(buttonSettingsWidget);
-        verticalBoxWidget->AddChild(buttonExitWidget);
+        verticalBoxWidget->AddChild(buttonPlayWidget, 0);
+        verticalBoxWidget->AddChild(buttonSettingsWidget, 0);
+        verticalBoxWidget->AddChild(buttonExitWidget, 0);
 
         auto backgroundEntity = scene->CreateEntity();
         auto background = backgroundEntity.AddComponent<Engine::UI::SpriteWidget>();
