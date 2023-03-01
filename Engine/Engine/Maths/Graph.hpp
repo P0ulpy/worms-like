@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
 
 namespace Maths::Graph {
     template <typename NT>
