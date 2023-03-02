@@ -415,7 +415,7 @@ namespace Maths::Collisions
         {
             const size_t PointAIndex = std::find(Points.begin(), Points.end(), MaxPoint) - Points.begin();
             const auto Edge1 = Points[PointAIndex == 0 ? Points.size() - 1 : PointAIndex - 1].GetVectorTo(MaxPoint);
-            const auto Edge2 = Points[PointAIndex + 1 % Points.size()].GetVectorTo(MaxPoint);
+            const auto Edge2 = Points[(PointAIndex + 1) % Points.size()].GetVectorTo(MaxPoint);
             if (std::abs(Edge1.GetNormalized().Scalar(CollisionNormal)) <= std::abs(Edge2.GetNormalized().Scalar(CollisionNormal))) {
                 return Edge1;
             } else {
