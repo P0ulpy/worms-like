@@ -12,8 +12,6 @@
 #include <Engine/UI/Components/Sprite/SpriteWidget.hpp>
 #include <Engine/AssetLoader/AssetLoader.hpp>
 
-#include "../UI/Components/ProgressBar/HealthBar.hpp"
-
 class MainMenuSceneInitializer : public Engine::SceneInitializer
 {
 public:

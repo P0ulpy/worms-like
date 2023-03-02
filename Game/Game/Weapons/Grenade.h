@@ -24,24 +24,7 @@ namespace Game::Weapons
             m_sprite.setPosition({static_cast<float>(GetEntity().GetComponent<Engine::Components::Transform>()->Pos.GetX()), static_cast<float>(GetEntity().GetComponent<Engine::Components::Transform>()->Pos.GetY())});
         }
 
-        void OnAwake() override
-        {
-            m_damage = 10.f;
-
-            auto texture = Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Texture/Items/bomb.png");
-            m_sprite.setTexture(*texture);
-            m_sprite.setScale(0.5f, 0.5f);
-            m_sprite.setOrigin(texture->getSize().x / 2, texture->getSize().y / 2);
-
-            auto* RigidBodyComponent = GetEntity().GetComponent<Engine::Components::Physics::RigidBody2DdComponent>();
-            auto Rect = new Engine::Components::Physics::RectangleRigidBody2Dd();
-            RigidBodyComponent->SetOnCollisionCallback([this]() { Activate(); });
-            Rect->BoundingBox.Height = m_sprite.getGlobalBounds().height;
-            Rect->BoundingBox.Width = m_sprite.getGlobalBounds().width;
-            RigidBodyComponent->SetRigidBody(Rect);
-
-            RigidBodyComponent->isGrenade = true; //@TODO: remove this
-        }
+        void OnAwake() override;
 
         void Activate() override
         {

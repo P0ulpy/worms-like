@@ -129,7 +129,7 @@ namespace Engine
     }
 
     template<class T>
-    bool Entity::HasComponent()
+    bool Entity::HasComponent() const
     {
         return m_scene->HasComponentIn<T>(m_handle);
     }
