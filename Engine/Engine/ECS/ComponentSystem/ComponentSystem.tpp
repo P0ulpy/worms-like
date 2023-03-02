@@ -33,6 +33,9 @@ namespace Engine
     template<class TComponent>
     void ComponentSystem<TComponent>::RemoveAfter(EntityHandle entityHandle)
     {
+        /*if(std::find(componentsToBeCleaned.begin(), componentsToBeCleaned.end(), entityHandle) != componentsToBeCleaned.end())
+            return;*/
+
         componentsToBeCleaned.push_back(entityHandle);
     }
 
@@ -49,7 +52,7 @@ namespace Engine
         if constexpr (requires (TComponent& c) { c.OnDestroy(); })
             components[entityHandle].OnDestroy();
 
-        // Remove from his parent this component if TComponent extends from CompositeComponent
+        // Remove from this component from his parent children if TComponent extends from CompositeComponent
         // NOTE : (maybe use std::is_base_of_v instead of requires)
         if constexpr (requires (TComponent& c) { c.GetParent(); c.GetChildren(); })
         {
@@ -64,7 +67,8 @@ namespace Engine
         }
 
         auto toRemove = components.find(entityHandle);
-        removedComponentIt = components.erase(toRemove);
+        if(toRemove != components.end())
+            removedComponentIt = components.erase(toRemove);
     }
 
     template<class TComponent>
@@ -97,9 +101,9 @@ namespace Engine
     template<class TComponent>
     void ComponentSystem<TComponent>::ApplyCleanup()
     {
-        for(auto& comp : componentsToBeCleaned)
+        for(auto& handle : componentsToBeCleaned)
         {
-            Remove(comp);
+            Remove(handle);
         }
 
         componentsToBeCleaned.clear();

@@ -66,6 +66,8 @@ namespace Game::Weapons
             }
 
             GetScene()->DestroyEntity(GetEntity());
-        };
+        }
+
+
     };
 }
