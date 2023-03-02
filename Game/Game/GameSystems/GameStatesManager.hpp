@@ -14,5 +14,4 @@ public:
 
     void OnAwake();
     void OnUpdate(Engine::Timestep dt);
-    void OnDestroy();
 };

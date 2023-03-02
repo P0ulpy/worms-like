@@ -27,4 +27,10 @@ namespace Engine::UI {
             Widget::SetPosition(position);
             m_text.setPosition(position);
         }
+
+    void TextWidget::SetText(const std::string_view &newText)
+    {
+        m_text.setString(newText.data());
+        SetSize(sf::Vector2f{m_text.getGlobalBounds().width, m_text.getGlobalBounds().height});
+    }
 } // UI

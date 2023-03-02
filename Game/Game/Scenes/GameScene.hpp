@@ -19,7 +19,7 @@
 #include "Engine/Core/Physics/Physics.hpp"
 #include "../Map/Map.hpp"
 #include "../Controllers/SidePlayerController.hpp"
-
+#include "../GameSystems/GameManagerPrefab.hpp"
 
 
 class GameSceneInitializer : public Engine::SceneInitializer
@@ -28,6 +28,7 @@ public:
     void OnLoaded(Engine::Scene* scene) override
     {
         CreateUI(scene);
+        CreateGameSystems(scene);
 
         auto Camera = new Engine::Camera::Camera2D<double>();
         Camera->Position = Maths::Point2D<double>(0.f, 0.f);
@@ -148,7 +149,7 @@ private:
 
     void CreateUI(Engine::Scene* scene)
     {
-        auto windowSize = sf::Vector2f {Engine::EngineApplication::Get()->GetWindow().getSize()};
+        auto windowSize = sf::Vector2f { Engine::EngineApplication::Get()->GetWindow().getSize() };
 
         auto canvasGameWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetCanvas>();
         canvasGameWidget->Init({0, 0}, {windowSize.x, windowSize.y});
@@ -160,12 +161,14 @@ private:
         auto planInventoryWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetPlan>();
         planInventoryWidget->Init({windowSize.x - 400.0f, windowSize.y - 550.0f}, {500.0f, 500.0f});
         planInventoryWidget->SetActive(false);
+
         m_inventoryConnection = SignalSystem::InputSignal::Get()->connectScoped("open_inventory", [planInventoryWidget]() {
             if(planInventoryWidget->IsActive())
                 planInventoryWidget->SetActive(false);
             else
                 planInventoryWidget->SetActive(true);
         });
+
         canvasGameWidget->AddChild(planInventoryWidget, 0);
 
         auto verticalBoxPlayersWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetVerticalBox>();
@@ -289,5 +292,10 @@ private:
                 gridInventoryWidget->AddChild(itemWidget, 0);
             }
         }
+    }
+
+    void CreateGameSystems(Engine::Scene* scene)
+    {
+        scene->InstantiatePrefab<GameManagerPrefab>();
     }
 };

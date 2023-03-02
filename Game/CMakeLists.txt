@@ -19,7 +19,9 @@ set(GAME_HEADERS
         Game/Controllers/SidePlayerController.hpp
 
         Game/Actors/PlayerCharacter.hpp
-)
+        Game/AssetsPaths.hpp
+        Game/GameSystems/Team/PlayerTeam.hpp
+        Game/GameSystems/Play/PlayStates.hpp Game/GameSystems/Team/TeamUI.hpp Game/GameSystems/Play/TeamsTimersUI.hpp Game/GameSystems/Play/GlobalTimerUI.hpp)
 
 set(GAME_SOURCES
         src/main.cpp

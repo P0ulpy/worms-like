@@ -137,7 +137,8 @@ namespace Engine::Physics {
                 auto Body = CachedEntity.Body;
                 auto BodyTransform = CachedEntity.Transform;
 
-                if (!ActiveIntervals.empty()) {
+                if (!ActiveIntervals.empty())
+                {
                     for (auto CachedEntityIt = ActiveIntervals.rbegin(); CachedEntityIt != --ActiveIntervals.rend(); CachedEntityIt++) {
                         auto WithCachedEntity = *CachedEntityIt;
                         auto WithCachedEntityBody = WithCachedEntity.Body;

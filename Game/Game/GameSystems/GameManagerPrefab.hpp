@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include "Engine/Core/EntityPrefab/EntityPrefab.hpp"
+#include <Engine/Core/EntityPrefab/EntityPrefab.hpp>
 
 #include "GameStatesManager.hpp"
 
 class GameManagerPrefab : public Engine::EntityPrefab<GameStatesManager>
 {
 public:
+
     void Init(Engine::Entity& entity) override
     {
 

@@ -20,9 +20,6 @@ namespace Engine
     template <class... TComponents>
     class EntityPrefab
     {
-    private:
-        EntityPrefab() = default;
-
     public:
         ~EntityPrefab() = default;
 
