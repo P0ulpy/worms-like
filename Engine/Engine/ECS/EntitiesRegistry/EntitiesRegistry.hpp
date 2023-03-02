@@ -61,6 +61,8 @@ namespace Engine
         void UpdateAllUpdatable(const float& deltaTime);
         std::unordered_map<RTTI::ClassType*, IComponentSystem*> GetAllRenderableSystems();
 
+        void ApplyCleanup();
+
         template<class TSystem, class T>
         void AddSystem();
 

@@ -19,9 +19,12 @@ namespace Engine
         virtual ~IComponentSystem() = default;
 
         virtual Component* Add(EntityHandle entityHandle, Scene* scene) = 0;
+        virtual void RemoveAfter(EntityHandle entityHandle) = 0;
         virtual void Remove(EntityHandle entityHandle) = 0;
         virtual bool Has(EntityHandle entityHandle) = 0;
         virtual Component* Get(EntityHandle entityHandle) = 0;
+        virtual bool NeedCleanup() = 0;
+        virtual void ApplyCleanup() = 0;
         virtual void Clear() = 0;
 
         virtual void DispatchAwake() = 0;

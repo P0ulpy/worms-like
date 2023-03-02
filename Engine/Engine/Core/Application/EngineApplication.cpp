@@ -95,6 +95,11 @@ void Engine::EngineApplication::Run()
 #endif
         m_window.display();
 
+        // Components & Entities cleanup
+        auto* activeScene = ScenesSystem::Get()->GetActiveScene();
+        if(activeScene)
+            activeScene->ApplyCleanup();
+
         if(ScenesSystem::Get()->IsWaitingForSceneLoad())
             ScenesSystem::Get()->ApplyLoadScene();
 

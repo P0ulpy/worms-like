@@ -58,10 +58,13 @@ namespace Engine
         template<class T>
         void RemoveComponentOf(const EntityHandle& entityHandle);
 
+        void ApplyCleanup();
+
         inline Engine::Camera::ICamera* GetActiveCamera() { return m_ActiveCamera; }
         inline void SetActiveCamera(Engine::Camera::ICamera* Camera) { m_ActiveCamera = Camera; }
         void AddPhysicsSimulator(Engine::Physics::IPhysicsSimulator* Simulator);
         void RemovePhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator);
+
     private:
         EntitiesRegistry m_registry = EntitiesRegistry(this);
         Engine::Camera::ICamera* m_ActiveCamera = nullptr;

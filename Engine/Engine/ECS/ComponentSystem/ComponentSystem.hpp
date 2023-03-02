@@ -8,6 +8,7 @@
 
 #include "../../Core/Logger/Logger.hpp"
 #include <unordered_map>
+#include <list>
 
 namespace Engine
 {
@@ -26,14 +27,18 @@ namespace Engine
         ~ComponentSystem() override;
 
         std::unordered_map<EntityHandle, TComponent> components {};
+        std::list<EntityHandle> componentsToBeCleaned {};
+        bool NeedCleanup() override { return !componentsToBeCleaned.empty(); }
 
         Component* Add(EntityHandle entityHandle, Scene* scene) override;
+        void RemoveAfter(EntityHandle entityHandle) override;
         void Remove(EntityHandle entityHandle) override;
         void Remove(EntityHandle entityHandle, typename std::unordered_map<EntityHandle, TComponent>::iterator& removedComponentIt);
         bool Has(EntityHandle entityHandle) override;
         Component* Get(EntityHandle entityHandle) override;
         TComponent* GetOf(EntityHandle entityHandle);
         void View(ViewCallback callback) override;
+        void ApplyCleanup() override;
         void Clear() override;
 
         void DispatchAwake() override;
@@ -42,6 +47,7 @@ namespace Engine
         void DispatchRender(sf::RenderTarget &renderTarget) override;
         void DispatchDestroy() override;
     };
+
 } // Engine
 
 #include "ComponentSystem.tpp"

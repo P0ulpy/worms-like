@@ -31,6 +31,12 @@ namespace Engine
     }
 
     template<class TComponent>
+    void ComponentSystem<TComponent>::RemoveAfter(EntityHandle entityHandle)
+    {
+        componentsToBeCleaned.push_back(entityHandle);
+    }
+
+    template<class TComponent>
     void ComponentSystem<TComponent>::Remove(EntityHandle entityHandle)
     {
         typename std::unordered_map<EntityHandle, TComponent>::iterator itr;
@@ -89,6 +95,17 @@ namespace Engine
     }
 
     template<class TComponent>
+    void ComponentSystem<TComponent>::ApplyCleanup()
+    {
+        for(auto& comp : componentsToBeCleaned)
+        {
+            Remove(comp);
+        }
+
+        componentsToBeCleaned.clear();
+    }
+
+    template<class TComponent>
     void ComponentSystem<TComponent>::Clear()
     {
         for (auto it = components.begin(); it != components.end(); )
@@ -102,7 +119,6 @@ namespace Engine
     {
         Clear();
     }
-
 
     // Dispatch
 

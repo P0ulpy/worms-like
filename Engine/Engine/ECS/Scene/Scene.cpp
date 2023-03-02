@@ -88,4 +88,9 @@ namespace Engine
             m_PhysicsSimulators.erase(SimulatorType);
         }
     }
+
+    void Scene::ApplyCleanup()
+    {
+        m_registry.ApplyCleanup();
+    }
 } // Engine
