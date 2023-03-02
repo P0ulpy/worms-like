@@ -20,14 +20,24 @@
 #include "../Map/Map.hpp"
 #include "../Controllers/SidePlayerController.hpp"
 #include "../GameSystems/GameManagerPrefab.hpp"
+#include "../Weapons/Grenade.h"
+#include "../Prefabs/GrenadePrefab.h"
+#include "../Prefabs/GrenadeFragPrefab.h"
 
 
 class GameSceneInitializer : public Engine::SceneInitializer
 {
 public:
+    void CreateMethods(Engine::Scene *pScene) {
+        SignalSystem::InputSignal::Get()->connect("player_shoot", [pScene]() {
+            pScene->InstantiatePrefab<GrenadeFragPrefab>();
+        });
+    }
+
     void OnLoaded(Engine::Scene* scene) override
     {
         CreateUI(scene);
+        CreateMethods(scene);
         CreateGameSystems(scene);
 
         auto Camera = new Engine::Camera::Camera2D<double>();
