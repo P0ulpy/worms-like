@@ -64,8 +64,10 @@ namespace Engine::Physics {
             Engine::EntitiesRegistry* EntitiesRegistry
         ) override
         {
-            std::vector<CachedEntity> Bodies;
-            for (auto& [Handle, Component] : EntitiesRegistry->GetSystem<RigidBodyComponentT>()->components)
+            auto& Components = EntitiesRegistry->GetSystem<RigidBodyComponentT>()->components;
+            static std::vector<CachedEntity> Bodies(Components.size());
+            Bodies.clear();
+            for (auto& [Handle, Component] : Components)
             {
                 auto Transform = Component.GetEntityTransform();
 
@@ -76,7 +78,7 @@ namespace Engine::Physics {
             }
 
             // choose axis Y because with gravity it should be the most reliable for performance
-            const auto Axis = RigidBodyComponentT::GeometricVectorT::GetUnitVectorOnAxis(1);
+            const auto Axis = RigidBodyComponentT::GeometricVectorT::GetUnitVectorOnAxis(0);
 
             const auto StepMs = 2.f;
             Timestep Elapsed = 0;
@@ -88,6 +90,7 @@ namespace Engine::Physics {
                     return MinA < MinB;
                 };
                 if (!std::is_sorted(Bodies.begin(), Bodies.end(), SortComp)) {
+                    // replace with custom bubble sort
                     std::sort(Bodies.begin(), Bodies.end(), SortComp);
                 }
 
@@ -124,38 +127,43 @@ namespace Engine::Physics {
             std::vector<CachedEntity>& SortedBodiesOnAxis
         ) const
         {
-            std::vector<std::array<CachedEntity, 2>> LikelyToCollide;
-            LikelyToCollide.reserve(SortedBodiesOnAxis.size() / 2);
-            std::list<CachedEntity> ActiveIntervals;
+            static std::vector<std::array<CachedEntity, 2>> LikelyToCollide(SortedBodiesOnAxis.size() / 2);
+            LikelyToCollide.clear();
+            // list may be good if many operations on list but too much cache miss
+            static std::vector<CachedEntity> ActiveIntervals(SortedBodiesOnAxis.size() / 5);
+            ActiveIntervals.clear();
+
             for (auto& CachedEntity : SortedBodiesOnAxis)
             {
                 auto Body = CachedEntity.Body;
                 auto BodyTransform = CachedEntity.Transform;
 
-                for (auto CachedEntityIt = ActiveIntervals.rbegin(); CachedEntityIt != ActiveIntervals.rend(); CachedEntityIt++) {
-                    auto WithCachedEntity = *CachedEntityIt;
-                    auto WithCachedEntityBody = WithCachedEntity.Body;
-                    if (Body->IsStatic && WithCachedEntityBody->IsStatic)
-                    {
-                        continue;
-                    }
+                if (!ActiveIntervals.empty()) {
+                    for (int i = ActiveIntervals.size() - 1; i >= 0; i--) {
+                        auto WithCachedEntity = ActiveIntervals[i];
+                        auto WithCachedEntityBody = WithCachedEntity.Body;
+                        if (Body->IsStatic && WithCachedEntityBody->IsStatic)
+                        {
+                            continue;
+                        }
 
-                    if (AreCachedEntitiesLikelyToCollide<typename RigidBodyComponentT::GeometricT, RigidBodyComponentT::Dimensions>(
-                        Axis,
-                        CachedEntity,
-                        WithCachedEntity
-                    )) {
-                        LikelyToCollide.push_back({CachedEntity, WithCachedEntity});
-                    } else {
-                        // we do not need to keep it as we are only going further
-                        ActiveIntervals.erase(std::next(CachedEntityIt).base());
+                        if (AreCachedEntitiesLikelyToCollide<typename RigidBodyComponentT::GeometricT, RigidBodyComponentT::Dimensions>(
+                            Axis,
+                            CachedEntity,
+                            WithCachedEntity
+                        )) {
+                            LikelyToCollide.push_back({CachedEntity, WithCachedEntity});
+                        } else {
+                            // we do not need to keep it as we are only going further
+                            ActiveIntervals.erase(ActiveIntervals.begin() + i);
+                        }
                     }
                 }
                 ActiveIntervals.push_back(CachedEntity);
             }
 
-            std::vector<CollisionManifoldWithBodies> ContactManifolds;
-            ContactManifolds.reserve(LikelyToCollide.size() / 2);
+            static std::vector<CollisionManifoldWithBodies> ContactManifolds(LikelyToCollide.size() / 2);
+            ContactManifolds.clear();
             for (auto& [CollidingBodyA, CollidingBodyB] : LikelyToCollide)
             {
                 CheckAndHandleCollision(
@@ -293,8 +301,8 @@ namespace Engine::Physics {
             const auto ContactPointCentroid = Maths::GetCentroid(CollisionManifold.Contacts);
 
             // meters
-            const auto VecFromCenterOfMassA = CollisionManifold.FirstCenterOfMassAtCollision.GetVectorTo(ContactPointCentroid) / 100;
-            const auto VecFromCenterOfMassB = CollisionManifold.SecondCenterOfMassAtCollision.GetVectorTo(ContactPointCentroid) / 100;
+            const auto VecFromCenterOfMassA = (CollisionManifold.FirstCenterOfMassAtCollision.GetVectorTo(ContactPointCentroid) / 100) * (BodyAComponent->CanRotate ? 1.f : 0.f);
+            const auto VecFromCenterOfMassB = (CollisionManifold.SecondCenterOfMassAtCollision.GetVectorTo(ContactPointCentroid) / 100) * (BodyBComponent->CanRotate ? 1.f : 0.f);
 
             auto RelativeVelocity = (
                 (BodyB->LinearVelocity + VecFromCenterOfMassB * BodyB->AngularVelocity)
@@ -316,13 +324,18 @@ namespace Engine::Physics {
 
             const auto DistanceFromCenterOfMassAOnNormal = VecFromCenterOfMassA.Scalar(Normal);
             const auto DistanceFromCenterOfMassBOnNormal = VecFromCenterOfMassB.Scalar(Normal);
+            const auto AngularAImpulseDenom = DistanceFromCenterOfMassAOnNormal * DistanceFromCenterOfMassAOnNormal * BodyA->InvMomentOfInertiaForZ;
+            const auto AngularBImpulseDenom = DistanceFromCenterOfMassBOnNormal * DistanceFromCenterOfMassBOnNormal * BodyB->InvMomentOfInertiaForZ;
             // (-(1 + e)((Va - Vb) ⋅ n)) / ((1 / ma) + (1 / mb) + ((ra ⋅ n)² / Ia) + ((rb ⋅ n)² / Ib))
-            const auto jN = (-(typename RigidBodyComponentT::PhysicsT(1) + Restitution) * RelativeVelocityOnNormal)
+            auto jN = (-(typename RigidBodyComponentT::PhysicsT(1) + Restitution) * RelativeVelocityOnNormal)
                             / (
                                 BodyA->InvMass + BodyB->InvMass
-                                + (DistanceFromCenterOfMassAOnNormal * DistanceFromCenterOfMassAOnNormal * BodyA->InvMomentOfInertiaForZ)
-                                + (DistanceFromCenterOfMassBOnNormal * DistanceFromCenterOfMassBOnNormal * BodyB->InvMomentOfInertiaForZ)
+                                + (AngularAImpulseDenom)
+                                + (AngularBImpulseDenom)
                             );
+
+            if (jN < 0.000001f)
+                jN = 0;
 
             const auto NormalImpulse = Normal * jN;
 
@@ -364,9 +377,12 @@ namespace Engine::Physics {
             auto jT = (RelativeVelocityOnTangent * -1)
                       / (
                           BodyA->InvMass + BodyB->InvMass
-                         + (DistanceFromCenterOfMassAOnNormal * DistanceFromCenterOfMassAOnNormal * BodyA->InvMomentOfInertiaForZ)
-                         + (DistanceFromCenterOfMassBOnNormal * DistanceFromCenterOfMassBOnNormal * BodyB->InvMomentOfInertiaForZ)
+                           + (AngularAImpulseDenom)
+                           + (AngularBImpulseDenom)
                       );
+
+            if (jT < 0.000001f)
+                jT = 0;
 
             // Coulomb's Law
             typename RigidBodyComponentT::PhysicsVectorT FrictionImpulse;
