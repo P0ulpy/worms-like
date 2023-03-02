@@ -28,7 +28,7 @@ set(GAME_SOURCES
 
         Game/Map/Map.cpp
         Game/Modules/PerlinNoise.cpp
-)
+        Game/Weapons/IWeapons.h Game/Weapons/Grenade.h Game/Weapons/GrenadeFragmentation.h Game/Prefabs/GrenadePrefab.h Game/Prefabs/GrenadeFragPrefab.h)
 set(GAME_TARGET_NAME Game)
 
 add_executable(${GAME_TARGET_NAME} ${GAME_HEADERS} ${GAME_SOURCES})

@@ -249,7 +249,7 @@ namespace Maths {
         Vector operator*(const Vector& Other) const
         {
             Vector newVec;
-            for (size_t i = 0; i <= Size; i++)
+            for (size_t i = 0; i < Size; i++)
             {
                 newVec[i] = Values[i] * Other[i];
             }
@@ -259,7 +259,7 @@ namespace Maths {
         Vector operator*(const T& Other) const
         {
             Vector newVec;
-            for (size_t i = 0; i <= Size; i++)
+            for (size_t i = 0; i < Size; i++)
             {
                 newVec[i] = Values[i] * Other;
             }

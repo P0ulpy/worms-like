@@ -57,6 +57,7 @@ namespace Engine::Physics {
             RigidBodyComponentT* Body = nullptr;
             Engine::Components::Transform* Transform = nullptr;
         };
+
     public:
         void Simulate(
             const float& DeltaTime,
@@ -167,6 +168,13 @@ namespace Engine::Physics {
             for (const auto& Manifold : ContactManifolds)
             {
                 ApplyForceFromCollision(Manifold);
+                //Call OnCollide
+                //@todo remove this
+                if(Manifold.FirstRigidBody->isGrenade && Manifold.SecondRigidBody->isGrenade)
+                    continue;
+
+                Manifold.FirstRigidBody->OnCollide();
+                Manifold.SecondRigidBody->OnCollide();
             }
         }
 

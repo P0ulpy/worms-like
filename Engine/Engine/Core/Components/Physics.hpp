@@ -268,6 +268,8 @@ namespace Engine::Components::Physics
         bool IsStatic = false;
         bool CanRotate = true;
 
+        bool isGrenade = false; //@todo remove this
+
         IRigidBodyT* GetRigidBody()
         {
             return m_RigidBody;
@@ -490,12 +492,26 @@ namespace Engine::Components::Physics
             );
         }
 
+        void SetOnCollisionCallback(const std::function<void()>& Callback)
+        {
+            m_OnCollisionCallback = Callback;
+        }
+
+        void OnCollide()
+        {
+            if(m_OnCollisionCallback)
+            {
+                m_OnCollisionCallback();
+            }
+        }
+
         ~RigidBody2DComponent() override {
             delete m_RigidBody;
         }
     private:
         // @todo can be useful to have multiple rigidbodies with constraints
         IRigidBodyT* m_RigidBody;
+        std::function<void()> m_OnCollisionCallback;
 
         void ComputeRigidBodyPhysicsProperties(
             const Maths::Vector2D<GeometricT>& Scale,
