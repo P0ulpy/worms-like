@@ -16,6 +16,11 @@ namespace Game::Actors {
         OnEvent OnRight;
         OnEvent OnDown;
 
+        bool isLock = false;
+
+        void LockMouvement() { isLock = true; }
+        void UnlockMouvement() { isLock = false; }
+
         virtual void HandleJump() const = 0;
         virtual void HandleLeft() const = 0;
         virtual void HandleRight() const = 0;
@@ -26,25 +31,28 @@ namespace Game::Actors {
 
     struct CharacterMovementStateMachineJumping : public CharacterMovementStateMachine {
         void HandleJump() const override {/*ignore*/}
-        void HandleLeft() const override {/*ignore*/}
-        void HandleRight() const override {/*ignore*/}
-        void HandleDown() const override {/*ignore*/}
+        void HandleLeft() const override {if(isLock) return; OnLeft();}
+        void HandleRight() const override {if(isLock) return; OnRight();}
+        void HandleDown() const override {if(isLock) return; OnDown();}
     };
 
     struct CharacterMovementStateMachineGrounded : public CharacterMovementStateMachine {
         void HandleJump() const override {
+            if(isLock) return;
             OnJump();
         }
 
         void HandleLeft() const override {
+            if(isLock) return;
             OnLeft();
         }
         void HandleRight() const override {
+            if(isLock) return;
             OnRight();
         }
 
         void HandleDown() const override {
-            OnDown();
+            /*ignore*/
         }
     };
 
@@ -53,8 +61,12 @@ namespace Game::Actors {
         using RequiredComponents = Engine::ComponentRequirements<Engine::Components::Physics::RigidBody2DdComponent>;
         DECLARE_CLASS_TYPE(PlayerCharacter, Engine::Component)
 
-
         void OnAwake();
+
+        void OnUpdate(const float& DeltaTime);
+        void OnRender(sf::RenderTarget& renderTarget);
+
+        void SetWeaponToShoot(std::function<void()> shootCallback) { m_shootCallback = shootCallback; }
 
         ~PlayerCharacter() override;
 
@@ -71,6 +83,24 @@ namespace Game::Actors {
             StateMachine->OnLeft = [this]()->void {/*ignore*/};
             StateMachine->OnRight = [this]()->void {/*ignore*/};
             StateMachine->OnDown = [this]()->void {/*ignore*/};
+        }
+
+        sf::Sprite m_sprite;
+        SignalSystem::ScopedConnectionSignal m_shootConnection;
+
+        std::function<void()> m_shootCallback;
+        bool m_startShooting = false;
+
+        void OnShoot()
+        {
+            if(!m_startShooting) {
+                m_startShooting = true;
+            } else
+            {
+                if(m_shootCallback)
+                    m_shootCallback();
+                m_startShooting = false;
+            }
         }
     };
 }

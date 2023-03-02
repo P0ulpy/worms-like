@@ -24,14 +24,15 @@
 #include "../Prefabs/GrenadePrefab.h"
 #include "../Prefabs/GrenadeFragPrefab.h"
 
+/*#include "Maths/Vector.hpp"*/
 
 class GameSceneInitializer : public Engine::SceneInitializer
 {
 public:
     void CreateMethods(Engine::Scene *pScene) {
-        SignalSystem::InputSignal::Get()->connect("player_shoot", [pScene]() {
+        /*SignalSystem::InputSignal::Get()->connect("player_shoot", [pScene]() {
             pScene->InstantiatePrefab<GrenadeFragPrefab>();
-        });
+        });*/
     }
 
     void OnLoaded(Engine::Scene* scene) override
@@ -51,6 +52,15 @@ public:
         auto PlayerCharacter = PlayerCharacterEntity.AddComponent<Game::Actors::PlayerCharacter>();
         auto PlayerTransform = PlayerCharacterEntity.GetComponent<Engine::Components::Transform>();
         Controller->SetPlayerCharacter(PlayerCharacter);
+        PlayerCharacter->SetWeaponToShoot([PlayerTransform, scene]() {
+            auto prefab = scene->InstantiatePrefab<GrenadePrefab>();
+            auto posMouse = Engine::EngineApplication::Get()->GetWindow().mapCoordsToPixel({static_cast<float>(sf::Mouse::getPosition().x), static_cast<float>(sf::Mouse::getPosition().y)});
+            auto velocityNormalized = PlayerTransform->Pos.GetVectorTo(Maths::Point2D<double>(static_cast<double>(posMouse.x), static_cast<double>(posMouse.y)));
+            velocityNormalized.Normalize();
+            auto velocity = velocityNormalized * 10.f;
+            prefab.GetComponent<Engine::Components::Transform>()->Pos = PlayerTransform->Pos;
+            prefab.GetComponent<Engine::Components::Physics::RigidBody2DdComponent>()->GetRigidBody()->LinearVelocity = velocity;
+          });
 
         Map::Map<200> Map;
         Map::NoiseGenerator MapNoiseGenerator;
