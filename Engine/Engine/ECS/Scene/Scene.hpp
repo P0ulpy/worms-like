@@ -11,9 +11,13 @@
 
 #include "../Entity/Entity.hpp"
 #include "../EntitiesRegistry/EntitiesRegistry.hpp"
+#include "../../Core/Camera/Camera.hpp"
 
 namespace Engine
 {
+    namespace Physics {
+        class IPhysicsSimulator;
+    }
     /**
      * @brief A scene is a collection of entities.
      * It is used to group entities together.
@@ -24,10 +28,10 @@ namespace Engine
     {
     public:
         Scene() = default;
-        ~Scene() = default;
+        ~Scene();
 
         void OnStart();
-        void OnUpdate(Timestep ts);
+        void OnUpdate(Timestep DeltaTime);
         void OnStop();
 
         void Clear();
@@ -54,8 +58,14 @@ namespace Engine
         template<class T>
         void RemoveComponentOf(const EntityHandle& entityHandle);
 
+        inline Engine::Camera::ICamera* GetActiveCamera() { return m_ActiveCamera; }
+        inline void SetActiveCamera(Engine::Camera::ICamera* Camera) { m_ActiveCamera = Camera; }
+        void AddPhysicsSimulator(Engine::Physics::IPhysicsSimulator* Simulator);
+        void RemovePhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator);
     private:
-        EntitiesRegistry m_registry;
+        EntitiesRegistry m_registry = EntitiesRegistry(this);
+        Engine::Camera::ICamera* m_ActiveCamera = nullptr;
+        std::unordered_map<RTTI::ClassType*, Engine::Physics::IPhysicsSimulator*> m_PhysicsSimulators;
     };
 
     // Scene
@@ -105,6 +115,12 @@ namespace Engine
 
     template<class T>
     T* Entity::GetComponent()
+    {
+        return m_scene->GetComponentOf<T>(m_handle);
+    }
+
+    template<class T>
+    const T* Entity::GetComponent() const
     {
         return m_scene->GetComponentOf<T>(m_handle);
     }

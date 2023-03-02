@@ -6,8 +6,9 @@
 
 namespace Engine::UI
 {
-    void Widget::AddChild(Widget *child)
+    void Widget::AddChild(Widget *child, int index)
     {
+        child->SetLayoutIndex(index);
         CompositeComponent<Widget>::AddChild(child);
         UpdatePosition();
     }

@@ -7,7 +7,6 @@ set(ENGINE_HEADERS
 
         Engine/Core/UUID.hpp
         Engine/Core/Time.hpp
-        Engine/Core/RTTI/ClassType.hpp
         Engine/Core/Logger/Logger.hpp
         Engine/Core/Logger/Logger.tpp
         Engine/Core/Logger/ConsoleColor.hpp
@@ -15,6 +14,7 @@ set(ENGINE_HEADERS
         Engine/Core/Application/LayerStack.hpp
         Engine/Core/ScenesSystem/ScenesLayer/ScenesLayer.hpp
         Engine/Core/Application/ApplicationLayer.hpp
+        Engine/RTTI/ClassType.hpp
         Engine/Core/Components/Transform.hpp
         Engine/Core/Components/SpriteRenderer.hpp
         Engine/Core/Components/CompositeComponent.hpp
@@ -39,6 +39,7 @@ set(ENGINE_HEADERS
         Engine/Core/Inputs/InputConfig.hpp
         Engine/Core/Inputs/Observable.hpp
         Engine/Core/Inputs/Observable.tpp
+
         Engine/Core/Inputs/Binding.hpp
 
         Engine/UI/Widget/Widget.hpp
@@ -51,11 +52,20 @@ set(ENGINE_HEADERS
         Engine/UI/Layout/Grid/WidgetGrid.hpp
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp
+        Engine/UI/Components/ProgressBar/ProgressBarWidget.hpp
+        Engine/UI/Layout/Plan/WidgetPlan.hpp
 
         Engine/Core/EntityPrefab/EntityPrefab.hpp
         Engine/Core/ScenesSystem/ScenesSystem.hpp
         Engine/Core/ScenesSystem/ScenesSystem.tpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp
+
+
+        Engine/Core/Components/Physics.hpp
+        Engine/Maths/Vector.hpp
+        Engine/Maths/Shape.hpp
+        Engine/Maths/Graph.hpp
+        Engine/Maths/Collisions.hpp
 )
 
 set(ENGINE_SOURCES
@@ -92,9 +102,20 @@ set(ENGINE_SOURCES
         Engine/UI/Layout/Grid/WidgetGrid.cpp
         Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.cpp
         Engine/UI/Layout/VerticalBox/WidgetVerticalBox.cpp
+        Engine/UI/Components/ProgressBar/ProgressBarWidget.cpp
 
         Engine/Core/ScenesSystem/ScenesSystem.cpp
         Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.cpp
+        Engine/UI/Layout/Plan/WidgetPlan.cpp
+
+        Engine/Core/Components/Physics.cpp
+        Engine/Maths/Vector.cpp
+        Engine/Maths/Shape.cpp
+        Engine/Maths/Graph.cpp
+        Engine/Maths/Collisions.cpp
+        Engine/Maths/Angles.cpp
+        Engine/Core/Camera/Camera.cpp
+        Engine/Core/Physics/Physics.cpp
 )
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
@@ -104,3 +125,14 @@ add_library(Engine
 
 target_link_libraries(Engine
         PUBLIC sfml-system sfml-network sfml-graphics sfml-window)
+
+
+set(CMAKE_SOURCE_ASSETS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Assets)
+set(CMAKE_RUNTIME_ASSETS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/Assets)
+
+add_custom_command(
+        TARGET Engine POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_ASSETS_DIRECTORY}
+        ${CMAKE_RUNTIME_ASSETS_DIRECTORY}
+)

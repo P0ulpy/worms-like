@@ -76,48 +76,52 @@ namespace ConsoleColor
 
 #endif
 
-#ifdef LINUX
+#ifdef linux
 
 namespace ConsoleColor
 {
     inline std::ostream& blue(std::ostream &s)
     {
-        return s;
+        return s << "\033[1;34m";
     }
 
     inline std::ostream& red(std::ostream &s)
     {
-        return s;
+        return s << "\033[1;31m";
     }
 
     inline std::ostream& green(std::ostream &s)
     {
-        return s;
+        return s << "\033[1;32m";
     }
 
     inline std::ostream& yellow(std::ostream &s)
     {
-        return s;
+        return s << "\033[1;33m";
     }
 
     inline std::ostream& white(std::ostream &s)
     {
-        return s;
+        return s << "\033[1;97m";
     }
 
-    /*struct color {
-        color(WORD attribute):m_color(attribute){};
-        WORD m_color;
+    inline std::ostream& reset(std::ostream &s) { return s << "\033[0m"; }
+
+    struct color
+    {
+        explicit color(std::string& attribute)
+            : m_color(attribute)
+        {};
+
+        std::string m_color;
     };
 
-    template <class _Elem, class _Traits>
-    std::basic_ostream<_Elem,_Traits>&
-    operator<<(std::basic_ostream<_Elem,_Traits>& i, color& c)
+    template <class Elem, class Traits>
+    std::basic_ostream<Elem, Traits>&
+    operator<<(std::basic_ostream<Elem, Traits>& i, color& c)
     {
-        HANDLE hStdout=GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleTextAttribute(hStdout,c.m_color);
-        return i;
-    }*/
+        return i << c;
+    }
 }
 
 #endif

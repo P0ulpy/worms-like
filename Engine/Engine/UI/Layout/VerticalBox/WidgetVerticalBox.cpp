@@ -20,5 +20,22 @@ namespace Engine::UI {
             child->SetPosition({position.x, y});
             y += child->GetSize().y + m_spacing;
         }
+
+        UpdateSize();
+    }
+
+    void WidgetVerticalBox::UpdateSize() const {
+        auto children = GetChildren();
+        float width = 0.0f;
+        float height = 0.0f;
+
+        for (auto& child : children) {
+            width = std::max(width, child->GetSize().x);
+            height += child->GetSize().y + m_spacing;
+        }
+
+        height -= m_spacing;
+
+        m_size = {width, height};
     }
 } // UI

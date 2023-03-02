@@ -16,6 +16,7 @@ namespace Engine::UI {
 
         private:
             void UpdatePosition() const override;
+            void UpdateSize() const override;
 
             float m_spacing { 0.0f };
         };

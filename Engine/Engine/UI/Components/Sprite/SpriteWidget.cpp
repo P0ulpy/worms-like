@@ -30,4 +30,9 @@ namespace Engine::UI {
             m_sprite.setScale(scale);
             UpdateSize();
         }
+
+    void SpriteWidget::SetSize(const sf::Vector2f &size) {
+        Widget::SetSize(size);
+        m_sprite.setScale(size.x / m_sprite.getGlobalBounds().width, size.y / m_sprite.getGlobalBounds().height);
+    }
 } // UI

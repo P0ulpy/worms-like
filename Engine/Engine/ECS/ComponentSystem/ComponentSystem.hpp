@@ -27,11 +27,12 @@ namespace Engine
 
         std::unordered_map<EntityHandle, TComponent> components {};
 
-        Component* Add(EntityHandle entityHandle) override;
+        Component* Add(EntityHandle entityHandle, Scene* scene) override;
         void Remove(EntityHandle entityHandle) override;
         void Remove(EntityHandle entityHandle, typename std::unordered_map<EntityHandle, TComponent>::iterator& removedComponentIt);
         bool Has(EntityHandle entityHandle) override;
         Component* Get(EntityHandle entityHandle) override;
+        TComponent* GetOf(EntityHandle entityHandle);
         void View(ViewCallback callback) override;
         void Clear() override;
 
@@ -41,7 +42,6 @@ namespace Engine
         void DispatchRender(sf::RenderTarget &renderTarget) override;
         void DispatchDestroy() override;
     };
-
 } // Engine
 
 #include "ComponentSystem.tpp"

@@ -9,8 +9,7 @@
 #include "../../ECS/Component/Component.hpp"
 #include "Transform.hpp"
 
-namespace Engine {
-
+namespace Engine::Components {
     class SpriteRenderer : public Engine::Component
     {
     public:
@@ -45,9 +44,9 @@ namespace Engine {
         {
             if(transform)
             {
-                RenderSprite.setPosition(transform->Pos);
+                RenderSprite.setPosition({(float) transform->Pos.GetX(), (float) transform->Pos.GetY()});
                 RenderSprite.setRotation(transform->Angle);
-                RenderSprite.setScale(transform->Scale);
+                RenderSprite.setScale({(float) transform->Scale.GetX(), (float) transform->Scale.GetY()});
             }
         }
     };

@@ -35,6 +35,12 @@ namespace SignalSystem
     }
 
     template<typename Type>
+    void Observable<Type>::forceDisconnect()
+    {
+        m_scopedConnection = ScopedConnection<Type>();
+    }
+
+    template<typename Type>
     void Observable<Type>::notify()
     {
         m_signal(m_value);

@@ -22,9 +22,10 @@ namespace Engine
     {
     private:
         EntityPrefab() = default;
-        ~EntityPrefab() = default;
 
     public:
+        ~EntityPrefab() = default;
+
         [[nodiscard]] Entity Instantiate(Scene* scene);
         virtual void Init(Entity& entity) = 0;
 

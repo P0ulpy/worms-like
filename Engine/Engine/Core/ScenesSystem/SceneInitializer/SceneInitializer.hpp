@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include "../../RTTI/ClassType.hpp"
-
 namespace Engine
 {
     class Scene;
