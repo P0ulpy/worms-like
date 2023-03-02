@@ -9,9 +9,21 @@
 
 namespace Engine
 {
+    /**
+     * @brief A prefab is a template for an entity.
+     * It is used to create entities with a specific set of components.
+     * Prefabs inherited class should never be inherited, in this case the TComponents will never be instantiated.
+     * The lifetime of the prefab class instance is only used to instantiate the entity, so after the instantiation, the prefab class instance is destroyed.
+     * Prefabs are should never be instantiated directly, but through the Scene::InstantiatePrefab() method.
+     * @tparam TComponents The components to add to the entity.
+     */
     template <class... TComponents>
     class EntityPrefab
     {
+    private:
+        EntityPrefab() = default;
+        ~EntityPrefab() = default;
+
     public:
         [[nodiscard]] Entity Instantiate(Scene* scene);
         virtual void Init(Entity& entity) = 0;
@@ -19,6 +31,8 @@ namespace Engine
     private:
         template<class TComponent, class... TComponentsToInstantiate>
         void InstantiateComponents(Entity& entity);
+
+        friend class Scene;
     };
 
     template<class... TComponents>

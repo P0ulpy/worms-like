@@ -11,6 +11,13 @@
 
 namespace Engine
 {
+    /**
+     * @brief Base class for all components.
+     * A component is a class that can be attached to an entity.
+     * It is used to add functionality to an entity.
+     * @note A component can not exist without an entity.
+     * @note A component inherited class need to use the macro DECLARE_CLASS_TYPE(MyComponent, Ancestor) to be able to be instantiated correctly.
+     */
     class Component : public IClassType
     {
     public:
@@ -60,6 +67,7 @@ namespace Engine
 
         template <class TComponent>
         friend class ComponentSystem;
+        friend class Scene;
     };
 
 } // Engine

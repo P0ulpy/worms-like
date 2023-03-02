@@ -9,6 +9,9 @@
 
 namespace Engine::Core
 {
+    /**
+     * @brief The UUID class is a 64 bits unique identifier.
+     */
     class UUID
     {
     private:

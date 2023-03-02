@@ -13,6 +13,10 @@ namespace Engine
 {
     // TODO : use a custom memory pool instead of std::unordered_map to store components contiguously
 
+    /**
+     * @brief A ComponentSystem is a container of components of the same type
+     * @tparam TComponent The type of the component to store it should be derived from Component
+     */
     template <class TComponent>
     class ComponentSystem : public IComponentSystem
     {

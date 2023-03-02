@@ -14,6 +14,12 @@
 
 namespace Engine
 {
+    /**
+     * @brief A scene is a collection of entities.
+     * It is used to group entities together.
+     * it no store directly the entities, but a registry that store the entities.
+     * The scene is responsible for the lifetime of the entities.
+     */
     class Scene
     {
     public:
@@ -57,19 +63,24 @@ namespace Engine
     template<class TPrefab>
     Entity Scene::InstantiatePrefab()
     {
+        // TODO : Assert TPrefab inherit from EntityPrefab<>
+
         TPrefab prefab;
         return prefab.Instantiate(this);
     }
 
     template<class T>
-    T *Scene::GetComponentOf(const EntityHandle &entityHandle) {
+    T *Scene::GetComponentOf(const EntityHandle &entityHandle)
+    {
         return m_registry.GetComponentOf<T>(entityHandle);
     }
 
     template<class T>
     T *Scene::AddComponentTo(const EntityHandle &entityHandle)
     {
-        return m_registry.AddComponentTo<T>(entityHandle);
+        T* component = m_registry.AddComponentTo<T>(entityHandle);
+        component->m_scene = this;
+        return component;
     }
 
     template<class T>
