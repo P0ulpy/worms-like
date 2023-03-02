@@ -27,7 +27,7 @@ namespace Engine
         const T* GetComponent() const;
 
         template<typename T>
-        bool HasComponent();
+        bool HasComponent() const;
 
         template<typename T>
         void RemoveComponent();

@@ -56,6 +56,7 @@ namespace Game::Controllers
         m_KeyDownConnection = SignalSystem::InputSignal::Get()->connectScoped("player_down", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleDown();});
         m_KeyLeftConnection = SignalSystem::InputSignal::Get()->connectScoped("player_left", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleLeft();});
         m_KeyRightConnection = SignalSystem::InputSignal::Get()->connectScoped("player_right", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleRight();});
+        m_shootConnection = SignalSystem::InputSignal::Get()->connectScoped("player_shoot", [this]() {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleShoot();});
     }
 
     void SidePlayerController::OnJump() {
@@ -87,5 +88,16 @@ namespace Game::Controllers
     void SidePlayerController::SetPlayerCharacter(Actors::PlayerCharacter *Character) {
         m_PlayerCharacter = Character;
         SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineGrounded>();
+    }
+
+    void SidePlayerController::OnShoot() {
+        if(!m_startShooting) {
+            m_startShooting = true;
+        } else
+        {
+            if(m_shootCallback)
+                m_shootCallback();
+            m_startShooting = false;
+        }
     }
 }

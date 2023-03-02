@@ -15,6 +15,7 @@ namespace Game::Actors {
         OnEvent OnLeft;
         OnEvent OnRight;
         OnEvent OnDown;
+        OnEvent OnShoot;
 
         bool isLock = false;
 
@@ -25,6 +26,7 @@ namespace Game::Actors {
         virtual void HandleLeft() const = 0;
         virtual void HandleRight() const = 0;
         virtual void HandleDown() const = 0;
+        virtual void HandleShoot() const = 0;
 
         virtual ~CharacterMovementStateMachine() = default;
     };
@@ -34,6 +36,7 @@ namespace Game::Actors {
         void HandleLeft() const override {if(isLock) return; OnLeft();}
         void HandleRight() const override {if(isLock) return; OnRight();}
         void HandleDown() const override {if(isLock) return; OnDown();}
+        void HandleShoot() const override {if(isLock) return; OnDown();}
     };
 
     struct CharacterMovementStateMachineGrounded : public CharacterMovementStateMachine {
@@ -54,6 +57,10 @@ namespace Game::Actors {
         void HandleDown() const override {
             /*ignore*/
         }
+
+        void HandleShoot() const override {
+            OnShoot();
+        }
     };
 
     class PlayerCharacter : public Engine::Component {
@@ -65,8 +72,6 @@ namespace Game::Actors {
 
         void OnUpdate(const float& DeltaTime);
         void OnRender(sf::RenderTarget& renderTarget);
-
-        void SetWeaponToShoot(std::function<void()> shootCallback) { m_shootCallback = shootCallback; }
 
         ~PlayerCharacter() override;
 
@@ -83,24 +88,9 @@ namespace Game::Actors {
             StateMachine->OnLeft = [this]()->void {/*ignore*/};
             StateMachine->OnRight = [this]()->void {/*ignore*/};
             StateMachine->OnDown = [this]()->void {/*ignore*/};
+            StateMachine->OnShoot = [this]()->void {/*ignore*/};
         }
 
         sf::Sprite m_sprite;
-        SignalSystem::ScopedConnectionSignal m_shootConnection;
-
-        std::function<void()> m_shootCallback;
-        bool m_startShooting = false;
-
-        void OnShoot()
-        {
-            if(!m_startShooting) {
-                m_startShooting = true;
-            } else
-            {
-                if(m_shootCallback)
-                    m_shootCallback();
-                m_startShooting = false;
-            }
-        }
     };
 }

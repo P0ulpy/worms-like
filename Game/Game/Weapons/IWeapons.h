@@ -9,6 +9,10 @@
 #include "SFML/Graphics/Texture.hpp"
 #include "SFML/Graphics/Sprite.hpp"
 
+namespace Game::Actors {
+    class PlayerCharacter;
+}
+
 namespace Game::Weapons
 {
     class Weapons : public Engine::Component
@@ -29,6 +33,7 @@ namespace Game::Weapons
 
         [[nodiscard]] float GetDamage() const { return m_damage; }
 
+        Game::Actors::PlayerCharacter* Owner = nullptr;
     protected:
         sf::Sprite m_sprite;
         float m_damage = 0.f;

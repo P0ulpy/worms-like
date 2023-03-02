@@ -15,13 +15,9 @@ namespace Game::Actors {
         RigidBodyComponent->SetRigidBody(Rect);
         RigidBodyComponent->CanRotate = false;
 
-        RigidBodyComponent->SetOnCollisionCallback([this]() {
-
-       });
-
-        m_shootConnection = SignalSystem::InputSignal::Get()->connectScoped("player_shoot", [this]() {
-            OnShoot();
-        });
+//        RigidBodyComponent->SetOnCollisionCallback([this]() {
+//
+//        });
     }
 
     PlayerCharacter::~PlayerCharacter() {
