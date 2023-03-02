@@ -51,18 +51,15 @@ namespace Game::Actors {
     class PlayerCharacter : public Engine::Component {
     public:
         using RequiredComponents = Engine::ComponentRequirements<Engine::Components::Physics::RigidBody2DdComponent>;
-
         DECLARE_CLASS_TYPE(PlayerCharacter, Engine::Component)
+
 
         void OnAwake();
 
         ~PlayerCharacter() override;
-    private:
-        SignalSystem::ScopedConnectionSignal m_KeyLeftConnection;
-        SignalSystem::ScopedConnectionSignal m_KeyRightConnection;
-        SignalSystem::ScopedConnectionSignal m_KeyJumpConnection;
-        SignalSystem::ScopedConnectionSignal m_KeyDownConnection;
 
+        CharacterMovementStateMachine* StateMachine = nullptr;
+    private:
         template <typename ST>
         void SetStateMachine()
         {
@@ -70,22 +67,10 @@ namespace Game::Actors {
 
             delete StateMachine;
             StateMachine = new ST();
-            StateMachine->OnJump = [this]()->void {OnJump();};
-            StateMachine->OnLeft = [this]()->void {OnLeft();};
-            StateMachine->OnRight = [this]()->void {OnRight();};
-            StateMachine->OnDown = [this]()->void {OnDown();};
+            StateMachine->OnJump = [this]()->void {/*ignore*/};
+            StateMachine->OnLeft = [this]()->void {/*ignore*/};
+            StateMachine->OnRight = [this]()->void {/*ignore*/};
+            StateMachine->OnDown = [this]()->void {/*ignore*/};
         }
-
-        void CallJump();
-        void CallLeft();
-        void CallRight();
-        void CallDown();
-
-        void OnJump();
-        void OnLeft();
-        void OnRight();
-        void OnDown();
-
-        CharacterMovementStateMachine* StateMachine = nullptr;
     };
 }

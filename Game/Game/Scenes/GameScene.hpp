@@ -36,7 +36,7 @@ public:
         auto PlayerCharacterEntity = scene->CreateEntity();
         auto PlayerCharacter = PlayerCharacterEntity.AddComponent<Game::Actors::PlayerCharacter>();
         auto PlayerTransform = PlayerCharacterEntity.GetComponent<Engine::Components::Transform>();
-        Controller->PlayerCharacter = PlayerCharacter;
+        Controller->SetPlayerCharacter(PlayerCharacter);
 
         Map::Map<200> Map;
         Map::NoiseGenerator MapNoiseGenerator;
