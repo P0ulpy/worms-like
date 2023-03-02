@@ -64,8 +64,8 @@ namespace Engine::Physics {
         ) override
         {
             auto& Components = EntitiesRegistry->GetSystem<RigidBodyComponentT>()->components;
-            std::vector<CachedEntity> Bodies;
-            Bodies.reserve(Components.size());
+            static std::vector<CachedEntity> Bodies(Components.size());
+            Bodies.clear();
             for (auto& [Handle, Component] : Components)
             {
                 auto Transform = Component.GetEntityTransform();
@@ -138,8 +138,8 @@ namespace Engine::Physics {
                 auto BodyTransform = CachedEntity.Transform;
 
                 if (!ActiveIntervals.empty()) {
-                    for (auto CachedEntityIt = ActiveIntervals.rbegin(); CachedEntityIt != ActiveIntervals.rend(); CachedEntityIt++) {
-                        auto WithCachedEntity = *CachedEntityIt;
+                    for (int i = ActiveIntervals.size() - 1; i >= 0; i--) {
+                        auto WithCachedEntity = ActiveIntervals[i];
                         auto WithCachedEntityBody = WithCachedEntity.Body;
                         if (Body->IsStatic && WithCachedEntityBody->IsStatic)
                         {
@@ -154,15 +154,15 @@ namespace Engine::Physics {
                             LikelyToCollide.push_back({CachedEntity, WithCachedEntity});
                         } else {
                             // we do not need to keep it as we are only going further
-                            ActiveIntervals.erase(std::next(CachedEntityIt).base());
+                            ActiveIntervals.erase(ActiveIntervals.begin() + i);
                         }
                     }
                 }
                 ActiveIntervals.push_back(CachedEntity);
             }
 
-            std::vector<CollisionManifoldWithBodies> ContactManifolds;
-            ContactManifolds.reserve(LikelyToCollide.size() / 2);
+            static std::vector<CollisionManifoldWithBodies> ContactManifolds(LikelyToCollide.size() / 2);
+            ContactManifolds.clear();
             for (auto& [CollidingBodyA, CollidingBodyB] : LikelyToCollide)
             {
                 CheckAndHandleCollision(
