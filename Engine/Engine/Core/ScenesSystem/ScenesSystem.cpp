@@ -42,7 +42,7 @@ namespace Engine
     {
         if(!m_scenesInitializers.contains(name))
         {
-            Logger::Err("ScenesSystemLayer::LoadScene() : SceneInitializer", name, "is not declared !");
+            Logger::Err("ScenesSystemLayer::LoadScene() : SceneInitializer ", name, " is not declared !");
             return;
         }
 
@@ -50,8 +50,6 @@ namespace Engine
             .waiting = true,
             .name = name,
         };
-
-        Logger::Log("Scene", m_waitingForSceneLoad.name, "is waiting end of frame for load !");
     }
 
     void ScenesSystem::ApplyLoadScene()
@@ -68,7 +66,7 @@ namespace Engine
             .name = {},
         };
 
-        Logger::Log("Scene", m_activeSceneName, "loaded !");
+        Logger::Log("Scene `", m_activeSceneName, "` loaded");
     }
 
     void ScenesSystem::UnloadActiveScene()
@@ -77,7 +75,7 @@ namespace Engine
         m_activeScene->Clear();
         m_activeScene = nullptr;
 
-        Logger::Log("Scene", m_activeSceneName, "unloaded !");
+        Logger::Log("Scene `", m_activeSceneName, "` unloaded");
 
         m_activeSceneName = {};
     }

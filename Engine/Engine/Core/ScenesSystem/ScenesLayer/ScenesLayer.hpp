@@ -10,6 +10,10 @@
 
 namespace Engine
 {
+    /**
+     * @brief The ScenesLayer class is a layer that manages the scenes.
+     * It is responsible of the ScenesSystem instance.
+     */
     class ScenesLayer : public ApplicationLayer
     {
     public:

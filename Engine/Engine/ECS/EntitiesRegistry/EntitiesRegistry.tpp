@@ -80,7 +80,7 @@ namespace Engine
     void EntitiesRegistry::RemoveComponentOf(EntityHandle entityHandle)
     {
         return GetSystem<T>()
-                ->Remove(entityHandle);
+                ->RemoveAfter(entityHandle);
     }
 
     template<class T>

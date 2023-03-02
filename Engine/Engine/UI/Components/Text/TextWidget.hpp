@@ -15,10 +15,11 @@ namespace Engine::UI {
             DECLARE_CLASS_TYPE(TextWidget, Widget)
 
             virtual void OnUpdate(float deltaTime);
-            virtual void OnRender(sf::RenderTarget& renderTarget);
+            void OnRender(sf::RenderTarget& renderTarget) override;
 
             void Init(const std::string& text, sf::Font* font, const sf::Vector2f& position, unsigned int characterSize = 30,  const sf::Color& color = sf::Color::White);
 
+            void SetText(const std::string_view& newText);
             void SetPosition(const sf::Vector2f& position) override;
 
         private:

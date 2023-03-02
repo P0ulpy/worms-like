@@ -22,6 +22,10 @@ namespace Engine
         std::string_view name {};
     };
 
+    /**
+     * @brief The ScenesSystem class is a singleton that manages the scenes.
+     * It is responsible for loading and unloading scenes.
+     */
     class ScenesSystem
     {
     public:

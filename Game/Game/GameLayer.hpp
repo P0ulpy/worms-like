@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "Engine/Core/Application/ApplicationLayer.hpp"
 
 class GameLayer : public Engine::ApplicationLayer {

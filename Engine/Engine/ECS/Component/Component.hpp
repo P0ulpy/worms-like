@@ -2,8 +2,7 @@
 // Created by Flo on 25/11/2022.
 //
 
-#ifndef PATHFINDER_COMPONENT_HPP
-#define PATHFINDER_COMPONENT_HPP
+#pragma once
 
 #include "../../Core/UUID.hpp"
 #include "../Handles/Handles.hpp"
@@ -27,7 +26,14 @@ namespace Engine
             Traversor.template operator()<T...>();
         }
     };
-
+    
+    /**
+     * @brief Base class for all components.
+     * A component is a class that can be attached to an entity.
+     * It is used to add functionality to an entity.
+     * @note A component can not exist without an entity.
+     * @note A component inherited class need to use the macro DECLARE_CLASS_TYPE(MyComponent, Ancestor) to be able to be instantiated correctly.
+     */
     class Component : public RTTI::IClassType
     {
     public:
@@ -80,8 +86,7 @@ namespace Engine
 
         template <class TComponent>
         friend class ComponentSystem;
+        friend class Scene;
     };
 
 } // Engine
-
-#endif //PATHFINDER_COMPONENT_HPP

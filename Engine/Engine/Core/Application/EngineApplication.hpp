@@ -2,9 +2,10 @@
 
 #include <vector>
 #include <memory>
-#include "ApplicationLayer.hpp"
 
-#include "SFML/Graphics/RenderWindow.hpp"
+#include <SFML/Graphics/RenderWindow.hpp>
+
+#include "ApplicationLayer.hpp"
 
 namespace Engine
 {

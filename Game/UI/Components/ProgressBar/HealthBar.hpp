@@ -5,7 +5,6 @@
 #ifndef WORMS_LIKE_HEALTHBAR_HPP
 #define WORMS_LIKE_HEALTHBAR_HPP
 
-
 #include "Engine/UI/Components/ProgressBar/ProgressBarWidget.hpp"
 
 namespace Game::UI
