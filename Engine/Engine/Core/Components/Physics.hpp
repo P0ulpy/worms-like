@@ -504,9 +504,11 @@ namespace Engine::Components::Physics
             }
         }
 
-        ~RigidBody2DComponent() override {
+        void OnDestroy()
+        {
             delete m_RigidBody;
         }
+
     private:
         // @todo can be useful to have multiple rigidbodies with constraints
         IRigidBodyT* m_RigidBody;
