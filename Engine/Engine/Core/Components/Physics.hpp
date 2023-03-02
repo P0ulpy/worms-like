@@ -3,7 +3,6 @@
 #include "../../Maths/Shape.hpp"
 #include "../../ECS/Component/Component.hpp"
 #include "Transform.hpp"
-//#include "../../Maths/Graph.hpp"
 #include "../../Maths/Collisions.hpp"
 #include "../Application/EngineApplication.hpp"
 #include "../Camera/Camera.hpp"
@@ -259,7 +258,7 @@ namespace Engine::Components::Physics
 
         static constexpr PT Gravity = PT(9.80665f);
         static PhysicsVectorT GravityDirection;
-        static constexpr PT LinearDrag = PT(0.5f);
+        static constexpr PT LinearDrag = PT(0.05f);
         static constexpr PT AngularDrag = PT(0.5f);
 
         MaterialT Material;
@@ -517,8 +516,11 @@ namespace Engine::Components::Physics
         )
         {
             if (this->IsStatic) {
+                RigidBody->LinearVelocity = PhysicsVectorT(PhysicsT(0.f), PhysicsT(0.f));
+                RigidBody->AngularVelocity = 0;
                 return;
             }
+
             RigidBody->IsCacheComputed = false;
             const auto GravityVec = GravityDirection * GravityScale * Gravity;
             const PhysicsVectorT linearAcceleration = PhysicsVectorT(
@@ -529,15 +531,15 @@ namespace Engine::Components::Physics
             const auto StepMsMultiplier = (StepMs / 1000);
             RigidBody->LinearVelocity.GetX() += (linearAcceleration.GetX() + GravityVec.GetX()) * StepMsMultiplier;
             RigidBody->LinearVelocity.GetY() += (linearAcceleration.GetY() + GravityVec.GetY()) * StepMsMultiplier;
-            const auto angularAcceleration = RigidBody->Torque * RigidBody->InvMomentOfInertiaForZ;
 
             if (CanRotate) {
+                const auto angularAcceleration = RigidBody->Torque * RigidBody->InvMomentOfInertiaForZ;
                 EntityTransform->Angle += Maths::Angles::RadToDeg(RigidBody->AngularVelocity * StepMsMultiplier);
                 if (EntityTransform->Angle >= 360.f) {
                     EntityTransform->Angle -= 360.f;
                 }
+                RigidBody->AngularVelocity += angularAcceleration * StepMsMultiplier;
             }
-            RigidBody->AngularVelocity += angularAcceleration * StepMsMultiplier;
 
             // in centimeters
             EntityTransform->Pos.GetX() += (RigidBody->LinearVelocity.GetX() * 100.f) * StepMsMultiplier;
