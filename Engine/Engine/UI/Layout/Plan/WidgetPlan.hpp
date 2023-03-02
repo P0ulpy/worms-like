@@ -27,19 +27,24 @@ namespace Engine::UI
         void AddChild(Widget *child, int index) override
         {
             Widget::AddChild(child, index);
-            child->SetPosition(GetPosition() + child->GetPosition());
         }
 
         void SetPosition(const sf::Vector2f& position) override
         {
-            m_previousPosition = position;
+            m_previousPosition = m_position;
             Widget::SetPosition(position);
         }
 
+        void SetSize(const sf::Vector2f& size) override
+        {
+            m_previousSize = m_size;
+            Widget::SetSize(size);
+        }
     private:
         sf::Vector2f m_previousPosition {0, 0};
+        sf::Vector2f m_previousSize {0, 0};
 
-        void UpdatePosition() const override
+        void UpdatePosition() override
         {
             auto delta = GetPosition() - m_previousPosition;
 
@@ -47,6 +52,29 @@ namespace Engine::UI
             for (auto& child : children)
             {
                 child->SetPosition(child->GetPosition() + delta);
+            }
+        }
+
+        void UpdateSize() override
+        {
+            if (m_previousSize.x == 0 || m_previousSize.y == 0) return;
+
+            auto RatioX = GetSize().x / m_previousSize.x;
+            auto RatioY = GetSize().y / m_previousSize.y;
+            if (RatioX == 1 && RatioY == 1) return;
+
+            auto children = GetChildren();
+            for (auto& child : children)
+            {
+                // @todo : this does not seem to work for now with nested Vertical/HorizontalBoxes...
+//                child->SetSize({
+//                   child->GetSize().x * RatioX,
+//                   child->GetSize().y * RatioY,
+//                });
+//                child->SetPosition({
+//                   GetPosition().x + (child->GetPosition().x - GetPosition().x) * RatioX,
+//                   GetPosition().y + (child->GetPosition().y - GetPosition().y) * RatioY,
+//                });
             }
         }
     };

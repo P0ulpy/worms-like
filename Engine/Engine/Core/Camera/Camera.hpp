@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "../../ECS/ComponentSystem/IComponentSystem.hpp"
 #include "../../Maths/Vector.hpp"
+#include "../../UI/Widget/Widget.hpp"
 
 namespace Engine::Camera {
     class ICamera {
@@ -12,7 +13,7 @@ namespace Engine::Camera {
             sf::RenderTarget& RenderTarget,
             const std::unordered_map<RTTI::ClassType*, IComponentSystem*>& RenderableSystems
         ) = 0;
-
+        virtual void SetUICanvasSize(Engine::UI::Widget* Widget) const {};
         virtual ~ICamera() = default;
     };
 
@@ -74,6 +75,13 @@ namespace Engine::Camera {
         {
             return m_CurrentSize;
         }
+
+        void SetUICanvasSize(Engine::UI::Widget* Widget) const override
+        {
+            Widget->SetSize({(float) m_CurrentSize.GetX(), (float) m_CurrentSize.GetY()});
+            Widget->SetPosition({(float) (Position.GetX() - (m_CurrentSize.GetX() / 2)), (float) (Position.GetY() - (m_CurrentSize.GetY() / 2))});
+        }
+
     private:
         Maths::Vector<GeometricT, 2> m_CurrentSize;
     };

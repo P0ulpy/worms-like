@@ -22,7 +22,6 @@ void Player::Init(const std::string &name, Engine::UI::WidgetVerticalBox* vertic
 
     auto planHealthPlayerWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetPlan>();
     planHealthPlayerWidget->Init({0.0f, 0.0f});
-    verticalBoxPlayersWidget->AddChild(planHealthPlayerWidget, 0);
 
     auto verticalBoxEntity = scene->CreateEntity();
     auto verticalBoxWidget = verticalBoxEntity.AddComponent<Engine::UI::WidgetVerticalBox>();
@@ -44,12 +43,13 @@ void Player::Init(const std::string &name, Engine::UI::WidgetVerticalBox* vertic
 
     auto backgroundWidget = scene->CreateEntity().AddComponent<Engine::UI::SpriteWidget>();
     backgroundWidget->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/GUI/Sprites/UI_Flat_Frame_03_Standard.png"), {0.0f, 0.0f});
-    planHealthPlayerWidget->AddChild(backgroundWidget, -1);
 
     backgroundWidget->SetSize(verticalBoxWidget->GetSize() + sf::Vector2f{10.0f, 5.0f});
-    planHealthPlayerWidget->SetSize(verticalBoxWidget->GetSize() + sf::Vector2f{10.0f, 5.0f});
+    planHealthPlayerWidget->SetSize(backgroundWidget->GetSize());
 
+    planHealthPlayerWidget->AddChild(backgroundWidget, -1);
     planHealthPlayerWidget->AddChild(verticalBoxWidget, 0);
+    verticalBoxPlayersWidget->AddChild(planHealthPlayerWidget, 0);
 }
 
 void Player::OnPlayerTurnBegin()

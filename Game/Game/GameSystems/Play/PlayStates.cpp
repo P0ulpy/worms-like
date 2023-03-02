@@ -6,7 +6,6 @@
 #include "../../../UI/Layout/Grid/InventoryPlayer.hpp"
 #include "Engine/UI/Components/Buttons/SpriteButton/SpriteButtonWidget.hpp"
 #include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
-#include "../../Prefabs/GrenadePrefab.h"
 
 #include <Engine/Core/ScenesSystem/ScenesSystem.hpp>
 
@@ -22,36 +21,27 @@ void PlayStates::CreateUI()
     auto windowSize = sf::Vector2f { Engine::EngineApplication::Get()->GetWindow().getSize() };
 
     auto canvasGameWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetCanvas>();
-    canvasGameWidget->Init({0, 0}, {windowSize.x, windowSize.y});
+    canvasGameWidget->Init();
 
     auto planPlayersWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetPlan>();
-    planPlayersWidget->Init({ 30.f, 30.f }, { 500.0f, 500.0f });
+    planPlayersWidget->Init({ 0.f, 0.f }, { 500.0f, 500.0f });
     canvasGameWidget->AddChild(planPlayersWidget, 0);
-
-    auto planInventoryWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetPlan>();
-    planInventoryWidget->Init({windowSize.x - 400.0f, windowSize.y - 550.0f}, {500.0f, 500.0f});
-    planInventoryWidget->SetActive(false);
-
-    m_inventoryConnection = SignalSystem::InputSignal::Get()->connectScoped("open_inventory", [planInventoryWidget]() {
-        if(planInventoryWidget->IsActive())
-            planInventoryWidget->SetActive(false);
-        else
-            planInventoryWidget->SetActive(true);
+    canvasGameWidget->SetChildOptions(planPlayersWidget, {
+        .Anchors=Engine::UI::CanvasAnchors::TOP_LEFT,
+        .BottomOffsetRatio=0.05f,
+        .RightOffsetRatio=0.05f,
+        .Size={500.0f, 500.0f}
     });
-
-    canvasGameWidget->AddChild(planInventoryWidget, 0);
 
     verticalBoxPlayersWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetVerticalBox>();
     verticalBoxPlayersWidget->Init({0.0f, 0.0f}, 15.0f);
-    planPlayersWidget->AddChild(verticalBoxPlayersWidget, 0);
-
     //Players Health
-
+    planPlayersWidget->AddChild(verticalBoxPlayersWidget, 0);
 
     //Timer
     {
         auto planTimerWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetPlan>();
-        planTimerWidget->Init({windowSize.x - 200.0f, 0.0f}, {200.0f, 200.0f});
+        planTimerWidget->Init({0.f, 0.f}, {200.0f, 200.0f});
         verticalBoxPlayersWidget->AddChild(planTimerWidget, 0);
 
         auto horizontalBoxWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetHorizontalBox>();
@@ -115,6 +105,17 @@ void PlayStates::CreateUI()
 
     //Inventory
     {
+        auto planInventoryWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetPlan>();
+        planInventoryWidget->Init({0.f, 0.f}, {0.f, 0.f});
+        planInventoryWidget->SetActive(false);
+
+        m_inventoryConnection = SignalSystem::InputSignal::Get()->connectScoped("open_inventory", [planInventoryWidget]() {
+            if(planInventoryWidget->IsActive())
+                planInventoryWidget->SetActive(false);
+            else
+                planInventoryWidget->SetActive(true);
+        });
+
         auto gridInventoryWidget = scene->CreateEntity().AddComponent<Game::UI::InventoryPlayer>();
         gridInventoryWidget->Init({4, 6}, {2.0f, 2.0f}, {0.0f, 0.0f}
                 , Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/GUI/Sprites/UI_Flat_Frame_03_Standard.png")
@@ -129,6 +130,14 @@ void PlayStates::CreateUI()
             itemWidget->Init(Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Texture/Items/bomb.png"), {0.0f, 0.0f}, 7.0f);
             gridInventoryWidget->AddChild(itemWidget, 0);
         }
+
+        canvasGameWidget->AddChild(planInventoryWidget, 0);
+        canvasGameWidget->SetChildOptions(planInventoryWidget, {
+            .Anchors=Engine::UI::CanvasAnchors::BOTTOM_RIGHT,
+            .BottomOffsetRatio=0.05f,
+            .RightOffsetRatio=0.05f,
+            .Size={500.0f, 500.0f}
+        });
     }
 }
 
