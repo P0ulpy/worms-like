@@ -1,6 +1,8 @@
 #pragma once
 
-#include "corecrt_math_defines.h"
+#ifdef WIN32
+    #include "corecrt_math_defines.h"
+#endif
 #include <cmath>
 
 #include "Vector.hpp"
