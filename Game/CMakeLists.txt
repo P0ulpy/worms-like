@@ -1,9 +1,14 @@
 set(GAME_HEADERS
         src/main.hpp
-        Game/Prefabs/TestPrefab.hpp
         Game/Scenes/MainMenuScene.hpp
         Game/Scenes/OptionScene.hpp
 
+        Game/GameSystems/GameStatesManager.hpp
+        Game/GameSystems/GameManagerPrefab.hpp
+
+        Game/Player/PlayerPrefab.hpp
+        Game/Player/PlayerController.hpp
+        Game/Player/Player.hpp
         Game/GameLayer.hpp
         UI/Components/ProgressBar/HealthBar.hpp
         UI/Layout/Grid/InventoryPlayer.hpp
@@ -14,10 +19,17 @@ set(GAME_HEADERS
         Game/Controllers/SidePlayerController.hpp
 
         Game/Actors/PlayerCharacter.hpp
-)
+        Game/AssetsPaths.hpp
+        Game/GameSystems/Team/PlayerTeam.hpp
+        Game/GameSystems/Play/PlayStates.hpp Game/GameSystems/Team/TeamUI.hpp Game/GameSystems/Play/TeamsTimersUI.hpp Game/GameSystems/Play/GlobalTimerUI.hpp)
 
 set(GAME_SOURCES
         src/main.cpp
+
+        Game/GameSystems/GameStatesManager.cpp
+
+        Game/Player/PlayerController.cpp
+        Game/Player/Player.cpp
         Game/GameLayer.cpp
         UI/Components/ProgressBar/HealthBar.cpp
         UI/Layout/Grid/InventoryPlayer.cpp

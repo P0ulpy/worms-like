@@ -17,7 +17,7 @@ Engine::EngineApplication::EngineApplication() {
 
     m_window.create(sf::VideoMode(800, 800), "Engine Window", sf::Style::Close | sf::Style::Resize);
 
-    m_scenesLayer = std::make_unique<ScenesLayer>(&m_window, "Scenes Layer");
+    m_scenesLayer = std::make_unique<ScenesLayer>(&m_window, "ScenesLayer");
     PushLayer(m_scenesLayer.get());
 }
 
@@ -31,7 +31,7 @@ void Engine::EngineApplication::PushLayer(Engine::ApplicationLayer *layer)
     if(m_running)
     {
         layer->OnAttach();
-        Logger::Log("Layer", layer->GetName(), "attached");
+        Logger::Log("Layer `", layer->GetName(), "` attached");
     }
 
     m_layers.push_back(layer);
@@ -40,7 +40,7 @@ void Engine::EngineApplication::PushLayer(Engine::ApplicationLayer *layer)
 void Engine::EngineApplication::RemoveLayer(Engine::ApplicationLayer *layer)
 {
     layer->OnDetach();
-    Logger::Log("Layer", layer->GetName(), "detached");
+    Logger::Log("Layer `", layer->GetName(), "` detached");
     m_layers.erase(std::find(m_layers.begin(), m_layers.end(),layer));
 }
 
@@ -51,7 +51,7 @@ void Engine::EngineApplication::Init()
     for(auto* layer : m_layers)
     {
         layer->OnAttach();
-        Logger::Log("Layer", layer->GetName(), "attached");
+        Logger::Log("Layer `", layer->GetName(), "` attached");
     }
 
     m_initialized = true;
@@ -94,6 +94,11 @@ void Engine::EngineApplication::Run()
         m_imGuiLayer.End();
 #endif
         m_window.display();
+
+        // Components & Entities cleanup
+        auto* activeScene = ScenesSystem::Get()->GetActiveScene();
+        if(activeScene)
+            activeScene->ApplyCleanup();
 
         if(ScenesSystem::Get()->IsWaitingForSceneLoad())
             ScenesSystem::Get()->ApplyLoadScene();

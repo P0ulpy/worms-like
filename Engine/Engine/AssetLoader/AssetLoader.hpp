@@ -25,7 +25,7 @@ namespace Engine {
     };
 
     template <class TAsset>
-    std::unordered_map<std::string, TAsset> AssetLoader<TAsset>::s_paths;
+    std::unordered_map<std::string, TAsset> AssetLoader<TAsset>::s_paths {};
 
     template<class TAsset>
     TAsset* AssetLoader<TAsset>::StaticGetAsset(const std::string &path)

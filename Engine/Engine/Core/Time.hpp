@@ -12,6 +12,10 @@ namespace Engine
 {
     using Timestep = float;
 
+    /**
+     * @brief The Time class is a singleton that store the delta time.
+     * The delta time is the time between two frames.
+     */
     class Time
     {
     public:

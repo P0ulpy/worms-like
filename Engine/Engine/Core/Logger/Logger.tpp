@@ -5,7 +5,7 @@ namespace Engine
     template<typename FirstMessage, typename ...Args>
     void Logger::BuildMessage(std::stringstream& out, const FirstMessage& first, Args... args)
     {
-        out << ' ' << first;
+        out << first;
 
         if constexpr (sizeof...(args) > 0)
             BuildMessage(out, args...);
@@ -23,7 +23,7 @@ namespace Engine
                      << CurrentDateTimeToString()
                      << "] "
                      << LogTypeLabel<logType>::value
-                     << ":";
+                     << ": ";
 
         logEntry.message = headerBuffer.str();
 

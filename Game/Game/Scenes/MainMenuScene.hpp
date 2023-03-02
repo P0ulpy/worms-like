@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include "Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp"
-#include "Engine/Core/Application/EngineApplication.hpp"
-#include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
-#include "Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp"
-#include "Engine/AssetLoader/AssetLoader.hpp"
-#include "Engine/Core/ScenesSystem/ScenesSystem.hpp"
+#include <Engine/Core/ScenesSystem/SceneInitializer/SceneInitializer.hpp>
+#include <Engine/Core/Application/EngineApplication.hpp>
+#include <Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp>
+#include <Engine/UI/Components/Text/TextWidget.hpp>
+#include <Engine/UI/Components/Buttons/TextButton/TextButtonWidget.hpp>
+#include <Engine/UI/Components/Sprite/SpriteWidget.hpp>
+#include <Engine/AssetLoader/AssetLoader.hpp>
 
-#include "../Prefabs/TestPrefab.hpp"
+#include "../UI/Components/ProgressBar/HealthBar.hpp"
 
 class MainMenuSceneInitializer : public Engine::SceneInitializer
 {

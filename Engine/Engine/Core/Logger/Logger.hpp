@@ -38,6 +38,11 @@ namespace Engine
     template <> struct LogTypeColor<LOG_ERROR>      { static constexpr auto value = ConsoleColor::red; };
 
 
+    /** @brief A simple logger class that can be used to log messages to the console.
+     *  @details This class is thread-safe and can be used to log messages from multiple threads.
+     *  It also allows to set a label for each thread, which will be displayed in the log messages.
+     *  @note This class is Static and should never be instantiated.
+     */
     class Logger
     {
     public:

@@ -19,7 +19,7 @@ namespace Engine
         {
             if(system->Has(handle))
             {
-                system->Remove(handle);
+                system->RemoveAfter(handle);
             }
         }
     }
@@ -53,11 +53,19 @@ namespace Engine
         return m_renderableSystems;
     }
 
+    void EntitiesRegistry::ApplyCleanup()
+    {
+        for(auto& [classType, system] : m_componentSystems)
+        {
+            if(system->NeedCleanup())
+                system->ApplyCleanup();
+        }
+    }
+
     void EntitiesRegistry::DestroyAll()
     {
         m_updatableSystems.clear();
         m_renderableSystems.clear();
         m_componentSystems.clear();
     }
-
 } // Engine

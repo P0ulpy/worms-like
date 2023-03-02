@@ -1,6 +1,7 @@
 //
 // Created by Flo on 18/01/2023.
 //
+
 #include "../../Core/Logger/Logger.hpp"
 #include "../../UI/Canvas/WidgetCanvas.hpp"
 
@@ -27,6 +28,12 @@ namespace Engine
             components[entityHandle].OnAwake();
 
         return static_cast<Component*>(&components[entityHandle]);
+    }
+
+    template<class TComponent>
+    void ComponentSystem<TComponent>::RemoveAfter(EntityHandle entityHandle)
+    {
+        componentsToBeCleaned.push_back(entityHandle);
     }
 
     template<class TComponent>
@@ -88,6 +95,17 @@ namespace Engine
     }
 
     template<class TComponent>
+    void ComponentSystem<TComponent>::ApplyCleanup()
+    {
+        for(auto& comp : componentsToBeCleaned)
+        {
+            Remove(comp);
+        }
+
+        componentsToBeCleaned.clear();
+    }
+
+    template<class TComponent>
     void ComponentSystem<TComponent>::Clear()
     {
         for (auto it = components.begin(); it != components.end(); )
@@ -101,7 +119,6 @@ namespace Engine
     {
         Clear();
     }
-
 
     // Dispatch
 

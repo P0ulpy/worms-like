@@ -17,10 +17,11 @@
 namespace Engine
 {
     class Scene;
-
-    /* Entities registry is the core interface for our ESC system
-     * it manages Components association with Entities
-     * */
+    
+    /**
+     * @brief Entities registry is the core interface for our ESC system
+     * it manages Components association with Entities and ComponentSystems.
+     */
     class EntitiesRegistry
     {
     public:
@@ -49,7 +50,6 @@ namespace Engine
         template<class T>
         bool HasComponent(EntityHandle entityHandle);
 
-        // TODO : found a way to notify Component destruction to all objects how reference it currently if a Component is removed accessing to his memory address don't throw any exception
         template<class T>
         void RemoveComponentOf(EntityHandle entityHandle);
 
@@ -60,6 +60,8 @@ namespace Engine
         void StartAll();
         void UpdateAllUpdatable(const float& deltaTime);
         std::unordered_map<RTTI::ClassType*, IComponentSystem*> GetAllRenderableSystems();
+
+        void ApplyCleanup();
 
         template<class TSystem, class T>
         void AddSystem();

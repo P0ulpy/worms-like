@@ -1,6 +1,7 @@
 #include "SidePlayerController.hpp"
 
-namespace Game::Controllers {
+namespace Game::Controllers
+{
     void SidePlayerController::OnUpdate(const float& DeltaTime)
     {
         HandleCameraMovementFromMousePos(DeltaTime);
