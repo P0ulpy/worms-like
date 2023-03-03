@@ -24,7 +24,7 @@ public:
 
             auto canvasEntity = scene->CreateEntity();
             auto canvasWidget = canvasEntity.AddComponent<Engine::UI::WidgetCanvas>();
-            canvasWidget->Init({0, 0}, {static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
+            canvasWidget->Init();
 
             auto titre = canvasEntity.AddComponent<Engine::UI::TextWidget>();
             titre->Init("Option Menu", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 100);

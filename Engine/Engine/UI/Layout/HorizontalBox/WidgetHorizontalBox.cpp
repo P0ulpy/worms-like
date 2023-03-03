@@ -11,7 +11,7 @@ namespace Engine::UI {
         SetPosition(position);
     }
 
-    void WidgetHorizontalBox::UpdatePosition() const {
+    void WidgetHorizontalBox::UpdatePosition() {
         auto position = GetPosition();
         float x = position.x;
         auto children = GetChildren();
@@ -21,10 +21,10 @@ namespace Engine::UI {
             x += child->GetSize().x + m_spacing;
         }
 
-        UpdateSize();
+        RecomputeSize();
     }
 
-    void WidgetHorizontalBox::UpdateSize() const {
+    void WidgetHorizontalBox::RecomputeSize() const {
         auto children = GetChildren();
         float width = 0.0f;
         float height = 0.0f;
@@ -35,8 +35,27 @@ namespace Engine::UI {
         }
 
         width -= m_spacing;
+        width = std::max(width, 0.f);
 
         m_size = {width, height};
+    }
+
+    void WidgetHorizontalBox::UpdateSize() {
+        if (m_previousSize.x == 0) return;
+
+        auto RatioY = GetSize().y / m_previousSize.y;
+        m_spacing = m_spacing * RatioY;
+
+        for (auto& child : GetChildren()) {
+            auto ChildSize = child->GetSize();
+            auto NewChildY = (ChildSize.y / m_previousSize.y) * GetSize().y;
+            child->SetSize({
+               (ChildSize.x / ChildSize.y) * NewChildY,
+               NewChildY
+            });
+        }
+
+        UpdatePosition();
     }
 
 

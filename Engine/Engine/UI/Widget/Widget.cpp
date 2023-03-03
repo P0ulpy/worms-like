@@ -13,7 +13,7 @@ namespace Engine::UI
         UpdatePosition();
     }
 
-    void Widget::RemoveChild(Widget *child) const
+    void Widget::RemoveChild(Widget *child)
     {
         CompositeComponent<Widget>::RemoveChild(child);
         UpdatePosition();
@@ -29,5 +29,6 @@ namespace Engine::UI
     {
         m_size = size;
         UpdateSize();
+        RecomputeSize();
     }
 } // Engine::UI
