@@ -15,7 +15,7 @@ namespace Engine
     {
         if(components.contains(entityHandle))
         {
-            Logger::Err("this entity already has a (", TComponent::getClassType()->getTypeName(), ") allocated for him");
+            Logger::Err("this entity ", entityHandle ," already has a (", TComponent::getClassType()->getTypeName(), ") allocated for him");
             return nullptr;
         }
 

@@ -11,6 +11,8 @@ namespace Game::UI
 {
     class HealthBar : public Engine::UI::ProgressBarWidget {
     public:
+        DECLARE_CLASS_TYPE(HealthBar, Engine::UI::ProgressBarWidget)
+
         HealthBar() = default;
         ~HealthBar() override = default;
 

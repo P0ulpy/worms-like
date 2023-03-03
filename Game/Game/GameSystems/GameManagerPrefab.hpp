@@ -7,8 +7,9 @@
 #include <Engine/Core/EntityPrefab/EntityPrefab.hpp>
 
 #include "GameStatesManager.hpp"
+#include "Play/PlayStates.hpp"
 
-class GameManagerPrefab : public Engine::EntityPrefab<GameStatesManager>
+class GameManagerPrefab : public Engine::EntityPrefab<GameStatesManager, PlayStates>
 {
 public:
 

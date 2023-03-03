@@ -21,7 +21,7 @@ set(GAME_HEADERS
         Game/Actors/PlayerCharacter.hpp
         Game/AssetsPaths.hpp
         Game/GameSystems/Team/PlayerTeam.hpp
-        Game/GameSystems/Play/PlayStates.hpp Game/GameSystems/Team/TeamUI.hpp Game/GameSystems/Play/TeamsTimersUI.hpp Game/GameSystems/Play/GlobalTimerUI.hpp)
+        Game/GameSystems/Play/PlayStates.hpp)
 
 set(GAME_SOURCES
         src/main.cpp
@@ -40,7 +40,7 @@ set(GAME_SOURCES
 
         Game/Map/Map.cpp
         Game/Modules/PerlinNoise.cpp
-        Game/Weapons/IWeapons.h Game/Weapons/Grenade.h Game/Weapons/GrenadeFragmentation.h Game/Prefabs/GrenadePrefab.h Game/Prefabs/GrenadeFragPrefab.h Game/Weapons/Grenade.cpp Game/Weapons/GrenadeFragmentation.cpp)
+        Game/Weapons/IWeapons.h Game/Weapons/Grenade.h Game/Weapons/GrenadeFragmentation.h Game/Prefabs/GrenadePrefab.h Game/Prefabs/GrenadeFragPrefab.h Game/Weapons/Grenade.cpp Game/Weapons/GrenadeFragmentation.cpp Game/GameSystems/Play/PlayStates.cpp)
 set(GAME_TARGET_NAME Game)
 
 add_executable(${GAME_TARGET_NAME} ${GAME_HEADERS} ${GAME_SOURCES})

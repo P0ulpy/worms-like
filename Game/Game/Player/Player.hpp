@@ -3,10 +3,13 @@
 //
 #pragma once
 
+#include <Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp>
 #include <Engine/ECS/Component/Component.hpp>
 #include <Engine/Core/Time.hpp>
+#include <memory>
 
-#include "PlayerController.hpp"
+#include "../Actors/PlayerCharacter.hpp"
+#include "../../UI/Components/ProgressBar/HealthBar.hpp"
 
 class Player : public Engine::Component
 {
@@ -18,10 +21,10 @@ public:
 
     void OnAwake()
     {
-        m_playerController = GetEntity().GetComponent<PlayerController>();
+        m_playerCharacter = GetEntity().GetComponent<Game::Actors::PlayerCharacter>();
     }
 
-    void Init(const std::string_view& name);
+    void Init(const std::string& name, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget);
 
     void OnPlayerTurnBegin();
     void OnUpdate(Engine::Timestep dt);
@@ -31,13 +34,12 @@ public:
     [[nodiscard]] float GetHealth() const { return m_health; }
 
 private:
-
     void OnDeath();
 
 private:
-    PlayerController* m_playerController = nullptr;
+    Game::Actors::PlayerCharacter* m_playerCharacter = nullptr;
+    Game::UI::HealthBar* progressBarHealthWidget = nullptr;
 
-private:
-    std::string_view m_name {};
+    std::string m_name {};
     float m_health = 100.f;
 };
