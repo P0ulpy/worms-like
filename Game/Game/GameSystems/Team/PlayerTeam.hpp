@@ -54,7 +54,7 @@ public:
 
             auto* player = PlayerCharacterEntity.AddComponent<Player>();
             PlayerCharacterEntity.GetComponent<Engine::Components::Transform>()
-                ->Pos = Maths::Point2D<double>((500.f * i) + 300.f + offset, (double) (30.f * 30.f * -1));
+                ->Pos = Maths::Point2D<double>((1500.f * i) + 300.f + offset, (double) (30.f * 30.f * -1));
 
             player->Init({ m_teamName + " | Player " + std::to_string(i) }, verticalBoxPlayersWidget);
 
