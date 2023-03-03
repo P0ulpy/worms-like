@@ -101,7 +101,8 @@ void Player::OnTakeDamage(float damage)
     }
 }
 
-void Player::OnDeath() {
-
+void Player::OnDeath()
+{
+    dead = true;
 }
 

@@ -69,6 +69,7 @@ namespace Game::Actors {
         DECLARE_CLASS_TYPE(PlayerCharacter, Engine::Component)
 
         void OnAwake();
+        void Init(sf::Texture* texture);
 
         void OnUpdate(const float& DeltaTime);
         void OnRender(sf::RenderTarget& renderTarget);

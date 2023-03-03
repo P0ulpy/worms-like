@@ -33,7 +33,12 @@ public:
 
     }
 
-    void Init(const std::string& name, int teamSize, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget)
+    void Init(
+            const std::string& name,
+            int teamSize,
+            Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget,
+            sf::Texture* texture,
+            float offset = 100.f)
     {
         auto* scene = Engine::ScenesSystem::Get()->GetActiveScene();
 
@@ -45,9 +50,11 @@ public:
             auto PlayerCharacterEntity = scene->CreateEntity();
 
             auto* playerCharacter = PlayerCharacterEntity.AddComponent<Game::Actors::PlayerCharacter>();
+            playerCharacter->Init(texture);
+
             auto* player = PlayerCharacterEntity.AddComponent<Player>();
             PlayerCharacterEntity.GetComponent<Engine::Components::Transform>()
-                ->Pos = Maths::Point2D<double>((500.f * i) + 300.f, (double) (30.f * 30.f * -1));
+                ->Pos = Maths::Point2D<double>((1500.f * i) + 300.f + offset, (double) (30.f * 30.f * -1));
 
             player->Init({ m_teamName + " | Player " + std::to_string(i) }, verticalBoxPlayersWidget);
 
@@ -65,7 +72,24 @@ public:
     void OnTeamTurnEnd()
     {
         GetCurrentPlayer()->OnPlayerTurnEnd();
-        IncrementToNextPlayer();
+
+        bool allPlayersDead = true;
+        for(auto* player : m_players)
+        {
+            if(!player->dead)
+            {
+                allPlayersDead = false;
+                break;
+            }
+        }
+
+        if(!allPlayersDead)
+            IncrementToNextPlayer();
+        else
+        {
+            Engine::ScenesSystem::Get()->LoadScene("MainMenu");
+            Engine::Logger::Log("Team ", std::string(m_teamName), " is dead");
+        }
     }
 
     Player* GetCurrentPlayer()
@@ -80,6 +104,9 @@ private:
         ++m_currentPlayerIndex;
         if(m_currentPlayerIndex >= m_players.size())
             m_currentPlayerIndex = 0;
+
+        if(GetCurrentPlayer()->dead)
+            IncrementToNextPlayer();
     }
 
 private:

@@ -33,6 +33,8 @@ public:
 
     [[nodiscard]] float GetHealth() const { return m_health; }
 
+    bool dead = false;
+
 private:
     void OnDeath();
 
