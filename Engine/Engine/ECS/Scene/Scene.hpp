@@ -92,7 +92,8 @@ namespace Engine
     T *Scene::AddComponentTo(const EntityHandle &entityHandle)
     {
         T* component = m_registry.AddComponentTo<T>(entityHandle);
-        component->m_scene = this;
+        if(component)
+            component->m_scene = this;
         return component;
     }
 

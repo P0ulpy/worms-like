@@ -8,7 +8,8 @@
 #include <Engine/Core/Time.hpp>
 #include <memory>
 
-#include "PlayerController.hpp"
+#include "../Actors/PlayerCharacter.hpp"
+#include "../../UI/Components/ProgressBar/HealthBar.hpp"
 
 class Player : public Engine::Component
 {
@@ -20,7 +21,7 @@ public:
 
     void OnAwake()
     {
-        m_playerController = GetEntity().GetComponent<PlayerController>();
+        m_playerCharacter = GetEntity().GetComponent<Game::Actors::PlayerCharacter>();
     }
 
     void Init(const std::string& name, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget);
@@ -36,7 +37,8 @@ private:
     void OnDeath();
 
 private:
-    PlayerController* m_playerController = nullptr;
+    Game::Actors::PlayerCharacter* m_playerCharacter = nullptr;
+    Game::UI::HealthBar* progressBarHealthWidget = nullptr;
 
     std::string m_name {};
     float m_health = 100.f;

@@ -33,6 +33,7 @@ namespace Engine::UI
         void SetSize(const sf::Vector2f& size) override;
 
     protected:
+        // TODO : should be replaced with a float between 0 and 1
         float m_Value = 0.0f;
         float m_MaxValue = 100.0f;
 

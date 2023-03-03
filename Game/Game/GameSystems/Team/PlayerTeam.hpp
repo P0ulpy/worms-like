@@ -35,15 +35,22 @@ public:
 
     void Init(const std::string& name, int teamSize, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget)
     {
+        auto* scene = Engine::ScenesSystem::Get()->GetActiveScene();
+
         m_teamName = name;
         m_players.reserve(teamSize);
 
         for(int i = 0; i < teamSize; i++)
         {
-            auto newPlayer = Engine::ScenesSystem::Get()->GetActiveScene()->InstantiatePrefab<PlayerPrefab>();
+            auto PlayerCharacterEntity = scene->CreateEntity();
 
-            auto* player = newPlayer.GetComponent<Player>();
+            auto* playerCharacter = PlayerCharacterEntity.AddComponent<Game::Actors::PlayerCharacter>();
+            auto* player = PlayerCharacterEntity.AddComponent<Player>();
+            PlayerCharacterEntity.GetComponent<Engine::Components::Transform>()
+                ->Pos = Maths::Point2D<double>((500.f * i) + 300.f, (double) (30.f * 30.f * -1));
+
             player->Init({ m_teamName + " | Player " + std::to_string(i) }, verticalBoxPlayersWidget);
+
             m_players.push_back(player);
         }
     }

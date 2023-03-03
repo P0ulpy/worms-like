@@ -3,10 +3,17 @@
 //
 
 #include "GameStatesManager.hpp"
-#include "Engine/Core/Inputs/InputSignal.hpp"
+
+GameStatesManager* GameStatesManager::s_instance = nullptr;
+
+GameStatesManager *GameStatesManager::Get() {
+    return s_instance;
+}
 
 void GameStatesManager::OnAwake()
 {
+    s_instance = this;
+
     m_playStates = GetEntity().GetComponent<PlayStates>();
     m_playStates->Init(2, 4);
 }

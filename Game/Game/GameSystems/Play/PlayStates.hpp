@@ -16,6 +16,7 @@
 #include "../Team/PlayerTeam.hpp"
 #include "Engine/Core/Inputs/Connection.hpp"
 #include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
+#include "../../Controllers/SidePlayerController.hpp"
 
 constexpr float RoundsDuration = 10000.f;
 
@@ -28,6 +29,7 @@ public:
 
     void Init(int teamCount, int teamsSize)
     {
+        CreatePlayer();
         CreateUI();
 
         m_teams.reserve(teamCount);
@@ -84,9 +86,11 @@ public:
     }
 
     [[nodiscard]] PlayerTeam* GetCurrentTeam() const { return m_teams[m_currentTeamIndex]; }
+    [[nodiscard]] Game::Controllers::SidePlayerController* GetPlayerController() const { return m_playerController; }
 
 private:
 
+    void CreatePlayer();
     void CreateUI();
 
     void IncrementToNextTeam()
@@ -100,6 +104,8 @@ private:
     Engine::UI::TextWidget* textTimerGlobalWidget { nullptr };
     Engine::UI::TextWidget* textTimerTurnValueWidget { nullptr };
     Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget { nullptr };
+
+    Game::Controllers::SidePlayerController* m_playerController { nullptr };
 
     SignalSystem::ScopedConnectionSignal m_inventoryConnection;
 

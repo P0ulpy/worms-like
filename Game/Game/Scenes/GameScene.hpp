@@ -45,23 +45,6 @@ public:
         scene->SetActiveCamera(Camera);
         scene->AddPhysicsSimulator(new Engine::Physics::Physics2DSimulator<Engine::Components::Physics::RigidBody2DdComponent>());
 
-        auto ControllerEntity = scene->CreateEntity();
-        auto Controller = ControllerEntity.AddComponent<Game::Controllers::SidePlayerController>();
-        auto PlayerCharacterEntity = scene->CreateEntity();
-        auto* PlayerCharacter = PlayerCharacterEntity.AddComponent<Game::Actors::PlayerCharacter>();
-        auto* PlayerTransform = PlayerCharacterEntity.GetComponent<Engine::Components::Transform>();
-        Controller->SetPlayerCharacter(PlayerCharacter);
-        Controller->SetWeaponToShoot([PlayerCharacter, PlayerTransform, scene]() {
-            auto prefab = scene->InstantiatePrefab<GrenadePrefab>();
-            auto posMouse = Engine::EngineApplication::Get()->GetWindow().mapCoordsToPixel({static_cast<float>(sf::Mouse::getPosition().x), static_cast<float>(sf::Mouse::getPosition().y)});
-            auto velocityNormalized = PlayerTransform->Pos.GetVectorTo(Maths::Point2D<double>(static_cast<double>(posMouse.x), static_cast<double>(posMouse.y)));
-            velocityNormalized.Normalize();
-            auto velocity = velocityNormalized * 10.f;
-            prefab.GetComponent<Engine::Components::Transform>()->Pos = PlayerTransform->Pos;
-            prefab.GetComponent<Engine::Components::Physics::RigidBody2DdComponent>()->GetRigidBody()->LinearVelocity = velocity;
-            prefab.GetComponent<Game::Weapons::Grenade>()->Owner = PlayerCharacter;
-          });
-
         Map::Map<200> Map;
         Map::NoiseGenerator MapNoiseGenerator;
         MapNoiseGenerator.NoiseRangeMax = 30.f;
@@ -96,11 +79,8 @@ public:
 //        std::thread MapGenerationThread(GenerateMapInThread);
         GenerateMapInThread();
 
-        Controller->MinPosition = Maths::Point2D<double>(0.f, (double) (MapNoiseGenerator.NoiseRangeMax * Map.MinSquareSize * -1));
-        Controller->MaxPosition = Maths::Point2D<double>(200 * Map.MinSquareSize, 10.f);
-
         // @todo compute correctly start player position
-        PlayerTransform->Pos = Maths::Point2D<double>(0.f, (double) (MapNoiseGenerator.NoiseRangeMax * Map.MinSquareSize * -1));
+        //PlayerTransform->Pos = Maths::Point2D<double>(0.f, (double) (MapNoiseGenerator.NoiseRangeMax * Map.MinSquareSize * -1));
 //        CreateDebugEntities(scene);
     }
 

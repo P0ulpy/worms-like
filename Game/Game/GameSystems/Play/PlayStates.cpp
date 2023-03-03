@@ -6,6 +6,7 @@
 #include "../../../UI/Layout/Grid/InventoryPlayer.hpp"
 #include "Engine/UI/Components/Buttons/SpriteButton/SpriteButtonWidget.hpp"
 #include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
+#include "../../Prefabs/GrenadePrefab.h"
 
 #include <Engine/Core/ScenesSystem/ScenesSystem.hpp>
 
@@ -129,4 +130,15 @@ void PlayStates::CreateUI()
             gridInventoryWidget->AddChild(itemWidget, 0);
         }
     }
+}
+
+void PlayStates::CreatePlayer()
+{
+    auto* scene = Engine::ScenesSystem::Get()->GetActiveScene();
+
+    auto ControllerEntity = scene->CreateEntity();
+    m_playerController = ControllerEntity.AddComponent<Game::Controllers::SidePlayerController>();
+
+    m_playerController->MinPosition = Maths::Point2D<double>(0.f, (double) (30.f * 30.f * -1));
+    m_playerController->MaxPosition = Maths::Point2D<double>(200 * 30.f, 10.f);
 }
