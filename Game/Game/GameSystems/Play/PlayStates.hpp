@@ -34,11 +34,19 @@ public:
 
         m_teams.reserve(teamCount);
 
+        static const std::array<sf::Texture*, 3> playersTextures = {
+                Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Texture/Player/p1_stand.png"),
+                Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Texture/Player/p2_stand.png"),
+                Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Texture/Player/p3_stand.png"),
+        };
+
         for(int i = 0; i < teamCount; i++)
         {
             auto* scene = Engine::ScenesSystem::Get()->GetActiveScene();
             auto* newTeam = scene->CreateEntity().AddComponent<PlayerTeam>();
-            newTeam->Init("Team " + std::to_string(i), teamsSize, verticalBoxPlayersWidget);
+
+            auto* texture = i + 1 >= playersTextures.size() ? playersTextures[0] : playersTextures[i];
+            newTeam->Init("Team " + std::to_string(i), teamsSize, verticalBoxPlayersWidget, texture, i * 100.f);
 
             m_teams.push_back(newTeam);
         }

@@ -1,9 +1,15 @@
 #include "PlayerCharacter.hpp"
 #include "Engine/AssetLoader/AssetLoader.hpp"
 
-namespace Game::Actors {
-    void PlayerCharacter::OnAwake() {
-        auto texture = Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Texture/Player/p1_stand.png");
+namespace Game::Actors
+{
+    void PlayerCharacter::OnAwake()
+    {
+
+    }
+
+    void PlayerCharacter::Init(sf::Texture* texture)
+    {
         m_sprite.setTexture(*texture);
         m_sprite.setOrigin(texture->getSize().x / 2, texture->getSize().y / 2);
 
