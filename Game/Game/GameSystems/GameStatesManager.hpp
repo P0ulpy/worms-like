@@ -18,9 +18,6 @@ public:
     void OnUpdate(Engine::Timestep dt);
 
 private:
-    void CreateUI();
-
-private:
     PlayStates* m_playStates = nullptr;
 
     SignalSystem::ScopedConnectionSignal m_inventoryConnection;

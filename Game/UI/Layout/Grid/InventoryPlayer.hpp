@@ -12,6 +12,8 @@ namespace Game::UI
 {
     class InventoryPlayer : public Engine::UI::WidgetGrid {
     public:
+        DECLARE_CLASS_TYPE(InventoryPlayer, Engine::UI::WidgetGrid)
+
         InventoryPlayer() = default;
 
         void Init(const sf::Vector2u& gridSize, const sf::Vector2f& gridSpacing, const sf::Vector2f& position, const sf::Texture* background, const sf::Texture* itemBackground);

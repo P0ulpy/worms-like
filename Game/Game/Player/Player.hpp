@@ -3,12 +3,12 @@
 //
 #pragma once
 
+#include <Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp>
 #include <Engine/ECS/Component/Component.hpp>
 #include <Engine/Core/Time.hpp>
 #include <memory>
 
 #include "PlayerController.hpp"
-#include "../GameSystems/Team/PlayerHealthUI.hpp"
 
 class Player : public Engine::Component
 {
@@ -23,7 +23,7 @@ public:
         m_playerController = GetEntity().GetComponent<PlayerController>();
     }
 
-    void Init(const std::string_view& name, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget);
+    void Init(const std::string& name, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget);
 
     void OnPlayerTurnBegin();
     void OnUpdate(Engine::Timestep dt);
@@ -33,14 +33,11 @@ public:
     [[nodiscard]] float GetHealth() const { return m_health; }
 
 private:
-
     void OnDeath();
 
 private:
     PlayerController* m_playerController = nullptr;
-    std::unique_ptr<PlayerHealthUI> m_healthUI = nullptr;
 
-private:
-    std::string_view m_name {};
+    std::string m_name {};
     float m_health = 100.f;
 };

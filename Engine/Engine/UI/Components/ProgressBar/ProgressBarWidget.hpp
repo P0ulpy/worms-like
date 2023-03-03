@@ -14,6 +14,8 @@ namespace Engine::UI
 {
     class ProgressBarWidget : public Widget {
     public:
+        DECLARE_CLASS_TYPE(ProgressBarWidget, Widget)
+
         explicit ProgressBarWidget() = default;
 
         virtual void OnUpdate(Engine::Timestep ts);

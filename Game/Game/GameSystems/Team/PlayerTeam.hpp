@@ -13,6 +13,7 @@
 #include <Engine/ECS/Component/Component.hpp>
 #include <Engine/Core/Time.hpp>
 #include <Engine/Core/ScenesSystem/ScenesSystem.hpp>
+#include <Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp>
 #include <Engine/UI/Layout/Plan/WidgetPlan.hpp>
 #include <Engine/UI/Components/Text/TextWidget.hpp>
 #include <Engine/UI/Components/Sprite/SpriteWidget.hpp>
@@ -20,15 +21,7 @@
 
 #include "../../Player/Player.hpp"
 #include "../../Player/PlayerPrefab.hpp"
-#include "TeamUI.hpp"
-
-#include "../../../../Engine/Engine/UI/Layout/Plan/WidgetPlan.hpp"
-#include "../../../../Engine/Engine/Core/ScenesSystem/ScenesSystem.hpp"
-#include "../../../../Engine/Engine/AssetLoader/AssetLoader.hpp"
-#include "../../../../Engine/Engine/UI/Components/Text/TextWidget.hpp"
-#include "../../../../Engine/Engine/UI/Components/Sprite/SpriteWidget.hpp"
-#include "../../../../Engine/Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp"
-#include "../Play/TimerUI.hpp"
+#include "../../../UI/Components/ProgressBar/HealthBar.hpp"
 
 class PlayerTeam : public Engine::Component
 {
@@ -40,9 +33,8 @@ public:
 
     }
 
-    void Init(const std::string_view& name, int teamSize, TimerUI* timerUI)
+    void Init(const std::string& name, int teamSize, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget)
     {
-        m_timerUI = timerUI;
         m_teamName = name;
         m_players.reserve(teamSize);
 
@@ -51,13 +43,15 @@ public:
             auto newPlayer = Engine::ScenesSystem::Get()->GetActiveScene()->InstantiatePrefab<PlayerPrefab>();
 
             auto* player = newPlayer.GetComponent<Player>();
-            player->Init(std::string(m_teamName) + " | Player " + std::to_string(i), m_timerUI->m_verticalBoxPlayersWidget);
+            player->Init({ m_teamName + " | Player " + std::to_string(i) }, verticalBoxPlayersWidget);
             m_players.push_back(player);
         }
     }
 
     void OnTeamTurnStart()
     {
+        Engine::Logger::Log("Team ", std::string(m_teamName), " turn start");
+
         GetCurrentPlayer()->OnPlayerTurnBegin();
     }
 
@@ -82,9 +76,7 @@ private:
     }
 
 private:
-    TimerUI* m_timerUI { nullptr };
-
-    std::string_view m_teamName {};
+    std::string m_teamName {};
 
     int m_currentPlayerIndex = 0;
     std::vector<Player*> m_players;

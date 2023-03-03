@@ -14,7 +14,8 @@
 #include "../../Player/Player.hpp"
 #include "../../Player/PlayerPrefab.hpp"
 #include "../Team/PlayerTeam.hpp"
-#include "TeamsTimersUI.hpp"
+#include "Engine/Core/Inputs/Connection.hpp"
+#include "Engine/UI/Layout/VerticalBox/WidgetVerticalBox.hpp"
 
 constexpr float RoundsDuration = 10000.f;
 
@@ -23,27 +24,24 @@ class PlayStates : public Engine::Component
 public:
     DECLARE_CLASS_TYPE(PlayStates, Engine::Component);
 
-    void OnAwake()
-    {
+    void OnAwake() { }
 
-    }
-
-    void Init(int teamCount, int teamsSize, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget)
+    void Init(int teamCount, int teamsSize)
     {
-        m_timerUI = std::make_unique<TimerUI>(verticalBoxPlayersWidget);
-        gameClock.restart();
+        CreateUI();
 
         m_teams.reserve(teamCount);
 
         for(int i = 0; i < teamCount; i++)
         {
-            auto newTeamEntity = Engine::ScenesSystem::Get()->GetActiveScene()->CreateEntity();
-            auto* newTeam = newTeamEntity.AddComponent<PlayerTeam>();
-            newTeam->Init("Team " + std::to_string(i), teamsSize, m_timerUI.get());
+            auto* scene = Engine::ScenesSystem::Get()->GetActiveScene();
+            auto* newTeam = scene->CreateEntity().AddComponent<PlayerTeam>();
+            newTeam->Init("Team " + std::to_string(i), teamsSize, verticalBoxPlayersWidget);
 
             m_teams.push_back(newTeam);
         }
 
+        gameClock.restart();
         OnTurnStart();
     }
 
@@ -57,6 +55,7 @@ public:
     {
         GetCurrentTeam()->OnTeamTurnEnd();
         IncrementToNextTeam();
+        OnTurnStart();
     }
 
     void OnUpdate(Engine::Timestep dt)
@@ -68,7 +67,7 @@ public:
             << (int)(time.asSeconds() / 60) << ':'
             << (int)time.asSeconds();
 
-        m_timerUI->teamsTimersUI->globalTimerUI->textTimerGlobalWidget->SetText(timeStream.str());
+        textTimerGlobalWidget->SetText(timeStream.str());
 
         if(m_roundTimer < RoundsDuration)
             OnTurnUpdate(dt);
@@ -78,7 +77,7 @@ public:
     {
         m_roundTimer += dt;
 
-        m_timerUI->textTimerTurnValueWidget->SetText(std::to_string((int)(m_roundTimer / 1000)));
+        textTimerTurnValueWidget->SetText(std::to_string((int)(m_roundTimer / 1000)));
 
         if(m_roundTimer >= RoundsDuration)
             OnTurnEnd();
@@ -88,6 +87,8 @@ public:
 
 private:
 
+    void CreateUI();
+
     void IncrementToNextTeam()
     {
         ++m_currentTeamIndex;
@@ -95,9 +96,14 @@ private:
             m_currentTeamIndex = 0;
     }
 
-    sf::Clock gameClock;
+private:
+    Engine::UI::TextWidget* textTimerGlobalWidget { nullptr };
+    Engine::UI::TextWidget* textTimerTurnValueWidget { nullptr };
+    Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget { nullptr };
 
-    std::unique_ptr<TimerUI> m_timerUI { nullptr };
+    SignalSystem::ScopedConnectionSignal m_inventoryConnection;
+
+    sf::Clock gameClock;
 
     float m_roundTimer = RoundsDuration;
 
