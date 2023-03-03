@@ -59,6 +59,7 @@ namespace Game::Controllers
     }
 
     void SidePlayerController::OnAwake() {
+        SetWeaponToShoot([]() {});
         m_KeyJumpConnection = SignalSystem::InputSignal::Get()->connectScoped("player_jump", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleJump();});
         m_KeyDownConnection = SignalSystem::InputSignal::Get()->connectScoped("player_down", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleDown();});
         m_KeyLeftConnection = SignalSystem::InputSignal::Get()->connectScoped("player_left", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleLeft();});

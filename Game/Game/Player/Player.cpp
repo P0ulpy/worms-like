@@ -13,6 +13,7 @@
 #include "../../UI/Components/ProgressBar/HealthBar.hpp"
 #include "../Prefabs/GrenadePrefab.h"
 #include "../GameSystems/GameStatesManager.hpp"
+#include "../Prefabs/GrenadeFragPrefab.h"
 
 void Player::Init(const std::string &name, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget)
 {
@@ -67,7 +68,7 @@ void Player::OnPlayerTurnBegin()
     playerController->SetPlayerCharacter(m_playerCharacter);
     playerController->SetWeaponToShoot([this, PlayerTransform, scene]()
      {
-         auto prefab = scene->InstantiatePrefab<GrenadePrefab>();
+         auto prefab = scene->InstantiatePrefab<GrenadeFragPrefab>();
          const auto& Window = Engine::EngineApplication::Get()->GetWindow();
          auto PixelCoords = sf::Mouse::getPosition(Window);
          auto posMouse = Window.mapPixelToCoords(PixelCoords);
@@ -78,7 +79,7 @@ void Player::OnPlayerTurnBegin()
 
          prefab.GetComponent<Engine::Components::Transform>()->Pos = PlayerTransform->Pos;
          prefab.GetComponent<Engine::Components::Physics::RigidBody2DdComponent>()->GetRigidBody()->LinearVelocity = velocity;
-         prefab.GetComponent<Game::Weapons::Grenade>()->Owner = m_playerCharacter;
+         prefab.GetComponent<Game::Weapons::GrenadeFragmentation>()->Owner = m_playerCharacter;
      });
 }
 
