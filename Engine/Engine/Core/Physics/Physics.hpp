@@ -49,6 +49,8 @@ namespace Engine::Physics {
         {
             RigidBodyComponentT* FirstRigidBody = nullptr;
             RigidBodyComponentT* SecondRigidBody = nullptr;
+            Engine::Components::Transform* FirstTransform = nullptr;
+            Engine::Components::Transform* SecondTransform = nullptr;
             RigidBodyComponentT::GeometricPointT FirstCenterOfMassAtCollision;
             RigidBodyComponentT::GeometricPointT SecondCenterOfMassAtCollision;
         };
@@ -175,14 +177,13 @@ namespace Engine::Physics {
 
             for (const auto& Manifold : ContactManifolds)
             {
-                ApplyForceFromCollision(Manifold);
-                //Call OnCollide
-                //@todo remove this
-                if(Manifold.FirstRigidBody->isGrenade && Manifold.SecondRigidBody->isGrenade)
-                    continue;
-
-                Manifold.FirstRigidBody->OnCollide();
-                Manifold.SecondRigidBody->OnCollide();
+                // Call OnCollide
+                // @todo maybe replace this with bitmasks?
+                bool BlockCollideA = Manifold.FirstRigidBody->OnCollide(Manifold.SecondRigidBody, Manifold.Normal);
+                bool BlockCollideB = Manifold.SecondRigidBody->OnCollide(Manifold.FirstRigidBody, Manifold.Normal * -1);
+                if (!BlockCollideA && !BlockCollideB) {
+                    ApplyForceFromCollision(Manifold);
+                }
             }
         }
 
@@ -216,6 +217,8 @@ namespace Engine::Physics {
                 Manifold.Depth = CollisionManifold.Depth;
                 Manifold.FirstRigidBody = BodyAComponent;
                 Manifold.SecondRigidBody = BodyBComponent;
+                Manifold.FirstTransform = BodyATransform;
+                Manifold.SecondTransform = BodyBTransform;
                 Manifold.FirstCenterOfMassAtCollision = BodyA->GetCenterOfMass(
                     BodyATransform->Scale,
                     BodyATransform->Angle,
@@ -227,21 +230,6 @@ namespace Engine::Physics {
                     BodyBTransform->Pos
                 );
                 CollisionManifolds.push_back(Manifold);
-
-                const auto OverlapResolvingVector = CollisionManifold.Normal * std::max(CollisionManifold.Depth, DistanceStep);
-                if (BodyAComponent->IsStatic) {
-                    BodyBTransform->Pos = BodyBTransform->Pos + (OverlapResolvingVector * -1);
-                    BodyBComponent->GetRigidBody()->IsCacheComputed = false;
-                } else if (BodyBComponent->IsStatic) {
-                    BodyATransform->Pos = BodyATransform->Pos + OverlapResolvingVector;
-                    BodyAComponent->GetRigidBody()->IsCacheComputed = false;
-                } else {
-                    const auto HalfResolve = OverlapResolvingVector * (1 / 2);
-                    BodyATransform->Pos = BodyATransform->Pos + HalfResolve;
-                    BodyBTransform->Pos = BodyBTransform->Pos + (HalfResolve * -1);
-                    BodyAComponent->GetRigidBody()->IsCacheComputed = false;
-                    BodyBComponent->GetRigidBody()->IsCacheComputed = false;
-                }
             }
         }
 
@@ -287,12 +275,29 @@ namespace Engine::Physics {
         {
             auto BodyAComponent = CollisionManifold.FirstRigidBody;
             auto BodyBComponent = CollisionManifold.SecondRigidBody;
+            auto BodyATransform = CollisionManifold.FirstTransform;
+            auto BodyBTransform = CollisionManifold.SecondTransform;
             auto BodyA = BodyAComponent->GetRigidBody();
             auto BodyB = BodyBComponent->GetRigidBody();
 
             if (BodyAComponent->IsStatic && BodyBComponent->IsStatic)
             {
                 return;
+            }
+
+            const auto OverlapResolvingVector = CollisionManifold.Normal * std::max(CollisionManifold.Depth, DistanceStep);
+            if (BodyAComponent->IsStatic) {
+                BodyBTransform->Pos = BodyBTransform->Pos + (OverlapResolvingVector * -1);
+                BodyBComponent->GetRigidBody()->IsCacheComputed = false;
+            } else if (BodyBComponent->IsStatic) {
+                BodyATransform->Pos = BodyATransform->Pos + OverlapResolvingVector;
+                BodyAComponent->GetRigidBody()->IsCacheComputed = false;
+            } else {
+                const auto HalfResolve = OverlapResolvingVector * (1 / 2);
+                BodyATransform->Pos = BodyATransform->Pos + HalfResolve;
+                BodyBTransform->Pos = BodyBTransform->Pos + (HalfResolve * -1);
+                BodyAComponent->GetRigidBody()->IsCacheComputed = false;
+                BodyBComponent->GetRigidBody()->IsCacheComputed = false;
             }
 
             // direction from A to B

@@ -37,7 +37,7 @@ namespace Game::Controllers
             CenterToMousePos.GetY() = 0;
         } else {
             auto MaxY = HalfCameraSize.GetY() * MaxRatioToMoveCamera;
-            CenterToMousePos.GetY() = std::min(MaxY, CenterToMousePos.GetY()) / MaxY;
+            CenterToMousePos.GetY() = std::min(MaxY, CenterToMousePos.GetY()) / MaxY;   
         }
         CenterToMousePos = CenterToMousePos * CenterToMousePosDirection;
 
@@ -52,10 +52,11 @@ namespace Game::Controllers
     }
 
     void SidePlayerController::OnAwake() {
-        m_KeyJumpConnection = SignalSystem::InputSignal::Get()->connectScoped("player_jump", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->OnJump();});
-        m_KeyDownConnection = SignalSystem::InputSignal::Get()->connectScoped("player_down", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->OnDown();});
-        m_KeyLeftConnection = SignalSystem::InputSignal::Get()->connectScoped("player_left", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->OnLeft();});
-        m_KeyRightConnection = SignalSystem::InputSignal::Get()->connectScoped("player_right", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->OnRight();});
+        m_KeyJumpConnection = SignalSystem::InputSignal::Get()->connectScoped("player_jump", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleJump();});
+        m_KeyDownConnection = SignalSystem::InputSignal::Get()->connectScoped("player_down", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleDown();});
+        m_KeyLeftConnection = SignalSystem::InputSignal::Get()->connectScoped("player_left", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleLeft();});
+        m_KeyRightConnection = SignalSystem::InputSignal::Get()->connectScoped("player_right", [this]()->void {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleRight();});
+        m_shootConnection = SignalSystem::InputSignal::Get()->connectScoped("player_shoot", [this]() {if (nullptr != m_PlayerCharacter) m_PlayerCharacter->StateMachine->HandleShoot();});
     }
 
     void SidePlayerController::OnJump() {
@@ -63,21 +64,21 @@ namespace Game::Controllers
         auto* RigidBodyComponent = m_PlayerCharacter->GetEntity().GetComponent<Engine::Components::Physics::RigidBody2DdComponent>();
         RigidBodyComponent->GetRigidBody()->LinearVelocity =
             RigidBodyComponent->GetRigidBody()->LinearVelocity
-            + Maths::Vector2D<double>(0.f, (Engine::Components::Physics::RigidBody2DdComponent::Gravity + 1) * -1 );
+            + Maths::Vector2D<double>(0.f, (Engine::Components::Physics::RigidBody2DdComponent::Gravity / 2 + 1) * -1 );
         // @todo make grounded again
-//        SetStateMachineOnPlayer<CharacterMovementStateMachineJumping>();
+//        SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineJumping>();
     }
 
     void SidePlayerController::OnLeft() {
         if (nullptr == m_PlayerCharacter) return;
         auto* RigidBodyComponent = m_PlayerCharacter->GetEntity().GetComponent<Engine::Components::Physics::RigidBody2DdComponent>();
-        RigidBodyComponent->GetRigidBody()->LinearVelocity = RigidBodyComponent->GetRigidBody()->LinearVelocity + Maths::Vector2D<double>(-1.f, 0.f);
+        RigidBodyComponent->GetRigidBody()->LinearVelocity = Maths::Vector2D<double>(-1.f, 0.f);
     }
 
     void SidePlayerController::OnRight() {
         if (nullptr == m_PlayerCharacter) return;
         auto* RigidBodyComponent = m_PlayerCharacter->GetEntity().GetComponent<Engine::Components::Physics::RigidBody2DdComponent>();
-        RigidBodyComponent->GetRigidBody()->LinearVelocity = RigidBodyComponent->GetRigidBody()->LinearVelocity + Maths::Vector2D<double>(1.f, 0.f);
+        RigidBodyComponent->GetRigidBody()->LinearVelocity = Maths::Vector2D<double>(1.f, 0.f);
     }
 
     void SidePlayerController::OnDown() {
@@ -87,5 +88,16 @@ namespace Game::Controllers
     void SidePlayerController::SetPlayerCharacter(Actors::PlayerCharacter *Character) {
         m_PlayerCharacter = Character;
         SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineGrounded>();
+    }
+
+    void SidePlayerController::OnShoot() {
+        if(!m_startShooting) {
+            m_startShooting = true;
+        } else
+        {
+            if(m_shootCallback)
+                m_shootCallback();
+            m_startShooting = false;
+        }
     }
 }

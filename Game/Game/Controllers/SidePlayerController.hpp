@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "Engine/ECS/Component/Component.hpp"
 #include "Engine/Core/ScenesSystem/ScenesLayer/ScenesLayer.hpp"
 #include "Engine/Core/Inputs/WindowEvents.hpp"
@@ -18,6 +20,7 @@ namespace Game::Controllers {
         Maths::Point2D<double> MaxPosition = Maths::Point2D<double>(0.f, 0.f);
 
         void SetPlayerCharacter(Actors::PlayerCharacter* Character);
+        void SetWeaponToShoot(std::function<void()> shootCallback) { m_shootCallback = std::move(shootCallback); }
     private:
         // ratio of size/s
         static float constexpr CameraXRatioSpeed = 0.1f;
@@ -30,11 +33,16 @@ namespace Game::Controllers {
         SignalSystem::ScopedConnectionSignal m_KeyRightConnection;
         SignalSystem::ScopedConnectionSignal m_KeyJumpConnection;
         SignalSystem::ScopedConnectionSignal m_KeyDownConnection;
+        SignalSystem::ScopedConnectionSignal m_shootConnection;
+
+        std::function<void()> m_shootCallback;
+        bool m_startShooting = false;
 
         void OnJump();
         void OnLeft();
         void OnRight();
         void OnDown();
+        void OnShoot();
 
         void HandleCameraMovementFromMousePos(const float& DeltaTime);
 
@@ -53,6 +61,7 @@ namespace Game::Controllers {
             m_PlayerCharacter->StateMachine->OnLeft = [this]()->void {OnLeft();};
             m_PlayerCharacter->StateMachine->OnRight = [this]()->void {OnRight();};
             m_PlayerCharacter->StateMachine->OnDown = [this]()->void {OnDown();};
+            m_PlayerCharacter->StateMachine->OnShoot = [this]()->void {OnShoot();};
         }
     };
 }
