@@ -15,10 +15,10 @@
 class GlobalTimerUI
 {
 public:
-    GlobalTimerUI(Engine::UI::WidgetHorizontalBox* horizontalBoxWidget)
+    GlobalTimerUI() = delete;
+    explicit GlobalTimerUI(Engine::UI::WidgetHorizontalBox* horizontalBoxWidget)
     {
         auto* scene = Engine::ScenesSystem::Get()->GetActiveScene();
-        auto windowSize = sf::Vector2f {Engine::EngineApplication::Get()->GetWindow().getSize()};
 
         auto verticalBoxWidget = scene->CreateEntity().AddComponent<Engine::UI::WidgetVerticalBox>();
         verticalBoxWidget->Init({0.0f, 0.0f}, 10.0f);

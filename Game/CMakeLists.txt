@@ -21,7 +21,7 @@ set(GAME_HEADERS
         Game/Actors/PlayerCharacter.hpp
         Game/AssetsPaths.hpp
         Game/GameSystems/Team/PlayerTeam.hpp
-        Game/GameSystems/Play/PlayStates.hpp Game/GameSystems/Team/TeamUI.hpp Game/GameSystems/Play/TeamsTimersUI.hpp Game/GameSystems/Play/GlobalTimerUI.hpp)
+        Game/GameSystems/Play/PlayStates.hpp Game/GameSystems/Team/TeamUI.hpp Game/GameSystems/Play/TeamsTimersUI.hpp Game/GameSystems/Play/GlobalTimerUI.hpp Game/GameSystems/Play/TimerUI.hpp Game/GameSystems/Team/PlayerHealthUI.hpp)
 
 set(GAME_SOURCES
         src/main.cpp

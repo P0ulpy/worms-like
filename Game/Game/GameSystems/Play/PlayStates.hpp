@@ -28,9 +28,9 @@ public:
 
     }
 
-    void Init(int teamCount, int teamsSize)
+    void Init(int teamCount, int teamsSize, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget)
     {
-        m_teamsTimersUI = std::make_unique<TeamsTimersUI>();
+        m_timerUI = std::make_unique<TimerUI>(verticalBoxPlayersWidget);
 
         m_teams.reserve(teamCount);
 
@@ -38,7 +38,7 @@ public:
         {
             auto newTeamEntity = Engine::ScenesSystem::Get()->GetActiveScene()->CreateEntity();
             auto* newTeam = newTeamEntity.AddComponent<PlayerTeam>();
-            newTeam->Init("Team " + std::to_string(i), teamsSize, m_teamsTimersUI->teamUI.get());
+            newTeam->Init("Team " + std::to_string(i), teamsSize, m_timerUI.get());
 
             m_teams.push_back(newTeam);
         }
@@ -68,7 +68,7 @@ public:
     {
         m_roundTimer += dt;
 
-        m_teamsTimersUI->teamUI->textTimerTurnValueWidget->SetText(std::to_string(m_roundTimer));
+        m_timerUI->textTimerTurnValueWidget->SetText(std::to_string((int)(m_roundTimer / 1000)));
 
         if(m_roundTimer >= RoundsDuration)
             OnTurnEnd();
@@ -85,7 +85,7 @@ private:
             m_currentTeamIndex = 0;
     }
 
-    std::unique_ptr<TeamsTimersUI> m_teamsTimersUI { nullptr };
+    std::unique_ptr<TimerUI> m_timerUI { nullptr };
 
     float m_roundTimer = RoundsDuration;
 

@@ -11,7 +11,7 @@
 #include "../../../../Engine/Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp"
 #include "../../../../Engine/Engine/UI/Components/Sprite/SpriteWidget.hpp"
 
-class TeamUI
+/*class TeamUI
 {
 public:
     TeamUI() = delete;
@@ -46,4 +46,4 @@ public:
     Engine::UI::WidgetPlan* planTimerTurnWidget                 { nullptr };
     Engine::UI::TextWidget* textTimerTurnValueWidget            { nullptr };
     Engine::UI::SpriteWidget* backgroundTimerTurnValueWidget    { nullptr };
-};
+};*/

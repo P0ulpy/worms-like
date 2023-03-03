@@ -111,7 +111,7 @@ void Engine::EngineApplication::Run()
         {
             sf::sleep(sf::milliseconds((int) (FixedDeltaTime - Elapsed)));
         } else {
-            Engine::Logger::Warn("Exceeding fixed update time :", Elapsed);
+            //Engine::Logger::Warn("Exceeding fixed update time :", Elapsed);
         }
     }
 }

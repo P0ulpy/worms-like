@@ -9,8 +9,9 @@
     m_playerController = GetEntity().GetComponent<PlayerController>();
 }*/
 
-void Player::Init(const std::string_view &name) {
+void Player::Init(const std::string_view &name, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget) {
     m_name = name;
+    m_healthUI = std::make_unique<PlayerHealthUI>(verticalBoxPlayersWidget, name);
     m_playerController->SetActive(false);
 }
 

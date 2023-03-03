@@ -28,6 +28,7 @@
 #include "../../../../Engine/Engine/UI/Components/Text/TextWidget.hpp"
 #include "../../../../Engine/Engine/UI/Components/Sprite/SpriteWidget.hpp"
 #include "../../../../Engine/Engine/UI/Layout/HorizontalBox/WidgetHorizontalBox.hpp"
+#include "../Play/TimerUI.hpp"
 
 class PlayerTeam : public Engine::Component
 {
@@ -39,19 +40,18 @@ public:
 
     }
 
-    void Init(const std::string_view& name, int teamSize, TeamUI* teamUI)
+    void Init(const std::string_view& name, int teamSize, TimerUI* timerUI)
     {
-        m_teamUI = teamUI;
+        m_timerUI = timerUI;
         m_teamName = name;
         m_players.reserve(teamSize);
 
         for(int i = 0; i < teamSize; i++)
         {
-            auto newPlayer = Engine::SceneSystem::Get()->GetActiveScene()
-                    ->InstantiatePrefab<PlayerPrefab>();
+            auto newPlayer = Engine::ScenesSystem::Get()->GetActiveScene()->InstantiatePrefab<PlayerPrefab>();
 
-            auto* player = newPlayer->GetComponent<Player>();
-            player->Init(std::string(m_teamName) + " | Player " + std::to_string(i));
+            auto* player = newPlayer.GetComponent<Player>();
+            player->Init(std::string(m_teamName) + " | Player " + std::to_string(i), m_timerUI->m_verticalBoxPlayersWidget);
             m_players.push_back(player);
         }
     }
@@ -82,7 +82,7 @@ private:
     }
 
 private:
-    TeamUI* m_teamUI { nullptr };
+    TimerUI* m_timerUI { nullptr };
 
     std::string_view m_teamName {};
 
