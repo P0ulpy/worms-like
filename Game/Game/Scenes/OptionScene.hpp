@@ -28,16 +28,18 @@ public:
 
             auto titre = canvasEntity.AddComponent<Engine::UI::TextWidget>();
             titre->Init("Option Menu", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 100);
-            auto xTitre = (static_cast<float>(windowSize.x) / 2) - (titre->GetSize().x / 2);
-            titre->SetPosition({ xTitre, 100.0f });
 
             canvasWidget->AddChild(titre, 0);
+            canvasWidget->SetChildOptions(titre, {
+                .Anchors = Engine::UI::CanvasAnchors::TOP_CENTER,
+                .TopOffset = 20.f,
+                .Size = titre->GetSize()
+            });
 
             auto keys = SignalSystem::InputConfig::Get()->GetBindingsKeys();
             auto gridKeysEntity = scene->CreateEntity();
             auto gridKeys = gridKeysEntity.AddComponent<Engine::UI::WidgetGrid>();
-            gridKeys->Init({2, static_cast<unsigned int>(keys.size())}, {10, 10}, {150, 350}, {300, 50});
-            canvasWidget->AddChild(gridKeys, 0);
+            gridKeys->Init({2, static_cast<unsigned int>(keys.size())}, {0.f, 0.f}, {0.f, 0.f}, {300, 50});
 
             for(auto [key, value] : keys) {
                 auto keyEntity = scene->CreateEntity();
@@ -74,12 +76,17 @@ public:
                 });
                 gridKeys->AddChild(valueTextButton, 0);
             }
+            canvasWidget->AddChild(gridKeys, 0);
+            canvasWidget->SetChildOptions(gridKeys, {
+                .Anchors=Engine::UI::CanvasAnchors::CENTER_LEFT,
+                .LeftOffset=200.f,
+                .Size=gridKeys->GetSize()
+            });
 
             auto mouses = SignalSystem::InputConfig::Get()->GetBindingsMouse();
             auto gridMousesEntity = scene->CreateEntity();
             auto gridMouses = gridMousesEntity.AddComponent<Engine::UI::WidgetGrid>();
-            gridMouses->Init({2, static_cast<unsigned int>(mouses.size())}, {10, 10}, {static_cast<float>(windowSize.x - 850), 350}, {300, 50});
-            canvasWidget->AddChild(gridMouses, 0);
+            gridMouses->Init({2, static_cast<unsigned int>(mouses.size())}, {0.f, 0.f}, {0.f, 0.f}, {300, 50});
 
             for(auto [mouse, value] : mouses) {
                 auto mouseEntity = scene->CreateEntity();
@@ -115,24 +122,36 @@ public:
                 });
                 gridMouses->AddChild(valueTextButton, 0);
             }
+            canvasWidget->AddChild(gridMouses, 0);
+            canvasWidget->SetChildOptions(gridMouses, {
+                .Anchors=Engine::UI::CanvasAnchors::CENTER_RIGHT,
+                .RightOffset=200.f,
+                .Size=gridMouses->GetSize()
+            });
 
             auto backEntity = scene->CreateEntity();
             auto backTextButton = backEntity.AddComponent<Engine::UI::TextButtonWidget>();
             backTextButton->Init("Back", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 0.0f, 80);
-            auto xBack = (static_cast<float>(windowSize.x) / 2) - (backTextButton->GetSize().x / 2);
-            auto yBack = static_cast<float>(windowSize.y) - backTextButton->GetSize().y - 100.0f;
-            backTextButton->SetPosition({ xBack, yBack });
             backTextButton->SetOnClick([]() {
                 Engine::ScenesSystem::Get()->LoadScene("MainMenu");
             });
 
             auto backgroundEntity = scene->CreateEntity();
             auto background = backgroundEntity.AddComponent<Engine::UI::SpriteWidget>();
-            background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Background/Background.png"), {0, 0});
-            background->SetSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
+            background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Background/background.png"), {0, 0});
 
             canvasWidget->AddChild(background, -1);
+            canvasWidget->SetChildOptions(background, {
+                .Anchors=Engine::UI::CanvasAnchors::STRETCH
+            });
+
             canvasWidget->AddChild(backTextButton, 0);
+            canvasWidget->SetChildOptions(backTextButton, {
+                .Anchors=Engine::UI::CanvasAnchors::TOP_LEFT,
+                .TopOffset = 20.f,
+                .LeftOffset = 20.f,
+                .Size=backTextButton->GetSize()
+            });
         }
 
         void OnUnloaded(Engine::Scene* scene) override

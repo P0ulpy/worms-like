@@ -21,12 +21,17 @@ namespace Game::Actors
         RigidBodyComponent->SetRigidBody(Rect);
         RigidBodyComponent->CanRotate = false;
 
-//        RigidBodyComponent->SetOnCollisionCallback([this]() {
-//
-//        });
+        RigidBodyComponent->SetOnCollisionCallback([this](Engine::Components::Physics::RigidBody2DdComponent* WithComponent, Maths::Vector2D<double> CollisionNormal)->bool {
+            if (WithComponent->GetEntity().HasComponent<PlayerCharacter>()) return true;
+
+            // @todo use line trace instead
+            auto scalar = std::abs(CollisionNormal.Scalar(Engine::Components::Physics::GetUpVector2D<double>()));
+            if (scalar >= 0.9f) IsGrounded = true;
+            return false;
+        });
     }
 
-    PlayerCharacter::~PlayerCharacter() {
+    void PlayerCharacter::OnDestroy() {
         delete StateMachine;
     }
 

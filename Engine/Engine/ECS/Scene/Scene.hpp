@@ -65,6 +65,8 @@ namespace Engine
         void AddPhysicsSimulator(Engine::Physics::IPhysicsSimulator* Simulator);
         void RemovePhysicsSimulator(Engine::Physics::IPhysicsSimulator *Simulator);
 
+        // @todo maybe not pertinent
+        EntitiesRegistry* GetRegistry() {return &m_registry;}
     private:
         EntitiesRegistry m_registry = EntitiesRegistry(this);
         Engine::Camera::ICamera* m_ActiveCamera = nullptr;

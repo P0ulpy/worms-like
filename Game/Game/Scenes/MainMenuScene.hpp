@@ -18,7 +18,11 @@ public:
 
     void OnLoaded(Engine::Scene* scene) override
     {
-        auto windowSize = Engine::EngineApplication::Get()->GetWindow().getSize();
+        auto& window = Engine::EngineApplication::Get()->GetWindow();
+        sf::View view;
+        view.setSize(window.getSize().x, window.getSize().y);
+        view.setCenter(view.getSize().x / 2, view.getSize().y / 2);
+        window.setView(view);
 
         auto canvasEntity = scene->CreateEntity();
         auto canvasWidget = canvasEntity.AddComponent<Engine::UI::WidgetCanvas>();
@@ -74,10 +78,12 @@ public:
 
         auto backgroundEntity = scene->CreateEntity();
         auto background = backgroundEntity.AddComponent<Engine::UI::SpriteWidget>();
-        background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Background/Background.png"), {0, 0});
-        background->SetSize({static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
+        background->Init(*Engine::AssetLoader<sf::Texture>::StaticGetAsset("Assets/Background/background.png"), {0, 0});
 
         canvasWidget->AddChild(background, -1);
+        canvasWidget->SetChildOptions(background, {
+            .Anchors=Engine::UI::CanvasAnchors::STRETCH
+        });
     }
 
     void OnUnloaded(Engine::Scene* scene) override

@@ -23,6 +23,7 @@
 #include "../Weapons/Grenade.h"
 #include "../Prefabs/GrenadePrefab.h"
 #include "../Prefabs/GrenadeFragPrefab.h"
+#include "../GameSystems/PhysicsEvents/PhysicsEvents.hpp"
 
 /*#include "Maths/Vector.hpp"*/
 
@@ -82,6 +83,9 @@ public:
         // @todo compute correctly start player position
         //PlayerTransform->Pos = Maths::Point2D<double>(0.f, (double) (MapNoiseGenerator.NoiseRangeMax * Map.MinSquareSize * -1));
 //        CreateDebugEntities(scene);
+
+        auto WindApplierEntity = scene->CreateEntity();
+        auto* windApplier = WindApplierEntity.AddComponent<Game::PhysicsEvents::WindApplier>();
     }
 
     void OnUnloaded(Engine::Scene* scene) override

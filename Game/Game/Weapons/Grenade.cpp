@@ -1,6 +1,7 @@
 #include "Grenade.h"
 #include "GrenadeFragmentation.h"
 #include "../Actors/PlayerCharacter.hpp"
+#include "../Player/Player.hpp"
 
 namespace Game::Weapons {
     void Grenade::OnAwake()
@@ -15,14 +16,19 @@ namespace Game::Weapons {
         auto* RigidBodyComponent = GetEntity().GetComponent<Engine::Components::Physics::RigidBody2DdComponent>();
         auto Rect = new Engine::Components::Physics::RectangleRigidBody2Dd();
         RigidBodyComponent->SetOnCollisionCallback([this](Engine::Components::Physics::RigidBody2DdComponent* WithComponent, const Maths::Vector2D<double>& CollisionNormal)->bool {
-            const auto Entity = WithComponent->GetEntity();
+            auto Entity = WithComponent->GetEntity();
             if (
                 Entity.HasComponent<GrenadeFragmentation>()
                 || Entity.HasComponent<Grenade>()
-                || (Entity.HasComponent<Actors::PlayerCharacter>() && Entity.GetComponent<Actors::PlayerCharacter>() == Owner)
             )
             {
                 return true;
+            }
+
+            if (Entity.HasComponent<Actors::PlayerCharacter>())
+            {
+                if (Entity.GetComponent<Actors::PlayerCharacter>() == Owner) return true;
+                Entity.GetComponent<Player>()->OnTakeDamage(5.f);
             }
             Activate();
             return false;

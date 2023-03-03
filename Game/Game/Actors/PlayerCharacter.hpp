@@ -31,7 +31,7 @@ namespace Game::Actors {
         virtual ~CharacterMovementStateMachine() = default;
     };
 
-    struct CharacterMovementStateMachineJumping : public CharacterMovementStateMachine {
+    struct CharacterMovementStateMachineInAir : public CharacterMovementStateMachine {
         void HandleJump() const override {/*ignore*/}
         void HandleLeft() const override {if(isLock) return; OnLeft();}
         void HandleRight() const override {if(isLock) return; OnRight();}
@@ -74,9 +74,11 @@ namespace Game::Actors {
         void OnUpdate(const float& DeltaTime);
         void OnRender(sf::RenderTarget& renderTarget);
 
-        ~PlayerCharacter() override;
+        void OnDestroy();
 
         CharacterMovementStateMachine* StateMachine = nullptr;
+        // @todo do this elsewhere?
+        bool IsGrounded = false;
     private:
         template <typename ST>
         void SetStateMachine()
