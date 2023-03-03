@@ -31,6 +31,7 @@ public:
     void Init(int teamCount, int teamsSize, Engine::UI::WidgetVerticalBox* verticalBoxPlayersWidget)
     {
         m_timerUI = std::make_unique<TimerUI>(verticalBoxPlayersWidget);
+        gameClock.restart();
 
         m_teams.reserve(teamCount);
 
@@ -60,6 +61,15 @@ public:
 
     void OnUpdate(Engine::Timestep dt)
     {
+        auto time = gameClock.getElapsedTime();
+        std::stringstream timeStream;
+        timeStream
+            << (int)((time.asSeconds() / 60) / 60) << ':'
+            << (int)(time.asSeconds() / 60) << ':'
+            << (int)time.asSeconds();
+
+        m_timerUI->teamsTimersUI->globalTimerUI->textTimerGlobalWidget->SetText(timeStream.str());
+
         if(m_roundTimer < RoundsDuration)
             OnTurnUpdate(dt);
     }
@@ -84,6 +94,8 @@ private:
         if(m_currentTeamIndex >= m_teams.size())
             m_currentTeamIndex = 0;
     }
+
+    sf::Clock gameClock;
 
     std::unique_ptr<TimerUI> m_timerUI { nullptr };
 

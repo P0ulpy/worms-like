@@ -15,6 +15,7 @@
 class GlobalTimerUI
 {
 public:
+
     GlobalTimerUI() = delete;
     explicit GlobalTimerUI(Engine::UI::WidgetHorizontalBox* horizontalBoxWidget)
     {
@@ -24,9 +25,9 @@ public:
         verticalBoxWidget->Init({0.0f, 0.0f}, 10.0f);
         horizontalBoxWidget->AddChild(verticalBoxWidget, 0);
 
-        auto textTimerGlobalWidget = scene->CreateEntity().AddComponent<Engine::UI::TextWidget>();
+        textTimerGlobalWidget = scene->CreateEntity().AddComponent<Engine::UI::TextWidget>();
         textTimerGlobalWidget->Init("00:00:00", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0.0f, 0.0f}, 30, sf::Color::White);
-        verticalBoxWidget->AddChild(textTimerGlobalWidget, 0);
+        verticalBoxWidget->AddChild(textTimerGlobalWidget, 5);
 
         //Wind
         {
@@ -46,4 +47,6 @@ public:
             planWindWidget->SetSize({122.5f, 24.0f});
         }
     }
+
+    Engine::UI::TextWidget* textTimerGlobalWidget { nullptr };
 };

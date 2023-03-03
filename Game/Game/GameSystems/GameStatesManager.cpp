@@ -52,7 +52,7 @@ void GameStatesManager::CreateUI()
     planPlayersWidget->AddChild(verticalBoxPlayersWidget, 0);
 
     m_playStates = GetEntity().GetComponent<PlayStates>();
-    m_playStates->Init(2, 3, verticalBoxPlayersWidget);
+    m_playStates->Init(1, 1, verticalBoxPlayersWidget);
 
     //Inventory
     {
