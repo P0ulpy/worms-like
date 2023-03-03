@@ -71,7 +71,7 @@ namespace Game::Controllers
         auto* RigidBodyComponent = m_PlayerCharacter->GetEntity().GetComponent<Engine::Components::Physics::RigidBody2DdComponent>();
         RigidBodyComponent->GetRigidBody()->LinearVelocity =
             RigidBodyComponent->GetRigidBody()->LinearVelocity
-            + Maths::Vector2D<double>(0.f, (Engine::Components::Physics::RigidBody2DdComponent::Gravity / 2 + 1) * -1 );
+            + Maths::Vector2D<double>(0.f, (Engine::Components::Physics::RigidBody2DdComponent::Gravity / 2 + 3) * -1 );
         SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineInAir>();
         m_PlayerCharacter->IsGrounded = false;
     }

@@ -31,6 +31,11 @@ public:
     void OnPlayerTurnEnd();
     void OnTakeDamage(float damage);
 
+    void OnDestroy()
+    {
+        OnDeath();
+    }
+
     [[nodiscard]] float GetHealth() const { return m_health; }
 
     bool dead = false;

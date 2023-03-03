@@ -84,8 +84,7 @@ void Player::OnPlayerTurnBegin()
 
 void Player::OnUpdate(Engine::Timestep dt)
 {
-    if(Engine::WindowEvents::GetEvent(sf::Event::EventType::MouseButtonPressed))
-        OnTakeDamage(5);
+
 }
 
 void Player::OnPlayerTurnEnd()
@@ -108,5 +107,6 @@ void Player::OnTakeDamage(float damage)
 void Player::OnDeath()
 {
     dead = true;
+    Engine::Logger::Log("Player ", std::string(m_name), " is dead");
 }
 
