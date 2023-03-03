@@ -33,6 +33,6 @@ namespace Engine::UI {
 
     void SpriteWidget::SetSize(const sf::Vector2f &size) {
         Widget::SetSize(size);
-        m_sprite.setScale(size.x / m_sprite.getGlobalBounds().width, size.y / m_sprite.getGlobalBounds().height);
+        m_sprite.setScale(size.x / m_sprite.getTextureRect().width, size.y / m_sprite.getTextureRect().height);
     }
 } // UI

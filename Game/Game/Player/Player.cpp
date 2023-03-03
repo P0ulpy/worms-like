@@ -68,10 +68,14 @@ void Player::OnPlayerTurnBegin()
     playerController->SetWeaponToShoot([this, PlayerTransform, scene]()
      {
          auto prefab = scene->InstantiatePrefab<GrenadePrefab>();
-         auto posMouse = Engine::EngineApplication::Get()->GetWindow().mapCoordsToPixel({static_cast<float>(sf::Mouse::getPosition().x), static_cast<float>(sf::Mouse::getPosition().y)});
+         const auto& Window = Engine::EngineApplication::Get()->GetWindow();
+         auto PixelCoords = sf::Mouse::getPosition(Window);
+         auto posMouse = Window.mapPixelToCoords(PixelCoords);
          auto velocityNormalized = PlayerTransform->Pos.GetVectorTo(Maths::Point2D<double>(static_cast<double>(posMouse.x), static_cast<double>(posMouse.y)));
          velocityNormalized.Normalize();
          auto velocity = velocityNormalized * 10.f;
+         if (velocity.GetY() > 0) velocity.GetY() *= -1;
+
          prefab.GetComponent<Engine::Components::Transform>()->Pos = PlayerTransform->Pos;
          prefab.GetComponent<Engine::Components::Physics::RigidBody2DdComponent>()->GetRigidBody()->LinearVelocity = velocity;
          prefab.GetComponent<Game::Weapons::Grenade>()->Owner = m_playerCharacter;

@@ -113,10 +113,7 @@ namespace Engine::Components::Physics
         virtual IBoundingBox2D* GetBoundingBox() = 0;
         virtual void AddForce(
             const Maths::Vector2D<PhysicsT>& Force,
-            const Maths::Point2D<GeometricT>& AtPoint,
-            const GeometricT& RotationDegrees,
-            const Maths::Vector2D<GeometricT>& Scale,
-            const Maths::Point2D<GeometricT>& OnPos
+            const Maths::Vector2D<GeometricT>& DistanceFromMass
         ) = 0;
     };
 
@@ -171,21 +168,12 @@ namespace Engine::Components::Physics
 
         void AddForce(
             const Maths::Vector2D<PhysicsT>& Force,
-            const Maths::Point2D<GeometricT>& AtPoint,
-            const GeometricT& RotationDegrees,
-            const Maths::Vector2D<GeometricT>& Scale,
-            const Maths::Point2D<GeometricT>& OnPos
+            const Maths::Vector2D<GeometricT>& DistanceFromMass
         )
         {
             this->Force += Force;
-            const auto CenterOfMass = GetCenterOfMass(
-                Scale,
-                RotationDegrees,
-                OnPos
-            );
             // in meters
-            auto r = AtPoint.GetVectorTo(CenterOfMass) / 100;
-            this->Torque += r ^ this->Force;
+            this->Torque += (DistanceFromMass ^ this->Force);
         }
 
         void HandleComputeCache(

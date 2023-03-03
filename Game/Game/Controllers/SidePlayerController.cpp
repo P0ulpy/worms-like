@@ -5,6 +5,13 @@ namespace Game::Controllers
     void SidePlayerController::OnUpdate(const float& DeltaTime)
     {
         HandleCameraMovementFromMousePos(DeltaTime);
+
+        if (nullptr != m_PlayerCharacter) {
+            if (m_PlayerCharacter->IsGrounded)
+                SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineGrounded>();
+            else
+                SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineInAir>();
+        }
     }
 
     void SidePlayerController::HandleCameraMovementFromMousePos(const float& DeltaTime)
@@ -65,8 +72,8 @@ namespace Game::Controllers
         RigidBodyComponent->GetRigidBody()->LinearVelocity =
             RigidBodyComponent->GetRigidBody()->LinearVelocity
             + Maths::Vector2D<double>(0.f, (Engine::Components::Physics::RigidBody2DdComponent::Gravity / 2 + 1) * -1 );
-        // @todo make grounded again
-//        SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineJumping>();
+        SetStateMachineOnPlayer<Actors::CharacterMovementStateMachineInAir>();
+        m_PlayerCharacter->IsGrounded = false;
     }
 
     void SidePlayerController::OnLeft() {
