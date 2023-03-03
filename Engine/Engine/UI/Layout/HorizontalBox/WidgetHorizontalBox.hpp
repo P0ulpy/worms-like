@@ -14,9 +14,17 @@ namespace Engine::UI {
 
             void Init(const sf::Vector2f& position, const float spacing);
 
+            void SetSize(const sf::Vector2f& size) override
+            {
+                m_previousSize = m_size;
+                Widget::SetSize(size);
+            }
         private:
-            void UpdatePosition() const override;
-            void UpdateSize() const override;
+            sf::Vector2f m_previousSize {0, 0};
+
+            void UpdatePosition() override;
+            void RecomputeSize() const override;
+            void UpdateSize() override;
 
             float m_spacing { 0.0f };
         };

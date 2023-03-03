@@ -25,7 +25,7 @@ namespace Engine::UI
         }
 
         virtual void AddChild(Widget* child, int index);
-        void RemoveChild(Widget* child) const override;
+        virtual void RemoveChild(Widget* child) override;
 
         virtual void SetPosition(const sf::Vector2f& position);
         virtual void SetSize(const sf::Vector2f& size);
@@ -33,8 +33,9 @@ namespace Engine::UI
         [[nodiscard]] const sf::Vector2f& GetPosition() const   { return m_position; }
         [[nodiscard]] const sf::Vector2f& GetSize() const       { return m_size; }
 
-        virtual void UpdatePosition() const   {}
-        virtual void UpdateSize() const       {}
+        virtual void UpdatePosition()   {}
+        virtual void UpdateSize()       {}
+        virtual void RecomputeSize() const       {}
 
         void SetLayoutIndex(int index) { m_layoutIndex = index; }
         [[nodiscard]] int GetLayoutIndex() const { return m_layoutIndex; }

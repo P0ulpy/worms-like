@@ -24,10 +24,17 @@ namespace Engine::UI {
             [[nodiscard]] const sf::Vector2f& GetCellSize() const          { return m_cellSize; }
 
 
-            void UpdatePosition() const override;
-            void UpdateSize() const override;
+            void UpdatePosition() override;
+            void UpdateSize() override;
+            void RecomputeSize() const override;
 
+            void SetSize(const sf::Vector2f& size) override
+            {
+                m_previousSize = m_size;
+                Widget::SetSize(size);
+            }
         private:
+            sf::Vector2f m_previousSize {0, 0};
             sf::Vector2u m_gridSize { 0, 0 };
             sf::Vector2f m_gridSpacing { .0f, .0f };
             sf::Vector2f m_cellSize { .0f, .0f };

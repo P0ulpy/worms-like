@@ -22,21 +22,23 @@ public:
 
         auto canvasEntity = scene->CreateEntity();
         auto canvasWidget = canvasEntity.AddComponent<Engine::UI::WidgetCanvas>();
-        canvasWidget->Init({0, 0}, {static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)});
+        canvasWidget->Init();
 
         auto titreEntity = scene->CreateEntity();
         auto titre = titreEntity.AddComponent<Engine::UI::TextWidget>();
         titre->Init("Worms Like", Engine::AssetLoader<sf::Font>::StaticGetAsset("Assets/Font/Font.otf"), {0, 0}, 100);
-        auto x = (static_cast<float>(windowSize.x) / 2) - (titre->GetSize().x / 2);
-        titre->SetPosition({ x, 100.0f });
 
         canvasWidget->AddChild(titre, 0);
+        canvasWidget->SetChildOptions(titre, {
+            .Anchors = Engine::UI::CanvasAnchors::TOP_CENTER,
+            .TopOffset = 20.f,
+            .Size = titre->GetSize()
+        });
 
         auto verticalBoxEntity = scene->CreateEntity();
         auto verticalBoxWidget = verticalBoxEntity.AddComponent<Engine::UI::WidgetVerticalBox>();
-        verticalBoxWidget->Init({150, 300}, 100.0f);
-
-        canvasWidget->AddChild(verticalBoxWidget, 0);
+//        verticalBoxWidget->Init({150, 300}, 100.0f);
+        verticalBoxWidget->Init({0, 0}, 100.0f);
 
         auto buttonPlayEntity = scene->CreateEntity();
         auto buttonPlayWidget = buttonPlayEntity.AddComponent<Engine::UI::TextButtonWidget>();
@@ -62,6 +64,13 @@ public:
         verticalBoxWidget->AddChild(buttonPlayWidget, 0);
         verticalBoxWidget->AddChild(buttonSettingsWidget, 0);
         verticalBoxWidget->AddChild(buttonExitWidget, 0);
+
+        // @todo set here while UpdatePosition not called on canvas when adding children
+        canvasWidget->AddChild(verticalBoxWidget, 0);
+        canvasWidget->SetChildOptions(verticalBoxWidget, {
+            .Anchors = Engine::UI::CanvasAnchors::CENTER,
+            .Size = verticalBoxWidget->GetSize()
+        });
 
         auto backgroundEntity = scene->CreateEntity();
         auto background = backgroundEntity.AddComponent<Engine::UI::SpriteWidget>();

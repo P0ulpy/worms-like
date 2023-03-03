@@ -11,7 +11,7 @@ namespace Engine::UI {
         SetPosition(position);
     }
 
-    void WidgetVerticalBox::UpdatePosition() const {
+    void WidgetVerticalBox::UpdatePosition() {
         auto position = GetPosition();
         float y = position.y;
         auto children = GetChildren();
@@ -21,10 +21,10 @@ namespace Engine::UI {
             y += child->GetSize().y + m_spacing;
         }
 
-        UpdateSize();
+        RecomputeSize();
     }
 
-    void WidgetVerticalBox::UpdateSize() const {
+    void WidgetVerticalBox::RecomputeSize() const {
         auto children = GetChildren();
         float width = 0.0f;
         float height = 0.0f;
@@ -35,7 +35,26 @@ namespace Engine::UI {
         }
 
         height -= m_spacing;
+        height = std::max(height, 0.f);
 
         m_size = {width, height};
+    }
+
+    void WidgetVerticalBox::UpdateSize()
+    {
+        if (m_previousSize.y == 0) return;
+        auto RatioX = GetSize().x / m_previousSize.x;
+        m_spacing = m_spacing * RatioX;
+
+        for (auto& child : GetChildren()) {
+            auto ChildSize = child->GetSize();
+            auto NewChildX = (ChildSize.x / m_previousSize.x) * GetSize().x;
+            child->SetSize({
+               NewChildX,
+               (ChildSize.y / ChildSize.x) * NewChildX
+            });
+        }
+
+        UpdatePosition();
     }
 } // UI

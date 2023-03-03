@@ -176,7 +176,14 @@ namespace Engine
                 if constexpr (std::is_base_of_v<UI::Widget, TComponent>)
                 {
                     if constexpr (std::is_base_of_v<UI::WidgetCanvas, TComponent>)
+                    {
+                        auto ActiveScene = component.GetEntity().GetScene();
+                        if (nullptr != ActiveScene->GetActiveCamera())
+                        {
+                            ActiveScene->GetActiveCamera()->SetUICanvasSize(&component);
+                        }
                         component.OnRender(renderTarget);
+                    }
                 }
                 else
                     component.OnRender(renderTarget);

@@ -23,7 +23,7 @@ namespace Engine::UI {
             void SetSize(const sf::Vector2f& size) override;
 
         private:
-            void UpdateSize() const override;
+            void RecomputeSize() const override;
 
         private:
             sf::Sprite m_sprite;
